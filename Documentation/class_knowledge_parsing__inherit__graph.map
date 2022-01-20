@@ -1,0 +1,4 @@
+<map id="KnowledgeParsing" name="KnowledgeParsing">
+<area shape="rect" id="node1" title="Model that parses the knowledge in messages." alt="" coords="5,80,135,107"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="41,5,99,32"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Graph::add_delta" name="Graph::add_delta">
+<area shape="rect" id="node1" title="Adds a queued modification to the specified element." alt="" coords="469,35,591,61"/>
+<area shape="rect" id="node2" href="$class_knowledge_parsing.html#ae54736a1c6f3be5178d575f719757c59" title="Whenever a knowledge item is apart of a message, the relavant link in the knowledge network is set to..." alt="" coords="207,5,421,32"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a5701c85fd5b4cbc00700026e94ea3a6b" title="Each users decides whether to unfollow any other user." alt="" coords="239,57,389,98"/>
+<area shape="rect" id="node4" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,64,159,91"/>
+</map>

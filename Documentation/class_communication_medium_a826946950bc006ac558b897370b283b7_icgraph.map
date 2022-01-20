@@ -1,0 +1,13 @@
+<map id="CommunicationMedium::get_index" name="CommunicationMedium::get_index">
+<area shape="rect" id="node1" title="Returns the medium&#39;s node index." alt="" coords="900,129,1059,171"/>
+<area shape="rect" id="node2" href="$class_standard_interaction.html#a89a792df5d852e5a86f1f6d91a5c97dd" title=" " alt="" coords="697,129,852,171"/>
+<area shape="rect" id="node3" href="$class_beliefs.html#a58327749aacb206e4e24d87c7e135273" title=" " alt="" coords="473,5,628,47"/>
+<area shape="rect" id="node5" href="$class_tasks.html#ae9cb7c0473e3bc2c50e5dc8f80e4dc21" title=" " alt="" coords="475,71,626,112"/>
+<area shape="rect" id="node7" href="$class_grand_interaction.html#a177fb9e920895c133f55244037300006" title=" " alt="" coords="234,129,377,171"/>
+<area shape="rect" id="node9" href="$class_knowledge_transactive_memory.html#a808cb57011470a96b03c663ab35bc065" title=" " alt="" coords="452,188,649,229"/>
+<area shape="rect" id="node11" href="$class_standard_interaction.html#adfdf2ff25bd45ebab5d37f18e8799ef8" title=" " alt="" coords="483,253,618,295"/>
+<area shape="rect" id="node4" href="$class_beliefs.html#a71723930f7bbed70318b091169ee82ce" title=" " alt="" coords="257,13,354,39"/>
+<area shape="rect" id="node6" href="$class_tasks.html#aecc180df20b098e113bf8b2f5668c1cd" title=" " alt="" coords="259,78,352,105"/>
+<area shape="rect" id="node8" href="$class_grand_interaction.html#acfa3d70d24592b97b8c3d3262976cdd0" title=" " alt="" coords="5,137,159,163"/>
+<area shape="rect" id="node10" href="$class_knowledge_transactive_memory.html#ae53d22c170bb90c8fd69341b6b4b2ece" title=" " alt="" coords="207,195,404,236"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Template" name="Template">
+<area shape="rect" id="node1" title="Template for building new Construct models." alt="" coords="5,80,80,107"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="14,5,71,32"/>
+</map>

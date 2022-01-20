@@ -1,0 +1,13 @@
+<map id="GrandInteraction::get_similarity" name="GrandInteraction::get_similarity">
+<area shape="rect" id="node1" title=" " alt="" coords="5,121,148,162"/>
+<area shape="rect" id="node2" href="$class_standard_interaction.html#adc24bb42983ff9437c5b75d640c2349a" title=" " alt="" coords="227,70,362,111"/>
+<area shape="rect" id="node7" href="$class_knowledge_transactive_memory.html#a3b07ae42015c55ba576978e982fe49d8" title=" " alt="" coords="196,171,393,213"/>
+<area shape="rect" id="node3" href="$namespacegraph__utils.html#a29a890530bef47b93ea9fccca471ee8e" title=" " alt="" coords="454,27,598,53"/>
+<area shape="rect" id="node4" href="$namespacegraph__utils.html#ac259611b2fe5fe5bad9d72974f53f0ff" title=" " alt="" coords="659,27,793,53"/>
+<area shape="rect" id="node5" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="469,77,583,104"/>
+<area shape="rect" id="node6" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="441,128,611,155"/>
+<area shape="rect" id="node8" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="469,331,583,357"/>
+<area shape="rect" id="node9" href="$class_construct.html#a95f3e916cce4115196b20a1edfbeb723" title="Returns the pointer to the Random Manager." alt="" coords="450,381,602,408"/>
+<area shape="rect" id="node10" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="467,179,585,205"/>
+<area shape="rect" id="node11" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="466,229,586,256"/>
+</map>

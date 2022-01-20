@@ -1,0 +1,5 @@
+<map id="Node::get_attribute" name="Node::get_attribute">
+<area shape="rect" id="node1" title="Searches for a node attribute." alt="" coords="215,31,347,57"/>
+<area shape="rect" id="node2" href="$class_forget.html#a2809a7a2becb4a6c1c88360db2798757" title="Function called after the update functions in a simulation cycle." alt="" coords="13,5,159,32"/>
+<area shape="rect" id="node3" href="$class_knowledge_trust.html#a5030265aa9707a7b05eb14dd6d86b580" title="Function called after the think functions in a simulation cycle." alt="" coords="5,56,167,83"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="media_user::follow_user" name="media_user::follow_user">
+<area shape="rect" id="node1" title="Returns true if this user decides to follow an agent when called." alt="" coords="5,157,167,184"/>
+<area shape="rect" id="node2" href="$class_graph.html#aeb687de64b37c4454395f226e65af57e" title="Gets a constant reference to the specified element." alt="" coords="242,5,357,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#ab80f4c0d626d78ca05cce2e644cb4a59" title="Returns a full_row_iterator pointing to beginning of the specified row" alt="" coords="226,56,373,83"/>
+<area shape="rect" id="node4" href="$namespacegraph__utils.html#a89e78a5b0d2b90180f5fed54beef2b48" title="Aligns the iterators if they are not already." alt="" coords="227,107,371,133"/>
+<area shape="rect" id="node5" href="$namespacegraph__utils.html#acb4bdcdffe1fde878be2b0ed08269392" title="Finds the next index that aligns iterators." alt="" coords="432,132,567,159"/>
+<area shape="rect" id="node6" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="243,208,356,235"/>
+<area shape="rect" id="node7" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title="Returns a Graph::sparse_row_iterator pointing to beginning of the specified row" alt="" coords="215,259,384,285"/>
+<area shape="rect" id="node8" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="239,309,359,336"/>
+</map>

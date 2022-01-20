@@ -1,0 +1,4 @@
+<map id="Random::uniform" name="Random::uniform">
+<area shape="rect" id="node1" title="Generates a U(min,max) as a float." alt="" coords="5,5,125,32"/>
+<area shape="rect" id="node2" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="173,5,293,32"/>
+</map>

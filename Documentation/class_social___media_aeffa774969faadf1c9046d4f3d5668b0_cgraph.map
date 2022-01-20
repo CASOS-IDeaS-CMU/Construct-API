@@ -1,0 +1,7 @@
+<map id="Social_Media::initialize" name="Social_Media::initialize">
+<area shape="rect" id="node1" title="checks for Knowledge Trust Model (opitional), and Knowledge Parsing Model (required)." alt="" coords="5,56,160,83"/>
+<area shape="rect" id="node2" href="$class_model_manager.html#a63340381597942181810d68310bc118c" title="Adds a model pointer." alt="" coords="208,5,387,32"/>
+<area shape="rect" id="node3" href="$class_model_manager.html#a22943ce692267963bafc710203e39adc" title="Finds the named model&#39;s pointer." alt="" coords="435,19,609,61"/>
+<area shape="rect" id="node4" href="$class_nodeset.html#a3ac3c4f4f11ffa9836496730f43fc56f" title="Checks that all nodes in the nodeset for the specified attribute." alt="" coords="210,107,385,133"/>
+<area shape="rect" id="node5" href="$namespacedynet.html#ae83df7f1882bbb9f61af8cd461ce3e67" title="Wrapper for making template conversions simpler and easier to understand." alt="" coords="471,107,573,133"/>
+</map>

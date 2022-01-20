@@ -1,0 +1,5 @@
+<map id="KnowledgeTransactiveMemory" name="KnowledgeTransactiveMemory">
+<area shape="rect" id="node1" title="A variation on the Standard Interaction Model &#160;utilizing transactive memory for knowledge." alt="" coords="5,155,203,181"/>
+<area shape="rect" id="node2" href="$class_standard_interaction.html" title="An interaction model that stochastically matches agents based on similarities, knowledge expertise,..." alt="" coords="37,80,171,107"/>
+<area shape="rect" id="node3" href="$class_model.html" title="Parent class for Construct models." alt="" coords="75,5,133,32"/>
+</map>

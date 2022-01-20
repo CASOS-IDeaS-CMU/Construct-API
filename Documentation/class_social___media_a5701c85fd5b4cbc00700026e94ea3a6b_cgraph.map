@@ -1,0 +1,6 @@
+<map id="Social_Media::remove_followees" name="Social_Media::remove_followees">
+<area shape="rect" id="node1" title="Each users decides whether to unfollow any other user." alt="" coords="5,49,155,90"/>
+<area shape="rect" id="node2" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="227,5,348,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="231,56,344,83"/>
+<area shape="rect" id="node4" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title="Returns a Graph::sparse_row_iterator pointing to beginning of the specified row" alt="" coords="203,107,372,133"/>
+</map>

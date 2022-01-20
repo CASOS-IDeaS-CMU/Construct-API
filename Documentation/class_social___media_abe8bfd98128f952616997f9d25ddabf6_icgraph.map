@@ -1,0 +1,4 @@
+<map id="Social_Media::add_followees" name="Social_Media::add_followees">
+<area shape="rect" id="node1" title="Gives each user recommended users to follow." alt="" coords="207,5,396,32"/>
+<area shape="rect" id="node2" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,5,159,32"/>
+</map>

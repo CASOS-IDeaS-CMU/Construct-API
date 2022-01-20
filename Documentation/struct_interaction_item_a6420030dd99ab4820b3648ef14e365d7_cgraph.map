@@ -1,0 +1,4 @@
+<map id="InteractionItem::create_belief_item" name="InteractionItem::create_belief_item">
+<area shape="rect" id="node1" title="Creates a belief item using set_beliefTM_item." alt="" coords="5,5,156,47"/>
+<area shape="rect" id="node2" href="$struct_interaction_item.html#a4bbb79202783984088e72b641c0c49c6" title="Sets an item to become a belief item." alt="" coords="204,5,337,47"/>
+</map>

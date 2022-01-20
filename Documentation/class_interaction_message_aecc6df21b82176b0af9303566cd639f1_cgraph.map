@@ -1,0 +1,4 @@
+<map id="InteractionMessage::add_knowledge_trust_item" name="InteractionMessage::add_knowledge_trust_item">
+<area shape="rect" id="node1" title="Uses add_item and InteractionItem::set_knowledge_trust_item to add a knowledge trust item to the mess..." alt="" coords="5,5,189,47"/>
+<area shape="rect" id="node2" href="$struct_interaction_item.html#a9936f3ecbb375dcfb5512b299953c62d" title="Sets an item to become a knowledge trust item." alt="" coords="237,5,392,47"/>
+</map>

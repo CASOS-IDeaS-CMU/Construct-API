@@ -1,0 +1,7 @@
+<map id="media_user::generate_post_events" name="media_user::generate_post_events">
+<area shape="rect" id="node1" title="The user adds a number of post events based on media_user::pdp." alt="" coords="5,74,152,115"/>
+<area shape="rect" id="node2" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="228,5,345,32"/>
+<area shape="rect" id="node3" href="$class_random.html#a4312475a0fa619b220403659bfea5aea" title="Generates a random integer from a poisson distribution." alt="" coords="200,56,373,83"/>
+<area shape="rect" id="node4" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="230,107,343,133"/>
+<area shape="rect" id="node5" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title="Returns a Graph::sparse_row_iterator pointing to beginning of the specified row" alt="" coords="202,157,371,184"/>
+</map>

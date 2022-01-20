@@ -1,0 +1,8 @@
+<map id="media_user::update_opinions" name="media_user::update_opinions">
+<area shape="rect" id="node1" title=" " alt="" coords="5,99,141,141"/>
+<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="236,5,312,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#ab80f4c0d626d78ca05cce2e644cb4a59" title=" " alt="" coords="201,56,347,83"/>
+<area shape="rect" id="node4" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="217,107,331,133"/>
+<area shape="rect" id="node5" href="$class_nodeset.html#a4fa078150cc61ae3ae9a8752c50639c7" title="Returns the number of nodes in the nodeset" alt="" coords="223,157,325,184"/>
+<area shape="rect" id="node6" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="189,208,359,235"/>
+</map>

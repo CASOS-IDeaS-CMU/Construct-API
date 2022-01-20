@@ -1,0 +1,10 @@
+<map id="Construct_Interface" name="Construct_Interface">
+<area shape="rect" id="node1" title=" " alt="" coords="293,213,428,240"/>
+<area shape="rect" id="node2" href="$class_construct.html" title="The API class that coordinates the transfer of information between classes." alt="" coords="321,124,400,151"/>
+<area shape="rect" id="node3" href="$class_random.html" title="Manages all random number generation in Construct." alt="" coords="5,5,76,32"/>
+<area shape="rect" id="node4" href="$class_graph_manager.html" title="Manages all graphs in Construct." alt="" coords="101,5,207,32"/>
+<area shape="rect" id="node5" href="$class_nodeset_manager.html" title="A container for nodesets." alt="" coords="231,5,351,32"/>
+<area shape="rect" id="node6" href="$class_output_manager.html" title=" " alt="" coords="376,5,487,32"/>
+<area shape="rect" id="node7" href="$class_interaction_message_queue.html" title="An InteractionMessageQueue is a container of InteractionMessages using a list." alt="" coords="511,5,685,32"/>
+<area shape="rect" id="node8" href="$class_model_manager.html" title="Container for Construct models." alt="" coords="710,5,817,32"/>
+</map>

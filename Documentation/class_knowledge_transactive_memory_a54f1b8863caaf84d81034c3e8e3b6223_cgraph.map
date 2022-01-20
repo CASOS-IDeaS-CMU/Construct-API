@@ -1,0 +1,5 @@
+<map id="KnowledgeTransactiveMemory::tmk_communicate" name="KnowledgeTransactiveMemory::tmk_communicate">
+<area shape="rect" id="node1" title=" " alt="" coords="5,23,203,65"/>
+<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="270,5,346,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="251,56,365,83"/>
+</map>

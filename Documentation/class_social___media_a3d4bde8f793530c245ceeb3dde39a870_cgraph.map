@@ -1,0 +1,6 @@
+<map id="Social_Media::update" name="Social_Media::update">
+<area shape="rect" id="node1" title=" " alt="" coords="5,71,152,98"/>
+<area shape="rect" id="node2" href="$class_interaction_message_queue.html#ab089ec5d242089dd8eccb68832cd1ba7" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="215,5,388,47"/>
+<area shape="rect" id="node3" href="$class_interaction_message_queue.html#aa2d6d5ad69c933e038cb59f961174a07" title="Returns an iterator pointer to the after&#45;the&#45;last element in the list of InteractionMessages." alt="" coords="200,71,403,98"/>
+<area shape="rect" id="node4" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="244,122,359,149"/>
+</map>

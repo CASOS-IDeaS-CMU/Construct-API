@@ -1,0 +1,5 @@
+<map id="InteractionMessageQueue::addMessage" name="InteractionMessageQueue::addMessage">
+<area shape="rect" id="node1" title="Adds the msg to the list of InteractionMessages." alt="" coords="240,39,413,80"/>
+<area shape="rect" id="node2" href="$class_construct.html#acbcfe042a2e156f2e6fe65898e7138b1" title="Adds the msg to the private InteractionMessageQueue." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node3" href="$class_construct.html#ab40e448553b22d6a3bf4454244995a95" title="Adds the msg to the public InteractionMessageQueue." alt="" coords="7,71,190,112"/>
+</map>

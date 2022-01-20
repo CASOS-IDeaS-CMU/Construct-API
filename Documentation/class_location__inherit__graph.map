@@ -1,0 +1,4 @@
+<map id="Location" name="Location">
+<area shape="rect" id="node1" title="A model which allows agents to learn information based on their current location." alt="" coords="5,80,76,107"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="12,5,69,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="media_event::child_size" name="media_event::child_size">
+<area shape="rect" id="node1" title="Returns the size of the tree of events with this event at its root (minimum size of 1)." alt="" coords="401,13,561,39"/>
+<area shape="rect" id="node2" href="$class_social___media.html#a1ee64ec8b017616dadb313d86b697358" title="Updates each user&#39;s feeds." alt="" coords="207,5,353,47"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,13,159,39"/>
+</map>

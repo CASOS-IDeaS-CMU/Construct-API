@@ -1,0 +1,11 @@
+<map id="Location::get_expertise" name="Location::get_expertise">
+<area shape="rect" id="node1" title=" " alt="" coords="5,210,163,237"/>
+<area shape="rect" id="node2" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="211,5,385,47"/>
+<area shape="rect" id="node3" href="$namespacegraph__utils.html#a29a890530bef47b93ea9fccca471ee8e" title=" " alt="" coords="226,71,370,98"/>
+<area shape="rect" id="node4" href="$namespacegraph__utils.html#ac259611b2fe5fe5bad9d72974f53f0ff" title=" " alt="" coords="433,107,568,134"/>
+<area shape="rect" id="node5" href="$namespacegraph__utils.html#add0871475e714746bb819e57980c54c9" title=" " alt="" coords="226,173,370,215"/>
+<area shape="rect" id="node6" href="$namespacegraph__utils.html#a730d7f5f58f8836830474971bf703ea6" title=" " alt="" coords="433,188,568,229"/>
+<area shape="rect" id="node7" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="241,290,355,317"/>
+<area shape="rect" id="node8" href="$class_graph.html#a3d4dd648ff233ba66033809b251394c4" title=" " alt="" coords="215,341,381,367"/>
+<area shape="rect" id="node9" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="213,391,383,418"/>
+</map>

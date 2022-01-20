@@ -1,0 +1,7 @@
+<map id="Social_Media::communicate" name="Social_Media::communicate">
+<area shape="rect" id="node1" title=" " alt="" coords="5,81,192,108"/>
+<area shape="rect" id="node2" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="255,5,377,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="278,56,354,83"/>
+<area shape="rect" id="node4" href="$class_construct.html#a95f3e916cce4115196b20a1edfbeb723" title="Returns the pointer to the Random Manager." alt="" coords="240,107,392,133"/>
+<area shape="rect" id="node5" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="256,157,376,184"/>
+</map>

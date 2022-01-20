@@ -1,0 +1,4 @@
+<map id="Output_dynetml" name="Output_dynetml">
+<area shape="rect" id="node1" title="Outputs the contents of a set of networks to dynetml files." alt="" coords="5,80,120,107"/>
+<area shape="rect" id="node2" href="$struct_output.html" title="Base class for Construct output." alt="" coords="32,5,93,32"/>
+</map>

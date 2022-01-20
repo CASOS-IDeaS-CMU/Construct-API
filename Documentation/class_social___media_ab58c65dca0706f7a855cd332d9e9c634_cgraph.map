@@ -1,0 +1,7 @@
+<map id="Social_Media::make_event_item" name="Social_Media::make_event_item">
+<area shape="rect" id="node1" title="Appends the array of InteractionItems based on the submitted event and the intended receiver of the m..." alt="" coords="5,78,145,119"/>
+<area shape="rect" id="node2" href="$namespacedynet.html#ae83df7f1882bbb9f61af8cd461ce3e67" title="Wrapper for making template conversions simpler and easier to understand." alt="" coords="219,5,322,32"/>
+<area shape="rect" id="node3" href="$class_node.html#a69a1913c60defb5c587281eab7eee71a" title="Searches for a node attribute." alt="" coords="205,56,337,83"/>
+<area shape="rect" id="node4" href="$class_nodeset.html#a7b35cb69f479d48c076330b54cbcad6e" title="Finds a node using the node&#39;s index." alt="" coords="195,107,347,149"/>
+<area shape="rect" id="node5" href="$struct_interaction_item.html#a9936f3ecbb375dcfb5512b299953c62d" title="Sets an item to become a knowledge trust item." alt="" coords="193,173,348,214"/>
+</map>

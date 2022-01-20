@@ -1,0 +1,7 @@
+<map id="Random::poisson_number" name="Random::poisson_number">
+<area shape="rect" id="node1" title="Generates a random integer from a poisson distribution." alt="" coords="444,64,617,91"/>
+<area shape="rect" id="node2" href="$class_social___media.html#abe8bfd98128f952616997f9d25ddabf6" title="Gives each user recommended users to follow." alt="" coords="207,5,396,32"/>
+<area shape="rect" id="node4" href="$structmedia__user.html#ab073845b9e391fc621cacdafb7c0f55e" title="The user adds a number of post events based on media_user::pdp." alt="" coords="228,57,375,98"/>
+<area shape="rect" id="node5" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="233,123,369,149"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,5,159,32"/>
+</map>

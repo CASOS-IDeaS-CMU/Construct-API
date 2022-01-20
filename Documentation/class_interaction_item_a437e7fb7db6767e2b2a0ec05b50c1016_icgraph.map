@@ -1,0 +1,5 @@
+<map id="InteractionItem::set_beliefTM_item" name="InteractionItem::set_beliefTM_item">
+<area shape="rect" id="node1" title="Sets an item to become a belief transactive memory item." alt="" coords="204,39,337,80"/>
+<area shape="rect" id="node2" href="$class_interaction_message.html#af0a37f4f77354082c1e1ce4b6de22929" title="Uses add_item and InteractionItem::set_beliefTM_item to add a transactive memory belief item to the m..." alt="" coords="11,5,150,47"/>
+<area shape="rect" id="node3" href="$class_interaction_item.html#ac5645af47e2b3ada2191ec0f1608fd31" title="Creates a belief transactive memory item using set_beliefTM_item." alt="" coords="5,71,156,112"/>
+</map>

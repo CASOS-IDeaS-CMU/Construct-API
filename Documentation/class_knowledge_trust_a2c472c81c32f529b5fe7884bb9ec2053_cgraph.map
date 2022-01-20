@@ -1,0 +1,4 @@
+<map id="KnowledgeTrust::initialize" name="KnowledgeTrust::initialize">
+<area shape="rect" id="node1" title="Moves the model to the front of the model list to ensure this model&#39;s communicate function is called ..." alt="" coords="5,13,175,39"/>
+<area shape="rect" id="node2" href="$class_model_manager.html#a313bd35f79958fefe7bb8bee500a017d" title="Moves the specified model pointer to front of the execution order." alt="" coords="223,5,368,47"/>
+</map>

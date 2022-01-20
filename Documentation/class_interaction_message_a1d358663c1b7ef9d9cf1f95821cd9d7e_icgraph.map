@@ -1,0 +1,7 @@
+<map id="InteractionMessage::add_item" name="InteractionMessage::add_item">
+<area shape="rect" id="node1" title="Adds the item to the list of InteractionItems." alt="" coords="359,71,493,112"/>
+<area shape="rect" id="node2" href="$class_interaction_message.html#ab588e6a18671d8fa8f5b55005f2db17b" title="Uses add_item and InteractionItem::set_belief_item to add a belief item to the message." alt="" coords="168,5,303,47"/>
+<area shape="rect" id="node3" href="$class_interaction_message.html#ac4b46ff55f0c5b068d49609e5708526a" title="Uses add_item and InteractionItem::set_knowledge_item to add a knowledge item to the message." alt="" coords="160,71,311,112"/>
+<area shape="rect" id="node5" href="$class_subscription.html#ab05d3aed151249d20c43f4d66e81a535" title="First function called in a simulation cycle." alt="" coords="170,137,301,163"/>
+<area shape="rect" id="node4" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="5,78,112,105"/>
+</map>

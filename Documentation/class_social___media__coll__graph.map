@@ -1,0 +1,18 @@
+<map id="Social_Media" name="Social_Media">
+<area shape="rect" id="node1" title="An interaction model which recreates a social media feed to dictate interactions." alt="" coords="1204,532,1304,559"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="647,281,705,308"/>
+<area shape="rect" id="node11" href="$class_knowledge_trust.html" title="Model that updates the trust in peices of knowledge." alt="" coords="969,532,1083,559"/>
+<area shape="rect" id="node3" href="$class_construct.html" title="The API class that coordinates the transfer of information between classes." alt="" coords="381,216,460,243"/>
+<area shape="rect" id="node4" href="$class_random.html" title="Manages all random number generation in Construct." alt="" coords="57,361,127,388"/>
+<area shape="rect" id="node5" href="$class_nodeset_manager.html" title="A container for nodesets." alt="" coords="32,80,152,107"/>
+<area shape="rect" id="node6" href="$class_graph_manager.html" title="Manages all graphs in Construct." alt="" coords="39,5,145,32"/>
+<area shape="rect" id="node7" href="$class_model_manager.html" title="Container for Construct models." alt="" coords="39,168,145,195"/>
+<area shape="rect" id="node8" href="$class_output_manager.html" title="Class that handles all output." alt="" coords="37,219,147,245"/>
+<area shape="rect" id="node9" href="$class_interaction_message_queue.html" title="An InteractionMessageQueue is a container of InteractionMessages using a list." alt="" coords="5,291,179,317"/>
+<area shape="rect" id="node10" href="$class_nodeset.html" title="A container for nodes." alt="" coords="57,481,127,508"/>
+<area shape="rect" id="node13" href="$class_graph___interface.html" title="Parent class for Graph." alt="" coords="364,532,477,559"/>
+<area shape="rect" id="node12" href="$class_graph.html" title=" " alt="" coords="623,503,729,529"/>
+<area shape="rect" id="node14" href="$class_graph.html" title=" " alt="" coords="584,554,768,595"/>
+<area shape="rect" id="node15" href="$class_graph.html" title=" " alt="" coords="623,620,729,647"/>
+<area shape="rect" id="node16" href="$struct_communication_medium.html" title="Class to contain the medium used by InteractionMessage% s." alt="" coords="947,705,1105,732"/>
+</map>

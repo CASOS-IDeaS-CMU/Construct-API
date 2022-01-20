@@ -1,0 +1,7 @@
+<map id="media_user::add_mentions" name="media_user::add_mentions">
+<area shape="rect" id="node1" title="Mentions are added to the event if the event is a post by randomly selecting a followee." alt="" coords="5,81,184,108"/>
+<area shape="rect" id="node2" href="$class_graph.html#a5985b4292f2ac31e8cbc5b0cf74f0235" title="Returns a Graph_iterator pointing to the end of the specified column." alt="" coords="260,5,371,32"/>
+<area shape="rect" id="node3" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="257,56,374,83"/>
+<area shape="rect" id="node4" href="$class_graph.html#a3d4dd648ff233ba66033809b251394c4" title="Returns a Graph::sparse_col_iterator pointing to beginning of the specified column" alt="" coords="232,107,399,133"/>
+<area shape="rect" id="node5" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="255,157,375,184"/>
+</map>

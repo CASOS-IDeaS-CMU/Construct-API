@@ -1,0 +1,11 @@
+<map id="Template" name="Template">
+<area shape="rect" id="node1" title="Template for building new Construct models." alt="" coords="353,289,427,316"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="361,213,419,240"/>
+<area shape="rect" id="node3" href="$class_construct.html" title="The API class that coordinates the transfer of information between classes." alt="" coords="445,124,524,151"/>
+<area shape="rect" id="node4" href="$class_random.html" title="Manages all random number generation in Construct." alt="" coords="5,5,76,32"/>
+<area shape="rect" id="node5" href="$class_nodeset_manager.html" title="A container for nodesets." alt="" coords="298,5,418,32"/>
+<area shape="rect" id="node6" href="$class_graph_manager.html" title="Manages all graphs in Construct." alt="" coords="759,5,866,32"/>
+<area shape="rect" id="node7" href="$class_model_manager.html" title="Container for Construct models." alt="" coords="442,5,549,32"/>
+<area shape="rect" id="node8" href="$class_output_manager.html" title="Class that handles all output." alt="" coords="573,5,684,32"/>
+<area shape="rect" id="node9" href="$class_interaction_message_queue.html" title="An InteractionMessageQueue is a container of InteractionMessages using a list." alt="" coords="101,5,274,32"/>
+</map>

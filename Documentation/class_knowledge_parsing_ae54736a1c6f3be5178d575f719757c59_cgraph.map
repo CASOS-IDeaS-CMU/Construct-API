@@ -1,0 +1,4 @@
+<map id="KnowledgeParsing::communicate" name="KnowledgeParsing::communicate">
+<area shape="rect" id="node1" title="Whenever a knowledge item is apart of a message, the relavant link in the knowledge network is set to..." alt="" coords="5,5,220,32"/>
+<area shape="rect" id="node2" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="268,5,389,32"/>
+</map>

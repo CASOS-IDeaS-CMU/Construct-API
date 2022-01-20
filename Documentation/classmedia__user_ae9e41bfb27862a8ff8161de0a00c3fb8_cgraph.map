@@ -1,0 +1,8 @@
+<map id="media_user::follow" name="media_user::follow">
+<area shape="rect" id="node1" title=" " alt="" coords="5,107,135,133"/>
+<area shape="rect" id="node2" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="195,5,317,32"/>
+<area shape="rect" id="node3" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="199,56,313,83"/>
+<area shape="rect" id="node4" href="$class_graph.html#ab80f4c0d626d78ca05cce2e644cb4a59" title=" " alt="" coords="183,107,329,133"/>
+<area shape="rect" id="node5" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="199,157,313,184"/>
+<area shape="rect" id="node6" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="196,208,316,235"/>
+</map>

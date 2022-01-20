@@ -1,0 +1,13 @@
+<map id="Graph::row_end" name="Graph::row_end">
+<area shape="rect" id="node1" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="433,199,547,225"/>
+<area shape="rect" id="node2" href="$class_location.html#a79eb57c1c46c13cc4f2f65dcf174562c" title="Function called after the communicate functions in a simulation cycle." alt="" coords="243,5,367,32"/>
+<area shape="rect" id="node3" href="$class_tasks.html#a76e4b13a54668969f96291652f678fb3" title="Function called after the communicate functions in a simulation cycle." alt="" coords="249,56,360,83"/>
+<area shape="rect" id="node5" href="$structmedia__user.html#a86e1593193ee0aad0aa553daf0c476a0" title="Returns true if this user decides to follow an agent when called." alt="" coords="224,107,385,133"/>
+<area shape="rect" id="node6" href="$structmedia__user.html#ab073845b9e391fc621cacdafb7c0f55e" title="The user adds a number of post events based on media_user::pdp." alt="" coords="231,158,378,199"/>
+<area shape="rect" id="node7" href="$class_social___media.html#a5701c85fd5b4cbc00700026e94ea3a6b" title="Each users decides whether to unfollow any other user." alt="" coords="230,223,379,265"/>
+<area shape="rect" id="node9" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="251,289,358,316"/>
+<area shape="rect" id="node10" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="237,340,373,367"/>
+<area shape="rect" id="node11" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="258,391,351,417"/>
+<area shape="rect" id="node4" href="$class_grand_interaction.html#a0892b33d56329bf3d31caebeb65b36a8" title="Function called after the #communicate functions in a simulation cycle." alt="" coords="5,56,176,83"/>
+<area shape="rect" id="node8" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="14,231,167,257"/>
+</map>

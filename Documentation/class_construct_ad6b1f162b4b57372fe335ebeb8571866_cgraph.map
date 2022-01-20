@@ -1,0 +1,4 @@
+<map id="Construct::add_message_to_private_message_queue" name="Construct::add_message_to_private_message_queue">
+<area shape="rect" id="node1" title="Adds the msg to the private InteractionMessageQueue." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node2" href="$class_interaction_message_queue.html#a1ef8fc4bc407fab0fb2f94644709f317" title="Adds the msg to the list of InteractionMessages." alt="" coords="240,5,413,47"/>
+</map>

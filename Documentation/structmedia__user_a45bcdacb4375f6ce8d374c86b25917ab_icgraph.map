@@ -1,0 +1,4 @@
+<map id="media_user::add_mentions" name="media_user::add_mentions">
+<area shape="rect" id="node1" title="Mentions are added to the event if the event is a post by randomly selecting a followee." alt="" coords="183,5,361,32"/>
+<area shape="rect" id="node2" href="$structmedia__user.html#a4224843d1b7973e6169d0f1063a8e601" title="With proabability media_user::pqu creates a quote to the event." alt="" coords="5,5,135,32"/>
+</map>

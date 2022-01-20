@@ -1,0 +1,4 @@
+<map id="graph_utils::init_align" name="graph_utils::init_align">
+<area shape="rect" id="node1" title="Aligns the iterators if they are not already." alt="" coords="5,5,149,32"/>
+<area shape="rect" id="node2" href="$namespacegraph__utils.html#acb4bdcdffe1fde878be2b0ed08269392" title="Finds the next index that aligns iterators." alt="" coords="197,5,332,32"/>
+</map>

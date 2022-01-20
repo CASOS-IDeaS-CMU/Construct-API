@@ -1,0 +1,20 @@
+<construct>
+	<construct_parameters>
+		<param name="verbose initialization" value="true"/>
+		<param name="verbose runtime" value="true"/>
+	</construct_parameters>
+	<models>
+		<model name="Template Model"/>
+	</models>
+	<nodes>
+		<nodeset name="time">
+			<generator type="constant">
+				<count value="20"/>
+			</generator>
+		</nodeset>
+	</nodes>
+	<networks>
+	</networks>
+	<outputs>
+	</outputs>
+</construct>

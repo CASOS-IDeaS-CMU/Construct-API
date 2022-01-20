@@ -1,0 +1,6 @@
+<map id="Beliefs::communicate" name="Beliefs::communicate">
+<area shape="rect" id="node1" title=" " alt="" coords="5,35,152,61"/>
+<area shape="rect" id="node2" href="$class_beliefs.html#abeeeae2a8d248e886051153baeae65d5" title=" " alt="" coords="200,5,384,32"/>
+<area shape="rect" id="node3" href="$class_standard_interaction.html#a15803fbdb11ede13fdcf53cd6518bfc0" title=" " alt="" coords="225,57,359,98"/>
+<area shape="rect" id="node4" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="432,64,553,91"/>
+</map>

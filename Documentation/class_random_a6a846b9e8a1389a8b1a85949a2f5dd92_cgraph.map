@@ -1,0 +1,4 @@
+<map id="Random::vector_shuffle" name="Random::vector_shuffle">
+<area shape="rect" id="node1" title="Shuffles a vector so that each element is moved to another random element." alt="" coords="5,5,161,32"/>
+<area shape="rect" id="node2" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="209,5,327,32"/>
+</map>

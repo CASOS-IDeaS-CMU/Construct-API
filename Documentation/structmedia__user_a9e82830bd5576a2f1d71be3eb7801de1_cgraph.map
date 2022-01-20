@@ -1,0 +1,8 @@
+<map id="media_user::unfollow_user" name="media_user::unfollow_user">
+<area shape="rect" id="node1" title="Returns true if this user decides to unfollow an agent when called." alt="" coords="5,64,180,91"/>
+<area shape="rect" id="node2" href="$class_graph.html#aeb687de64b37c4454395f226e65af57e" title="Gets a constant reference to the specified element." alt="" coords="246,5,361,32"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a5867959593031ca7856fed25820410e9" title="Computes the Jaccard Similarity in the follower network between the two agent indexes." alt="" coords="228,57,379,98"/>
+<area shape="rect" id="node6" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="243,123,363,149"/>
+<area shape="rect" id="node4" href="$class_graph.html#a5985b4292f2ac31e8cbc5b0cf74f0235" title="Returns a Graph_iterator pointing to the end of the specified column." alt="" coords="443,39,553,65"/>
+<area shape="rect" id="node5" href="$class_graph.html#a3abbd42d0e097f3c67df57fe2646fc57" title="Returns a full_col_iterator pointing to beginning of the specified column" alt="" coords="427,89,569,116"/>
+</map>

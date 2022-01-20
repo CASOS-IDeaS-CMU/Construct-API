@@ -1,0 +1,11 @@
+<map id="KnowledgeTransactiveMemory::get_similarity" name="KnowledgeTransactiveMemory::get_similarity">
+<area shape="rect" id="node1" title=" " alt="" coords="5,175,203,217"/>
+<area shape="rect" id="node2" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="278,5,393,32"/>
+<area shape="rect" id="node3" href="$class_construct.html#a95f3e916cce4115196b20a1edfbeb723" title="Returns the pointer to the Random Manager." alt="" coords="259,56,411,83"/>
+<area shape="rect" id="node4" href="$namespacegraph__utils.html#a29a890530bef47b93ea9fccca471ee8e" title=" " alt="" coords="263,107,407,133"/>
+<area shape="rect" id="node5" href="$namespacegraph__utils.html#ac259611b2fe5fe5bad9d72974f53f0ff" title=" " alt="" coords="468,132,603,159"/>
+<area shape="rect" id="node6" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="277,208,394,235"/>
+<area shape="rect" id="node7" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="279,259,392,285"/>
+<area shape="rect" id="node8" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="251,309,420,336"/>
+<area shape="rect" id="node9" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="275,360,395,387"/>
+</map>

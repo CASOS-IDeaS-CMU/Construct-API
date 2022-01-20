@@ -1,0 +1,12 @@
+<map id="GrandInteraction::get_additions" name="GrandInteraction::get_additions">
+<area shape="rect" id="node1" title=" " alt="" coords="5,127,148,169"/>
+<area shape="rect" id="node2" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="446,5,561,32"/>
+<area shape="rect" id="node3" href="$class_grand_interaction.html#a822c71a514c65dfb45d8d21504857976" title=" " alt="" coords="212,127,355,169"/>
+<area shape="rect" id="node10" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="196,193,371,234"/>
+<area shape="rect" id="node4" href="$class_graph.html#ab80f4c0d626d78ca05cce2e644cb4a59" title=" " alt="" coords="636,69,783,96"/>
+<area shape="rect" id="node5" href="$class_beliefs.html#a95932b684f05ca23ab541b5f6e451a33" title=" " alt="" coords="427,107,579,133"/>
+<area shape="rect" id="node6" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="653,132,766,159"/>
+<area shape="rect" id="node7" href="$class_construct.html#a95f3e916cce4115196b20a1edfbeb723" title="Returns the pointer to the Random Manager." alt="" coords="427,208,579,235"/>
+<area shape="rect" id="node8" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="445,259,562,285"/>
+<area shape="rect" id="node9" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="419,309,588,336"/>
+</map>

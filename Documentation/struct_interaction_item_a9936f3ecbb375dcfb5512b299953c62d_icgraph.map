@@ -1,0 +1,7 @@
+<map id="InteractionItem::set_knowledge_trust_item" name="InteractionItem::set_knowledge_trust_item">
+<area shape="rect" id="node1" title="Sets an item to become a knowledge trust item." alt="" coords="421,71,576,112"/>
+<area shape="rect" id="node2" href="$class_interaction_message.html#aecc6df21b82176b0af9303566cd639f1" title="Uses add_item and InteractionItem::set_knowledge_trust_item to add a knowledge trust item to the mess..." alt="" coords="189,5,373,47"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a5103a5afefb1a218059f5118e3566e87" title="Appends the array of InteractionItems based on the submitted event and the intended receiver of the m..." alt="" coords="206,71,357,112"/>
+<area shape="rect" id="node5" href="$struct_interaction_item.html#a5ad29fa626c0f802fa3d4b1beeee3b13" title="Creates a knowledge trust item using set_knowledge_trust_item." alt="" coords="204,136,359,177"/>
+<area shape="rect" id="node4" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="5,78,141,105"/>
+</map>

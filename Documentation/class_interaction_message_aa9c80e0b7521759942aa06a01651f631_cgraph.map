@@ -1,0 +1,4 @@
+<map id="InteractionMessage::add_item" name="InteractionMessage::add_item">
+<area shape="rect" id="node1" title="Adds the item to the list of InteractionItems." alt="" coords="5,5,140,47"/>
+<area shape="rect" id="node2" href="$class_communication_medium.html#a85f9dc47c489bd5b833ddef8c25bbedc" title="Returns the medium&#39;s message complexity." alt="" coords="188,5,347,47"/>
+</map>

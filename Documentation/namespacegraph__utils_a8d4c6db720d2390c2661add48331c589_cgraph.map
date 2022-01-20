@@ -1,0 +1,4 @@
+<map id="graph_utils::init_align_before_first" name="graph_utils::init_align_before_first">
+<area shape="rect" id="node1" title="Aligns the iterators if they are not already." alt="" coords="5,5,149,47"/>
+<area shape="rect" id="node2" href="$namespacegraph__utils.html#a3439898041e06821bb8797c43f3abfc4" title="Finds the next index that aligns iterators except the first iterator." alt="" coords="197,5,332,47"/>
+</map>

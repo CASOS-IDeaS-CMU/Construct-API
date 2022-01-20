@@ -1,0 +1,5 @@
+<map id="Graph::full_row_begin" name="Graph::full_row_begin">
+<area shape="rect" id="node1" title="Returns a full_row_iterator pointing to beginning of the specified row" alt="" coords="215,31,361,57"/>
+<area shape="rect" id="node2" href="$class_location.html#a79eb57c1c46c13cc4f2f65dcf174562c" title="Function called after the communicate functions in a simulation cycle." alt="" coords="24,5,148,32"/>
+<area shape="rect" id="node3" href="$structmedia__user.html#a86e1593193ee0aad0aa553daf0c476a0" title="Returns true if this user decides to follow an agent when called." alt="" coords="5,56,167,83"/>
+</map>

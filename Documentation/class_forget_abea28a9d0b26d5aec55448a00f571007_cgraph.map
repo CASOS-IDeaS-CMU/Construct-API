@@ -1,0 +1,7 @@
+<map id="Forget::communicate" name="Forget::communicate">
+<area shape="rect" id="node1" title=" " alt="" coords="5,81,151,108"/>
+<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="237,5,313,32"/>
+<area shape="rect" id="node3" href="$namespacedynet.html#ae83df7f1882bbb9f61af8cd461ce3e67" title="Wrapper for making template conversions simpler and easier to understand." alt="" coords="223,56,326,83"/>
+<area shape="rect" id="node4" href="$class_node.html#aeeeaa4b169a8beab9cdb93eee4b79c21" title="Searches for a node attribute." alt="" coords="209,107,341,133"/>
+<area shape="rect" id="node5" href="$class_nodeset.html#a8993113ba663ea37f8744373750841ca" title="Finds a node using the node&#39;s index." alt="" coords="199,158,351,199"/>
+</map>

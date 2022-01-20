@@ -1,0 +1,5 @@
+<map id="Template::Template" name="Template::Template">
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,141,57"/>
+<area shape="rect" id="node2" href="$class_construct.html#ac61dc12150f8c3e13079b53060e40291" title="Returns the pointer to the GraphManager." alt="" coords="196,5,385,32"/>
+<area shape="rect" id="node3" href="$class_construct.html#ad71b791ff1d7b460bf0505735fbcd23c" title="Returns the pointer to the NodesetManager." alt="" coords="189,56,392,83"/>
+</map>

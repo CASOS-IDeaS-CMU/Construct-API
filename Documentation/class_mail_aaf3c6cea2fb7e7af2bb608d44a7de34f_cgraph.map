@@ -1,0 +1,12 @@
+<map id="Mail::update" name="Mail::update">
+<area shape="rect" id="node1" title="Function called after the think functions in a simulation cycle." alt="" coords="5,254,99,281"/>
+<area shape="rect" id="node2" href="$class_interaction_message_queue.html#a1ef8fc4bc407fab0fb2f94644709f317" title="Adds the msg to the list of InteractionMessages." alt="" coords="161,5,335,47"/>
+<area shape="rect" id="node3" href="$class_interaction_message_queue.html#ab089ec5d242089dd8eccb68832cd1ba7" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="161,71,335,112"/>
+<area shape="rect" id="node4" href="$class_interaction_message_queue.html#aa2d6d5ad69c933e038cb59f961174a07" title="Returns an iterator pointer to the after&#45;the&#45;last element in the list of InteractionMessages." alt="" coords="147,137,349,163"/>
+<area shape="rect" id="node5" href="$class_interaction_message_queue.html#a9f73bb209ff1b9fdc1340673813bca2b" title="Removes the InteractionMessage at the iterator position." alt="" coords="161,188,335,229"/>
+<area shape="rect" id="node6" href="$class_graph.html#aeb687de64b37c4454395f226e65af57e" title="Gets a constant reference to the specified element." alt="" coords="191,254,305,281"/>
+<area shape="rect" id="node7" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="161,305,335,347"/>
+<area shape="rect" id="node8" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="191,371,305,398"/>
+<area shape="rect" id="node9" href="$class_graph.html#a3d4dd648ff233ba66033809b251394c4" title="Returns a Graph::sparse_col_iterator pointing to beginning of the specified column" alt="" coords="165,422,331,449"/>
+<area shape="rect" id="node10" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="188,473,308,499"/>
+</map>

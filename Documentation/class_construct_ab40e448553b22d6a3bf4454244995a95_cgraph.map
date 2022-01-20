@@ -1,0 +1,5 @@
+<map id="Construct::add_message_to_public_message_queue" name="Construct::add_message_to_public_message_queue">
+<area shape="rect" id="node1" title="Adds the msg to the public InteractionMessageQueue." alt="" coords="5,5,188,47"/>
+<area shape="rect" id="node2" href="$class_interaction_message_queue.html#a1ef8fc4bc407fab0fb2f94644709f317" title="Adds the msg to the list of InteractionMessages." alt="" coords="236,5,409,47"/>
+<area shape="rect" id="node3" href="$class_interaction_message.html#aa1ff7f06797da16b050a334be342fb96" title="Messages are only valid if the CommunicationMedium is valid and the list size of InteractionItems is ..." alt="" coords="457,5,592,47"/>
+</map>

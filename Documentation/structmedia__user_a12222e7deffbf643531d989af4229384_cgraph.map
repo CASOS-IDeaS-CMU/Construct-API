@@ -1,0 +1,4 @@
+<map id="media_user::get_trust" name="media_user::get_trust">
+<area shape="rect" id="node1" title="Gets the trust of the knowledge index." alt="" coords="5,5,153,32"/>
+<area shape="rect" id="node2" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="201,5,316,32"/>
+</map>

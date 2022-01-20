@@ -1,0 +1,4 @@
+<map id="PlaceHolder" name="PlaceHolder">
+<area shape="rect" id="node1" title="A model that won&#39;t do anything." alt="" coords="5,80,97,107"/>
+<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="23,5,80,32"/>
+</map>

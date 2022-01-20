@@ -1,0 +1,8 @@
+<map id="Graph::full_col_begin" name="Graph::full_col_begin">
+<area shape="rect" id="node1" title="Returns a full_col_iterator pointing to beginning of the specified column" alt="" coords="643,35,785,61"/>
+<area shape="rect" id="node2" href="$class_location.html#a79eb57c1c46c13cc4f2f65dcf174562c" title="Function called after the communicate functions in a simulation cycle." alt="" coords="457,5,581,32"/>
+<area shape="rect" id="node3" href="$class_social___media.html#a5867959593031ca7856fed25820410e9" title="Computes the Jaccard Similarity in the follower network between the two agent indexes." alt="" coords="444,57,595,98"/>
+<area shape="rect" id="node4" href="$class_social___media.html#abe8bfd98128f952616997f9d25ddabf6" title="Gives each user recommended users to follow." alt="" coords="207,39,396,65"/>
+<area shape="rect" id="node6" href="$structmedia__user.html#a9e82830bd5576a2f1d71be3eb7801de1" title="Returns true if this user decides to unfollow an agent when called." alt="" coords="214,89,389,116"/>
+<area shape="rect" id="node5" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,39,159,65"/>
+</map>

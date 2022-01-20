@@ -1,0 +1,9 @@
+<map id="StandardInteraction::update_send_msg_queue" name="StandardInteraction::update_send_msg_queue">
+<area shape="rect" id="node1" title=" " alt="" coords="5,100,184,141"/>
+<area shape="rect" id="node2" href="$class_construct.html#acbcfe042a2e156f2e6fe65898e7138b1" title="Adds the msg to the private InteractionMessageQueue." alt="" coords="240,5,427,47"/>
+<area shape="rect" id="node5" href="$class_interaction_message_queue.html#ab089ec5d242089dd8eccb68832cd1ba7" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="247,71,420,112"/>
+<area shape="rect" id="node6" href="$class_interaction_message_queue.html#aa2d6d5ad69c933e038cb59f961174a07" title="Returns an iterator pointer to the after&#45;the&#45;last element in the list of InteractionMessages." alt="" coords="232,137,435,163"/>
+<area shape="rect" id="node7" href="$class_interaction_message_queue.html#a9f73bb209ff1b9fdc1340673813bca2b" title="Removes the InteractionMessage at the iterator position." alt="" coords="247,188,420,229"/>
+<area shape="rect" id="node3" href="$class_interaction_message_queue.html#a8885849adc9928b64708bd6cabc0c3d1" title="Adds the msg to the list of InteractionMessages." alt="" coords="483,5,656,47"/>
+<area shape="rect" id="node4" href="$class_interaction_message.html#a307404f6d101ba136a35fd6d07ea2191" title="Messages are only valid if the CommunicationMedium is valid and the list size of InteractionItems is ..." alt="" coords="704,5,839,47"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="KnowledgeTrust::update" name="KnowledgeTrust::update">
+<area shape="rect" id="node1" title="Add knowledge trust to knowledge items in messages if they do not already include them." alt="" coords="5,147,167,174"/>
+<area shape="rect" id="node2" href="$class_interaction_message_queue.html#ab089ec5d242089dd8eccb68832cd1ba7" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="229,5,403,47"/>
+<area shape="rect" id="node3" href="$namespacedynet.html#ae83df7f1882bbb9f61af8cd461ce3e67" title="Wrapper for making template conversions simpler and easier to understand." alt="" coords="265,71,367,98"/>
+<area shape="rect" id="node4" href="$class_interaction_message_queue.html#aa2d6d5ad69c933e038cb59f961174a07" title="Returns an iterator pointer to the after&#45;the&#45;last element in the list of InteractionMessages." alt="" coords="215,122,417,149"/>
+<area shape="rect" id="node5" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="259,173,373,199"/>
+<area shape="rect" id="node6" href="$class_node.html#a69a1913c60defb5c587281eab7eee71a" title="Searches for a node attribute." alt="" coords="250,223,382,250"/>
+<area shape="rect" id="node7" href="$class_nodeset.html#a7b35cb69f479d48c076330b54cbcad6e" title="Finds a node using the node&#39;s index." alt="" coords="240,275,392,316"/>
+</map>

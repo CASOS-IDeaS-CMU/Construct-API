@@ -1,0 +1,4 @@
+<map id="media_user::reply" name="media_user::reply">
+<area shape="rect" id="node1" title="With proabability media_user::pr creates a reply to the event." alt="" coords="5,5,131,32"/>
+<area shape="rect" id="node2" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="179,5,299,32"/>
+</map>

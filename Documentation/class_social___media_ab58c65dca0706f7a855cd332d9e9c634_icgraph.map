@@ -1,0 +1,4 @@
+<map id="Social_Media::make_event_item" name="Social_Media::make_event_item">
+<area shape="rect" id="node1" title="Appends the array of InteractionItems based on the submitted event and the intended receiver of the m..." alt="" coords="189,5,329,47"/>
+<area shape="rect" id="node2" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="5,13,141,39"/>
+</map>

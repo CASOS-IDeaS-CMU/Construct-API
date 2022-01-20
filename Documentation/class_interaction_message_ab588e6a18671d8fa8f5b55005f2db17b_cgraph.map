@@ -1,0 +1,5 @@
+<map id="InteractionMessage::add_belief_item" name="InteractionMessage::add_belief_item">
+<area shape="rect" id="node1" title="Uses add_item and InteractionItem::set_belief_item to add a belief item to the message." alt="" coords="5,39,140,80"/>
+<area shape="rect" id="node2" href="$class_interaction_message.html#a1d358663c1b7ef9d9cf1f95821cd9d7e" title="Adds the item to the list of InteractionItems." alt="" coords="188,5,323,47"/>
+<area shape="rect" id="node3" href="$struct_interaction_item.html#a4bbb79202783984088e72b641c0c49c6" title="Sets an item to become a belief item." alt="" coords="189,71,322,112"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="Social_Media::cleanup" name="Social_Media::cleanup">
+<area shape="rect" id="node1" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,132,159,159"/>
+<area shape="rect" id="node2" href="$class_social___media.html#abe8bfd98128f952616997f9d25ddabf6" title="Gives each user recommended users to follow." alt="" coords="207,52,396,79"/>
+<area shape="rect" id="node5" href="$class_graph.html#adddc3bdced41c8dcb5b93733dcb43d8a" title="Applies all queued modifications created by the add_delta function." alt="" coords="234,103,369,129"/>
+<area shape="rect" id="node6" href="$class_social___media.html#a5701c85fd5b4cbc00700026e94ea3a6b" title="Each users decides whether to unfollow any other user." alt="" coords="227,154,376,195"/>
+<area shape="rect" id="node12" href="$class_social___media.html#a1ee64ec8b017616dadb313d86b697358" title="Updates each user&#39;s feeds." alt="" coords="228,353,375,394"/>
+<area shape="rect" id="node3" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="468,5,589,32"/>
+<area shape="rect" id="node4" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="469,56,589,83"/>
+<area shape="rect" id="node7" href="$class_graph.html#a5985b4292f2ac31e8cbc5b0cf74f0235" title="Returns a Graph_iterator pointing to the end of the specified column." alt="" coords="473,309,584,336"/>
+<area shape="rect" id="node8" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="471,208,586,235"/>
+<area shape="rect" id="node9" href="$class_graph.html#a3abbd42d0e097f3c67df57fe2646fc57" title="Returns a full_col_iterator pointing to beginning of the specified column" alt="" coords="457,259,600,285"/>
+<area shape="rect" id="node10" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="472,107,585,133"/>
+<area shape="rect" id="node11" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title="Returns a Graph::sparse_row_iterator pointing to beginning of the specified row" alt="" coords="444,157,613,184"/>
+<area shape="rect" id="node13" href="$structmedia__event.html#aa5fcb57cd781391e2774b247d04bbc6c" title="Returns the size of the tree of events with this event at its root (minimum size of 1)." alt="" coords="449,360,609,387"/>
+<area shape="rect" id="node14" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="470,411,587,437"/>
+<area shape="rect" id="node15" href="$class_graph.html#a3d4dd648ff233ba66033809b251394c4" title="Returns a Graph::sparse_col_iterator pointing to beginning of the specified column" alt="" coords="445,461,612,488"/>
+</map>

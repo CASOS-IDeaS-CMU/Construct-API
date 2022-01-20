@@ -1,0 +1,11 @@
+<map id="ModelManager::get_model_by_name" name="ModelManager::get_model_by_name">
+<area shape="rect" id="node1" title="Finds the named model&#39;s pointer." alt="" coords="680,267,855,309"/>
+<area shape="rect" id="node2" href="$class_model_manager.html#a63340381597942181810d68310bc118c" title="Adds a model pointer." alt="" coords="453,209,632,236"/>
+<area shape="rect" id="node3" href="$class_beliefs.html#a70571207d7949675369c92e03b767a93" title="Function called once before any simulation cycles begin." alt="" coords="46,5,162,32"/>
+<area shape="rect" id="node5" href="$class_knowledge_transactive_memory.html#ae4551b80735a1a1487991000745944de" title="Function called once before any simulation cycles begin." alt="" coords="5,162,203,203"/>
+<area shape="rect" id="node6" href="$class_location.html#a22fe41e44e3f9c730a0567e027d574b8" title="Function called once before any simulation cycles begin." alt="" coords="265,275,391,301"/>
+<area shape="rect" id="node7" href="$class_social___media.html#aeffa774969faadf1c9046d4f3d5668b0" title="checks for Knowledge Trust Model (opitional), and Knowledge Parsing Model (required)." alt="" coords="251,325,405,352"/>
+<area shape="rect" id="node8" href="$class_standard_interaction.html#ac23644d271ec5e33df494336bfece1cf" title="Function called once before any simulation cycles begin." alt="" coords="261,107,395,149"/>
+<area shape="rect" id="node9" href="$class_tasks.html#a259f08a56545f4b97b852a78e7ac199a" title="Function called once before any simulation cycles begin." alt="" coords="48,228,160,255"/>
+<area shape="rect" id="node4" href="$class_grand_interaction.html#a2308c80615d54b2006882866e86a5a13" title="Function called once before any simulation cycles begin." alt="" coords="18,85,190,112"/>
+</map>

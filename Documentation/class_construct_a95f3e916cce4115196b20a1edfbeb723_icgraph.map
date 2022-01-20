@@ -1,0 +1,5 @@
+<map id="Construct::getRandom" name="Construct::getRandom">
+<area shape="rect" id="node1" title="Returns the pointer to the Random Manager." alt="" coords="165,31,317,57"/>
+<area shape="rect" id="node2" href="$class_forget.html#ac9c385528591374b4984ee81e7351cb9" title="Function called after the communicate functions in a simulation cycle." alt="" coords="5,5,117,32"/>
+<area shape="rect" id="node3" href="$classliteracy.html#a28e78bfff23c9e036f1862a047717fab" title="Function called after the think functions in a simulation cycle." alt="" coords="6,56,117,83"/>
+</map>
