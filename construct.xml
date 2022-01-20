@@ -1,0 +1,58 @@
+<construct>
+	<construct_parameters>
+		<param name="verbose initialization" value="true"/>
+		<param name="verbose runtime" value="true"/>
+	</construct_parameters>
+	<models>
+		<model name="Standard Interaction Model"/>
+	</models>
+	<nodes>
+		<nodeset name="agent">
+			<generator type="constant">
+				<count value="50"/>
+				<attribute name="can send knowledge" value="true"/>
+				<attribute name="can receive knowledge" value="true"/>
+			</generator>
+		</nodeset>
+		<nodeset name="knowledge">
+			<generator type="constant">
+				<count value="20"/>
+			</generator>
+		</nodeset>
+		<nodeset name="time">
+			<generator type="constant">
+				<count value="20"/>
+			</generator>
+		</nodeset>
+		<nodeset name="medium">
+			<node name="m1">
+				<attribute name="time to send" value="0"/>
+				<attribute name="maximum percent learnable" value="1"/>
+				<attribute name="maximum message complexity" value="10"/>
+			</node>
+		</nodeset>
+	</nodes>
+	<networks>
+		<network name="knowledge network" edge_type="bool" default="false">
+			<source nodeset="agent" representation="dense"/>
+			<target nodeset="knowledge" representation="dense"/>
+			<generator type="random binary">
+				<param name="density" value="0.2"/>
+			</generator>
+		</network>
+		<network name="interaction sphere network" edge_type="bool" default="true">
+			<source nodeset="agent" representation="dense"/>
+			<target nodeset="agent" representation="sparse"/>
+			<generator type="random binary">
+				<param name="density" value="0.8"/>
+			</generator>
+		</network>
+	</networks>
+	<outputs>
+		<output type="dynetml">
+			<param name="network names" value="knowledge network,interaction sphere network"/>
+			<param name="output file" value="my_output.xml"/>
+			<param name="timeperiods" value="all"/>
+		</output>
+	</outputs>
+</construct>
