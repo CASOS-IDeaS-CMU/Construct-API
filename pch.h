@@ -10,7 +10,7 @@
 // add headers that you want to pre-compile here
 
 #include "Construct_Library.h"
-#ifdef CONSTRUCT_EXPORTS
+#ifndef USE_DLL
 #include "framework.h"
 #endif
 #endif //PCH_H
