@@ -803,24 +803,33 @@
     </nodes>
     <networks>
         <network default="0" edge_type="bool" name="knowledge network">
-            <source nodeset="agent" representation="sparse"/>
+            <source nodeset="agent" representation="dense"/>
             <target nodeset="knowledge" representation="sparse"/>
             <generator type="random binary">
                 <param name="density" value="0.2"/>
             </generator>
         </network>
         <network default="0" edge_type="bool" name="twitter follower network">
-            <source nodeset="agent" representation="sparse"/>
+            <source nodeset="agent" representation="dense"/>
             <target nodeset="agent" representation="sparse"/>
             <generator type="random binary">
                 <param name="density" value="0.2"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="knowledge trust network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="knowledge" representation="sparse"/>
+            <generator type="random uniform">
+                <param name="density" value="0.2"/>
+                <param name="min" value="0.0"/>
+                <param name="max" value="1.0"/>
             </generator>
         </network>
     </networks>
     <outputs>
         <output type="dynetml">
             <param name="network names" value="knowledge network,knowledge trust network,twitter follower network"/>
-            <param name="output file" value=""/>
+            <param name="output file" value="my_ouput.xml"/>
             <param name="timeperiods" value="all"/>
         </output>
     </outputs>

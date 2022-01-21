@@ -1963,7 +1963,7 @@ public:
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media::users
-	Social_Media(dynet::ParameterMap parameters, Construct* construct);
+	Social_Media(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* construct);
 
     //delete all pointers in stored in the Social_Media::users data structure
     virtual ~Social_Media();
@@ -2005,13 +2005,13 @@ public:
 
 
 struct CONSTRUCT_LIB Facebook : public virtual Social_Media {
-    Facebook(dynet::ParameterMap parameters, Construct* construct);
+    Facebook(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
 
 
 struct CONSTRUCT_LIB Twitter : public virtual Social_Media {
-    Twitter(dynet::ParameterMap parameters, Construct* construct);
+    Twitter(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
 
