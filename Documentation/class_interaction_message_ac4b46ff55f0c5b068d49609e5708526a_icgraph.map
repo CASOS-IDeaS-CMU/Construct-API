@@ -1,4 +1,0 @@
-<map id="InteractionMessage::add_knowledge_item" name="InteractionMessage::add_knowledge_item">
-<area shape="rect" id="node1" title="Uses add_item and InteractionItem::set_knowledge_item to add a knowledge item to the message." alt="" coords="160,5,311,47"/>
-<area shape="rect" id="node2" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="5,13,112,39"/>
-</map>

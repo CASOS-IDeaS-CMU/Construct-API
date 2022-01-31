@@ -1,4 +1,0 @@
-<map id="InteractionMessage" name="InteractionMessage">
-<area shape="rect" id="node1" title="An Interaction Message is a container for InteractionItems. In addition a message has a sender,..." alt="" coords="17,95,152,121"/>
-<area shape="rect" id="node2" href="$struct_communication_medium.html" title="Class to contain the medium used by InteractionMessage% s." alt="" coords="5,5,164,32"/>
-</map>

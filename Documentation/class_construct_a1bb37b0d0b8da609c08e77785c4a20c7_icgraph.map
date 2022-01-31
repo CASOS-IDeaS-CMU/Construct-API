@@ -1,7 +1,0 @@
-<map id="Construct::getCurrentTimePeriod" name="Construct::getCurrentTimePeriod">
-<area shape="rect" id="node1" title="Returns the current simulation time step." alt="" coords="189,74,364,115"/>
-<area shape="rect" id="node2" href="$class_location.html#a79eb57c1c46c13cc4f2f65dcf174562c" title="Function called after the communicate functions in a simulation cycle." alt="" coords="11,5,135,32"/>
-<area shape="rect" id="node3" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="20,56,127,83"/>
-<area shape="rect" id="node4" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="5,107,141,133"/>
-<area shape="rect" id="node5" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="27,157,120,184"/>
-</map>

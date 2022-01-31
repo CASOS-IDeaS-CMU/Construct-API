@@ -15,7 +15,7 @@ namespace dynet {
 	//It is expected that models and output will take in a ParameterMap and the Construct pointer, however it is not strictly required.
 	//Models will require the Construct pointer in order to have access to the loaded nodes, networks/graphs, and the interaction queue.
 
-	Model * create_custom_model(const std::string & model_name, ParameterMap parameters, Construct * construct) {
+	Model * create_custom_model(const std::string & model_name, const ParameterMap& parameters, Construct * construct) {
 
 		if (model_name == model_names::TEMP) return new Template(parameters, construct);
 
@@ -24,7 +24,7 @@ namespace dynet {
 		return NULL;
 	}
 
-	Output* create_custom_output(const std::string& output_name, ParameterMap parameters, Construct* construct) {
+	Output* create_custom_output(const std::string& output_name, const ParameterMap& parameters, Construct* construct) {
 
 		return NULL;
 	}

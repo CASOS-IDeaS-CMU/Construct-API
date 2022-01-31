@@ -1,4 +1,0 @@
-<map id="Forget::communicate" name="Forget::communicate">
-<area shape="rect" id="node1" title="Function called after the update functions in a simulation cycle." alt="" coords="5,5,151,32"/>
-<area shape="rect" id="node2" href="$class_graph.html#ae273f9fe0787d9140d32390db44513a0" title="Gets a reference to the specified link value." alt="" coords="199,5,275,32"/>
-</map>

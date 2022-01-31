@@ -1,6 +1,0 @@
-<map id="Node::get_attribute" name="Node::get_attribute">
-<area shape="rect" id="node1" title="Searches for a node attribute." alt="" coords="399,42,531,69"/>
-<area shape="rect" id="node2" href="$class_social___media.html#a5103a5afefb1a218059f5118e3566e87" title="Appends the array of InteractionItems based on the submitted event and the intended receiver of the m..." alt="" coords="195,5,345,47"/>
-<area shape="rect" id="node4" href="$class_knowledge_trust.html#a5030265aa9707a7b05eb14dd6d86b580" title="Add knowledge trust to knowledge items in messages if they do not already include them." alt="" coords="189,71,351,98"/>
-<area shape="rect" id="node3" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="5,13,141,39"/>
-</map>

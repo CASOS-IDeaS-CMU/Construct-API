@@ -1,8 +1,0 @@
-<map id="Twitter::think" name="Twitter::think">
-<area shape="rect" id="node1" title="First function called in a simulation cycle." alt="" coords="5,122,101,149"/>
-<area shape="rect" id="node2" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="149,5,324,47"/>
-<area shape="rect" id="node3" href="$namespacedynet.html#a687ba29c55c07467438a6750fc3d1ac5" title="Finds the minimum of two numbers." alt="" coords="179,71,294,98"/>
-<area shape="rect" id="node4" href="$class_random.html#a4312475a0fa619b220403659bfea5aea" title="Generates a random integer from a poisson distribution." alt="" coords="150,122,323,149"/>
-<area shape="rect" id="node5" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title="Returns a Graph_iterator pointing to the end of the specified row." alt="" coords="180,173,293,199"/>
-<area shape="rect" id="node6" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title="Returns a Graph::sparse_row_iterator pointing to beginning of the specified row" alt="" coords="152,223,321,250"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="InteractionMessageQueue::addMessage" name="InteractionMessageQueue::addMessage">
-<area shape="rect" id="node1" title="Adds the msg to the list of InteractionMessages." alt="" coords="184,49,357,90"/>
-<area shape="rect" id="node2" href="$class_subscription.html#ab05d3aed151249d20c43f4d66e81a535" title="First function called in a simulation cycle." alt="" coords="5,5,136,32"/>
-<area shape="rect" id="node3" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="17,56,124,83"/>
-<area shape="rect" id="node4" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="24,107,117,133"/>
-</map>

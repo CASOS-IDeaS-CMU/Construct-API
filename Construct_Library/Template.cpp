@@ -5,7 +5,7 @@
 
 
 
-Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
+Template::Template(const dynet::ParameterMap& parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
 {
 	//To see some of the code through visual studio and to test compilation,
 	//change the following flag to #ifndef DO_NOT_FLAG

@@ -1,4 +1,0 @@
-<map id="InteractionItem::create_knowledge_item" name="InteractionItem::create_knowledge_item">
-<area shape="rect" id="node1" title="Creates a knowledge item using set_knowledge_item. Value the &quot;knowledge&quot; key in indexes is set to...." alt="" coords="5,5,156,47"/>
-<area shape="rect" id="node2" href="$struct_interaction_item.html#a3dafbd67389380f0cba4fad08baea9d9" title="Sets an item to become a knowledge item." alt="" coords="204,5,337,47"/>
-</map>

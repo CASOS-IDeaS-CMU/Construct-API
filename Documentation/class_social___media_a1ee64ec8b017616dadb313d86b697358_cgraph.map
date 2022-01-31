@@ -1,7 +1,0 @@
-<map id="Social_Media::update_feeds" name="Social_Media::update_feeds">
-<area shape="rect" id="node1" title="Updates each user&#39;s feeds." alt="" coords="5,74,152,115"/>
-<area shape="rect" id="node2" href="$structmedia__event.html#aa5fcb57cd781391e2774b247d04bbc6c" title="Returns the size of the tree of events with this event at its root (minimum size of 1)." alt="" coords="203,5,363,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#a5985b4292f2ac31e8cbc5b0cf74f0235" title="Returns a Graph_iterator pointing to the end of the specified column." alt="" coords="228,56,339,83"/>
-<area shape="rect" id="node4" href="$class_random.html#a17cc28e05a656421527adbe2e812cfe2" title="Generates a random integer ∈[0,max)." alt="" coords="225,107,342,133"/>
-<area shape="rect" id="node5" href="$class_graph.html#a3d4dd648ff233ba66033809b251394c4" title="Returns a Graph::sparse_col_iterator pointing to beginning of the specified column" alt="" coords="200,157,367,184"/>
-</map>

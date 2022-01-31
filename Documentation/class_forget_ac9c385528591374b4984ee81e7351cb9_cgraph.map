@@ -1,8 +1,0 @@
-<map id="Forget::cleanup" name="Forget::cleanup">
-<area shape="rect" id="node1" title="Function called after the communicate functions in a simulation cycle." alt="" coords="5,107,117,133"/>
-<area shape="rect" id="node2" href="$class_graph.html#ae273f9fe0787d9140d32390db44513a0" title="Gets a reference to the specified link value." alt="" coords="193,5,269,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#aeae45c3cac1d7581052b2ab3a2306772" title="Returns a row_begin_iterator pointing to the first row in the data structure." alt="" coords="165,56,296,83"/>
-<area shape="rect" id="node4" href="$class_graph.html#a74b95cf23e3b86d06f23a9d16c9987e3" title="Returns a Graph_iterator pointing to the beginning of the after the last row." alt="" coords="171,107,291,133"/>
-<area shape="rect" id="node5" href="$class_graph.html#aeb687de64b37c4454395f226e65af57e" title="Gets a constant reference to the specified element." alt="" coords="173,157,288,184"/>
-<area shape="rect" id="node6" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="171,208,291,235"/>
-</map>

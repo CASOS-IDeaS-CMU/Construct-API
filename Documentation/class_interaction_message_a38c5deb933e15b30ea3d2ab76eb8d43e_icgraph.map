@@ -1,4 +1,0 @@
-<map id="InteractionMessage::getSenderAgentIndex" name="InteractionMessage::getSenderAgentIndex">
-<area shape="rect" id="node1" title="Returns the agent node index of the agent that constructed and sent the message." alt="" coords="184,5,339,47"/>
-<area shape="rect" id="node2" href="$class_subscription.html#ab05d3aed151249d20c43f4d66e81a535" title=" " alt="" coords="5,13,136,39"/>
-</map>

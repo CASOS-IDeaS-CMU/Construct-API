@@ -1,6 +1,0 @@
-<map id="InteractionMessage::isvalid" name="InteractionMessage::isvalid">
-<area shape="rect" id="node1" title="Messages are only valid if the CommunicationMedium is valid and the list size of InteractionItems is ..." alt="" coords="461,39,596,80"/>
-<area shape="rect" id="node2" href="$class_interaction_message_queue.html#a8885849adc9928b64708bd6cabc0c3d1" title="Adds the msg to the list of InteractionMessages." alt="" coords="240,39,413,80"/>
-<area shape="rect" id="node3" href="$class_construct.html#acbcfe042a2e156f2e6fe65898e7138b1" title="Adds the msg to the private InteractionMessageQueue." alt="" coords="5,5,192,47"/>
-<area shape="rect" id="node4" href="$class_construct.html#ab40e448553b22d6a3bf4454244995a95" title="Adds the msg to the public InteractionMessageQueue." alt="" coords="7,71,190,112"/>
-</map>

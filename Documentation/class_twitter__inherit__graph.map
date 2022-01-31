@@ -1,5 +1,0 @@
-<map id="Twitter" name="Twitter">
-<area shape="rect" id="node1" title="An interaction model which recreates a social media feed to dictate interactions." alt="" coords="15,80,75,107"/>
-<area shape="rect" id="node3" href="$class_facebook.html" title=" " alt="" coords="5,155,84,181"/>
-<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="16,5,73,32"/>
-</map>

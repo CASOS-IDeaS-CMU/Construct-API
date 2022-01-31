@@ -1,8 +1,0 @@
-<map id="Construct::get_private_message_queue" name="Construct::get_private_message_queue">
-<area shape="rect" id="node1" title="Returns the pointer to the private InteractionMessageQueue." alt="" coords="215,99,363,141"/>
-<area shape="rect" id="node2" href="$class_model.html#a748b7e82f3b9f3b0b73420de95464afc" title="Function called after the update functions in a simulation cycle." alt="" coords="15,5,157,32"/>
-<area shape="rect" id="node3" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="33,56,139,83"/>
-<area shape="rect" id="node4" href="$class_knowledge_trust.html#a5030265aa9707a7b05eb14dd6d86b580" title="Function called after the think functions in a simulation cycle." alt="" coords="5,107,167,133"/>
-<area shape="rect" id="node5" href="$classliteracy.html#a28e78bfff23c9e036f1862a047717fab" title="Function called after the think functions in a simulation cycle." alt="" coords="31,157,141,184"/>
-<area shape="rect" id="node6" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="39,208,133,235"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="GraphManager::soft_load" name="GraphManager::soft_load">
-<area shape="rect" id="node1" title="Similar behavior to hard_load" alt="" coords="256,31,423,57"/>
-<area shape="rect" id="node2" href="$class_graph_manager.html#af49f9d7ca889e5997f2cce828ad3adc8" title="Adds a Graph with the submitted parameters if the requested Graph can not be found." alt="" coords="5,5,208,32"/>
-<area shape="rect" id="node3" href="$class_graph_manager.html#a558c5c02acc4b6165954c4be19c40507" title="Adds a Graph with the submitted parameters if the requested Graph can not be found." alt="" coords="13,56,201,83"/>
-</map>

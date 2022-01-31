@@ -1,4 +1,0 @@
-<map id="Nodeset::end" name="Nodeset::end">
-<area shape="rect" id="node1" title="Returns an iterator pointing the beyond the last node in the vector of nodes." alt="" coords="180,5,279,32"/>
-<area shape="rect" id="node2" href="$class_location.html#a22fe41e44e3f9c730a0567e027d574b8" title="Function called once before any simulation cycles begin." alt="" coords="5,5,132,32"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="Beliefs" name="Beliefs">
-<area shape="rect" id="node1" title="A variation on the Standard Interaction Model &#160;utilizing beliefs." alt="" coords="42,155,103,181"/>
-<area shape="rect" id="node2" href="$class_standard_interaction.html" title="An interaction model that stochastically matches agents based on similarities, knowledge expertise,..." alt="" coords="5,80,140,107"/>
-<area shape="rect" id="node3" href="$class_model.html" title="Parent class for Construct models." alt="" coords="44,5,101,32"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="InteractionItem::set_knowledge_item" name="InteractionItem::set_knowledge_item">
-<area shape="rect" id="node1" title="Sets an item to become a knowledge item." alt="" coords="359,39,492,80"/>
-<area shape="rect" id="node2" href="$class_interaction_message.html#ac4b46ff55f0c5b068d49609e5708526a" title="Uses add_item and InteractionItem::set_knowledge_item to add a knowledge item to the message." alt="" coords="160,5,311,47"/>
-<area shape="rect" id="node4" href="$class_interaction_item.html#a3aae9ca6392f01f601e9cf26806f4938" title="Creates a knowledge item using set_knowledge_item. Value the &quot;knowledge&quot; key in indexes is set to...." alt="" coords="160,71,311,112"/>
-<area shape="rect" id="node3" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="5,13,112,39"/>
-</map>

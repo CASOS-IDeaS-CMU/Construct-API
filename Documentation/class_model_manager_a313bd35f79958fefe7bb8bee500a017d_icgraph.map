@@ -1,4 +1,0 @@
-<map id="ModelManager::move_model_to_front" name="ModelManager::move_model_to_front">
-<area shape="rect" id="node1" title="Moves the specified model pointer to front of the execution order." alt="" coords="223,5,368,47"/>
-<area shape="rect" id="node2" href="$class_knowledge_trust.html#a2c472c81c32f529b5fe7884bb9ec2053" title="Moves the model to the front of the model list to ensure this model&#39;s communicate function is called ..." alt="" coords="5,13,175,39"/>
-</map>

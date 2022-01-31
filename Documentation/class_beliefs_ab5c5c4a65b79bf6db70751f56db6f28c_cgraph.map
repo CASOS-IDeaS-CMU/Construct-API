@@ -1,6 +1,0 @@
-<map id="Beliefs::get_prox" name="Beliefs::get_prox">
-<area shape="rect" id="node1" title=" " alt="" coords="5,35,124,61"/>
-<area shape="rect" id="node2" href="$class_standard_interaction.html#a644fca7a3b92590d1e9752d46e4edc1e" title=" " alt="" coords="172,27,307,69"/>
-<area shape="rect" id="node3" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="385,5,499,32"/>
-<area shape="rect" id="node4" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="355,57,529,98"/>
-</map>

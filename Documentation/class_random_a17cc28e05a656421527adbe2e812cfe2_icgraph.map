@@ -1,8 +1,0 @@
-<map id="Random::integer" name="Random::integer">
-<area shape="rect" id="node1" title="Generates a random integer ∈[0,max)." alt="" coords="433,64,551,91"/>
-<area shape="rect" id="node2" href="$structmedia__user.html#a45bcdacb4375f6ce8d374c86b25917ab" title="Mentions are added to the event if the event is a post by randomly selecting a followee." alt="" coords="207,5,385,32"/>
-<area shape="rect" id="node4" href="$structmedia__user.html#ab073845b9e391fc621cacdafb7c0f55e" title="The user adds a number of post events based on media_user::pdp." alt="" coords="223,57,369,98"/>
-<area shape="rect" id="node5" href="$class_social___media.html#a1ee64ec8b017616dadb313d86b697358" title="Updates each user&#39;s feeds." alt="" coords="223,122,369,163"/>
-<area shape="rect" id="node3" href="$structmedia__user.html#a4224843d1b7973e6169d0f1063a8e601" title="With proabability media_user::pqu creates a quote to the event." alt="" coords="17,5,147,32"/>
-<area shape="rect" id="node6" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,129,159,156"/>
-</map>

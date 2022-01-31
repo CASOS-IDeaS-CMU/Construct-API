@@ -1,9 +1,0 @@
-<map id="graph_utils::it_align" name="graph_utils::it_align">
-<area shape="rect" id="node1" title="Finds the next index that aligns iterators." alt="" coords="631,102,765,129"/>
-<area shape="rect" id="node2" href="$class_grand_interaction.html#a0892b33d56329bf3d31caebeb65b36a8" title="Function called after the #communicate functions in a simulation cycle." alt="" coords="5,26,176,53"/>
-<area shape="rect" id="node3" href="$class_knowledge_trust.html#add8eff26972cbea7949f2d1be524398f" title="Updates each agent&#39;s knowledge trust based on the agent&#39;s transactive memory." alt="" coords="224,77,391,103"/>
-<area shape="rect" id="node4" href="$class_tasks.html#a76e4b13a54668969f96291652f678fb3" title="Function called after the communicate functions in a simulation cycle." alt="" coords="252,26,363,53"/>
-<area shape="rect" id="node5" href="$structmedia__user.html#a86e1593193ee0aad0aa553daf0c476a0" title="Returns true if this user decides to follow an agent when called." alt="" coords="227,178,388,205"/>
-<area shape="rect" id="node6" href="$namespacegraph__utils.html#a89e78a5b0d2b90180f5fed54beef2b48" title="Aligns the iterators if they are not already." alt="" coords="439,127,583,154"/>
-<area shape="rect" id="node7" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="254,229,361,255"/>
-</map>

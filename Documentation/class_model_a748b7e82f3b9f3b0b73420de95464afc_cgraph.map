@@ -1,4 +1,0 @@
-<map id="Model::communicate" name="Model::communicate">
-<area shape="rect" id="node1" title="Function called after the update functions in a simulation cycle." alt="" coords="5,13,148,39"/>
-<area shape="rect" id="node2" href="$class_interaction_message_queue.html#ab089ec5d242089dd8eccb68832cd1ba7" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="196,5,369,47"/>
-</map>

@@ -8,7 +8,7 @@ class Template : public Model
 {
 public:
 
-	Template(dynet::ParameterMap parameters, Construct* construct);
+	Template(const dynet::ParameterMap& parameters, Construct* construct);
 	void initialize(void);
 	void think(void);
 	void update(void);

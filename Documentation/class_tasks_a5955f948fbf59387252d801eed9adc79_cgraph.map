@@ -1,9 +1,0 @@
-<map id="Tasks::get_expertise" name="Tasks::get_expertise">
-<area shape="rect" id="node1" title=" " alt="" coords="5,136,148,163"/>
-<area shape="rect" id="node2" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="206,5,321,32"/>
-<area shape="rect" id="node3" href="$class_standard_interaction.html#a254896420718d74f26848bad0129098e" title=" " alt="" coords="196,158,331,199"/>
-<area shape="rect" id="node4" href="$namespacegraph__utils.html#add0871475e714746bb819e57980c54c9" title=" " alt="" coords="391,107,535,149"/>
-<area shape="rect" id="node5" href="$namespacegraph__utils.html#a730d7f5f58f8836830474971bf703ea6" title=" " alt="" coords="596,107,731,149"/>
-<area shape="rect" id="node6" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="407,224,520,251"/>
-<area shape="rect" id="node7" href="$class_graph.html#ac45c25683e8539f61314e848dd45c8ed" title=" " alt="" coords="379,275,548,301"/>
-</map>

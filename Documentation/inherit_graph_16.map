@@ -1,6 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$struct_output.html" title="Base class for Construct output." alt="" coords="5,56,67,83"/>
-<area shape="rect" id="node2" href="$class_output___graph.html" title="Outputs the contents of a graph to a csv file." alt="" coords="127,5,230,32"/>
-<area shape="rect" id="node3" href="$class_output___messages.html" title="Outputs the contents of the message queue to a json file." alt="" coords="115,56,243,83"/>
-<area shape="rect" id="node4" href="$class_output__dynetml.html" title="Outputs the contents of a set of networks to dynetml files." alt="" coords="121,107,236,133"/>
-</map>

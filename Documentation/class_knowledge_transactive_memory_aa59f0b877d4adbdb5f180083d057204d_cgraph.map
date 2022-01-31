@@ -1,8 +1,0 @@
-<map id="KnowledgeTransactiveMemory::communicate" name="KnowledgeTransactiveMemory::communicate">
-<area shape="rect" id="node1" title=" " alt="" coords="5,39,203,80"/>
-<area shape="rect" id="node2" href="$class_standard_interaction.html#a15803fbdb11ede13fdcf53cd6518bfc0" title=" " alt="" coords="282,5,417,47"/>
-<area shape="rect" id="node4" href="$class_knowledge_transactive_memory.html#a54f1b8863caaf84d81034c3e8e3b6223" title=" " alt="" coords="251,71,448,112"/>
-<area shape="rect" id="node3" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="496,13,617,39"/>
-<area shape="rect" id="node5" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="519,70,595,97"/>
-<area shape="rect" id="node6" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="499,121,614,147"/>
-</map>

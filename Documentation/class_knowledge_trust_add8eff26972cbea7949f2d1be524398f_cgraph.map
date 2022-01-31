@@ -1,8 +1,0 @@
-<map id="KnowledgeTrust::cleanup" name="KnowledgeTrust::cleanup">
-<area shape="rect" id="node1" title="Updates each agent&#39;s knowledge trust based on the agent&#39;s transactive memory." alt="" coords="5,107,172,133"/>
-<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="254,5,330,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#aeae45c3cac1d7581052b2ab3a2306772" title="Returns a row_begin_iterator pointing to the first row in the data structure." alt="" coords="227,56,357,83"/>
-<area shape="rect" id="node4" href="$class_graph.html#a74b95cf23e3b86d06f23a9d16c9987e3" title="Returns a Graph_iterator pointing to the beginning of the after the last row." alt="" coords="232,107,352,133"/>
-<area shape="rect" id="node5" href="$namespacegraph__utils.html#a89e78a5b0d2b90180f5fed54beef2b48" title="Aligns the iterators if they are not already." alt="" coords="220,157,364,184"/>
-<area shape="rect" id="node6" href="$namespacegraph__utils.html#acb4bdcdffe1fde878be2b0ed08269392" title="Finds the next index that aligns iterators." alt="" coords="412,183,547,209"/>
-</map>

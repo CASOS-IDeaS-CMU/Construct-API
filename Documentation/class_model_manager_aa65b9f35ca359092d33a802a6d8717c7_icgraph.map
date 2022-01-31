@@ -1,7 +1,0 @@
-<map id="ModelManager::add_model" name="ModelManager::add_model">
-<area shape="rect" id="node1" title="Adds a model pointer." alt="" coords="251,85,429,112"/>
-<area shape="rect" id="node2" href="$class_beliefs.html#a70571207d7949675369c92e03b767a93" title=" " alt="" coords="46,5,162,32"/>
-<area shape="rect" id="node3" href="$class_grand_interaction.html#a2308c80615d54b2006882866e86a5a13" title=" " alt="" coords="18,56,190,83"/>
-<area shape="rect" id="node4" href="$class_knowledge_transactive_memory.html#ae4551b80735a1a1487991000745944de" title=" " alt="" coords="5,107,203,149"/>
-<area shape="rect" id="node5" href="$class_tasks.html#a259f08a56545f4b97b852a78e7ac199a" title=" " alt="" coords="48,173,160,200"/>
-</map>

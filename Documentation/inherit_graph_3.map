@@ -1,9 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$class_graph___interface.html" title="Parent class for Graph." alt="" coords="5,136,119,163"/>
-<area shape="rect" id="node2" href="$class_graph.html" title=" " alt="" coords="206,5,311,32"/>
-<area shape="rect" id="node3" href="$class_graph.html" title=" " alt="" coords="206,56,311,83"/>
-<area shape="rect" id="node4" href="$class_graph.html" title=" " alt="" coords="183,107,334,133"/>
-<area shape="rect" id="node5" href="$class_graph.html" title=" " alt="" coords="167,158,351,199"/>
-<area shape="rect" id="node6" href="$class_graph.html" title=" " alt="" coords="194,223,323,265"/>
-<area shape="rect" id="node7" href="$class_graph.html" title="Data structure for storing graphs/networks." alt="" coords="215,289,303,316"/>
-</map>

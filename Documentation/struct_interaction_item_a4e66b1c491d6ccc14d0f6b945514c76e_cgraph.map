@@ -1,4 +1,0 @@
-<map id="InteractionItem::create_knowledgeTM_item" name="InteractionItem::create_knowledgeTM_item">
-<area shape="rect" id="node1" title="Creates a knowledge transactive memory item using set_knowledgeTM_item." alt="" coords="5,5,156,47"/>
-<area shape="rect" id="node2" href="$struct_interaction_item.html#a04b0d7e94c2eea506ef0745d87353e07" title="Sets an item to become a knowledge transactive memory item." alt="" coords="204,5,344,47"/>
-</map>

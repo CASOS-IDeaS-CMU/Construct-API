@@ -1,8 +1,0 @@
-<map id="Random::find_dist_index" name="Random::find_dist_index">
-<area shape="rect" id="node1" title="An element index is selected based on the submitted probability distribution function vector." alt="" coords="644,31,808,57"/>
-<area shape="rect" id="node2" href="$class_location.html#a79eb57c1c46c13cc4f2f65dcf174562c" title="Function called after the communicate functions in a simulation cycle." alt="" coords="458,5,582,32"/>
-<area shape="rect" id="node3" href="$class_random.html#ac2f0a6cd027192663615aaa081d16a7c" title="Creates a vector of unique indexes ordered based on the submitted probability distribution function." alt="" coords="444,56,596,83"/>
-<area shape="rect" id="node4" href="$class_social___media.html#abe8bfd98128f952616997f9d25ddabf6" title="Gives each user recommended users to follow." alt="" coords="207,31,396,57"/>
-<area shape="rect" id="node6" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="248,81,355,108"/>
-<area shape="rect" id="node5" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,31,159,57"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="GraphManager::add_network" name="GraphManager::add_network">
-<area shape="rect" id="node1" title="Adds a Graph with the submitted parameters if the requested Graph can not be found." alt="" coords="5,5,193,32"/>
-<area shape="rect" id="node2" href="$class_graph_manager.html#a0770b491065aa61e1523eb93d021e02d" title="Similar behavior to hard_load" alt="" coords="241,5,408,32"/>
-</map>

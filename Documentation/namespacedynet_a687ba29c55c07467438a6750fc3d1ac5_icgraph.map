@@ -1,8 +1,0 @@
-<map id="dynet::minimum" name="dynet::minimum">
-<area shape="rect" id="node1" title="Finds the minimum of two numbers." alt="" coords="444,93,559,120"/>
-<area shape="rect" id="node2" href="$class_social___media.html#abe8bfd98128f952616997f9d25ddabf6" title="Gives each user recommended users to follow." alt="" coords="207,5,396,32"/>
-<area shape="rect" id="node4" href="$class_interaction_message.html#a58f38bb41c94f8ea7223eabeb85dbabe" title="Creates an empty message." alt="" coords="230,57,373,98"/>
-<area shape="rect" id="node5" href="$class_location.html#a1ff84144cc863e5cad6ee600fa241aca" title="First function called in a simulation cycle." alt="" coords="248,123,355,149"/>
-<area shape="rect" id="node6" href="$class_social___media.html#a692bdc21cbf7165820290fdfcecd39ce" title="Agents read events in their feed and create messages based on the read events." alt="" coords="233,173,369,200"/>
-<area shape="rect" id="node3" href="$class_social___media.html#a289b460c2fde5969469a15893ae2bdf8" title="Feeds are updated, the social media will recommend users to follow, and users can decide to unfollow ..." alt="" coords="5,5,159,32"/>
-</map>

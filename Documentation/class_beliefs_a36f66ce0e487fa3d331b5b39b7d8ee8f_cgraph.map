@@ -1,8 +1,0 @@
-<map id="Beliefs::get_additions" name="Beliefs::get_additions">
-<area shape="rect" id="node1" title=" " alt="" coords="5,56,152,83"/>
-<area shape="rect" id="node2" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="230,5,345,32"/>
-<area shape="rect" id="node3" href="$class_beliefs.html#a95932b684f05ca23ab541b5f6e451a33" title=" " alt="" coords="211,56,363,83"/>
-<area shape="rect" id="node6" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="200,107,375,149"/>
-<area shape="rect" id="node4" href="$class_graph.html#ab80f4c0d626d78ca05cce2e644cb4a59" title=" " alt="" coords="423,31,569,57"/>
-<area shape="rect" id="node5" href="$class_graph.html#af25ece15d9f34295d20774d48694461b" title=" " alt="" coords="439,81,553,108"/>
-</map>

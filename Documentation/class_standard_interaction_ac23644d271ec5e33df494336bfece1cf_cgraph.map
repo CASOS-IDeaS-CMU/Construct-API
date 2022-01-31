@@ -1,5 +1,0 @@
-<map id="StandardInteraction::initialize" name="StandardInteraction::initialize">
-<area shape="rect" id="node1" title="Function called once before any simulation cycles begin." alt="" coords="5,23,140,65"/>
-<area shape="rect" id="node2" href="$class_model_manager.html#a63340381597942181810d68310bc118c" title="Adds a model pointer." alt="" coords="188,5,367,32"/>
-<area shape="rect" id="node3" href="$class_model_manager.html#a22943ce692267963bafc710203e39adc" title="Finds the named model&#39;s pointer." alt="" coords="415,23,589,65"/>
-</map>

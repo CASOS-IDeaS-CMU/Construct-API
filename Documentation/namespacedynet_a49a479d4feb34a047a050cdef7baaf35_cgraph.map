@@ -1,4 +1,0 @@
-<map id="dynet::dump_to_map" name="dynet::dump_to_map">
-<area shape="rect" id="node1" title="Creates a ParameterMap based on the name value pairs in the associated XML elements." alt="" coords="5,5,149,32"/>
-<area shape="rect" id="node2" href="$namespacedynet.html#ab721b716652833bbf815df23f7742299" title="Gets the quoted text of an element attribute." alt="" coords="197,5,332,32"/>
-</map>

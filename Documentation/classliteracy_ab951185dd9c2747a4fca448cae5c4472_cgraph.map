@@ -1,9 +1,0 @@
-<map id="literacy::literacy" name="literacy::literacy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,123,120,149"/>
-<area shape="rect" id="node2" href="$class_graph_manager.html#a558c5c02acc4b6165954c4be19c40507" title="Adds a Graph with the submitted parameters if the requested Graph can not be found." alt="" coords="175,5,363,32"/>
-<area shape="rect" id="node4" href="$class_nodeset_manager.html#a8a685e6518e01d41134618df2ced2b74" title="Finds the specified nodeset." alt="" coords="196,57,343,98"/>
-<area shape="rect" id="node5" href="$class_construct.html#ac61dc12150f8c3e13079b53060e40291" title="Returns the pointer to the GraphManager." alt="" coords="175,123,364,149"/>
-<area shape="rect" id="node6" href="$class_construct.html#ad71b791ff1d7b460bf0505735fbcd23c" title="Returns the pointer to the NodesetManager." alt="" coords="168,173,371,200"/>
-<area shape="rect" id="node7" href="$class_nodeset.html#a4fa078150cc61ae3ae9a8752c50639c7" title="Returns the number of nodes in the nodeset" alt="" coords="218,224,321,251"/>
-<area shape="rect" id="node3" href="$class_graph_manager.html#a42a1216b8b7716c72fb3592c5748f4c0" title="Similar behavior to hard_load" alt="" coords="419,5,585,32"/>
-</map>

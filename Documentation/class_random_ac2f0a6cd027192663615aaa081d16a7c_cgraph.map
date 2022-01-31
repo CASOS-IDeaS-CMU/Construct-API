@@ -1,4 +1,0 @@
-<map id="Random::order_by_pdf" name="Random::order_by_pdf">
-<area shape="rect" id="node1" title="Creates a vector of unique indexes ordered based on the submitted probability distribution function." alt="" coords="5,5,157,32"/>
-<area shape="rect" id="node2" href="$class_random.html#af92e8b5f2d46d31704a3dd27525b8ce3" title="An element index is selected based on the submitted probability distribution function vector." alt="" coords="205,5,369,32"/>
-</map>

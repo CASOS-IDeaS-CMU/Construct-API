@@ -1,5 +1,0 @@
-<map id="Graph::at" name="Graph::at">
-<area shape="rect" id="node1" title="Takes a values and either sets the entry to that value or removes the entry if the submitted value is..." alt="" coords="5,31,81,57"/>
-<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="138,5,214,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#afbccda2b656fb0c4a5c88b5cef19872d" title="Set all elements equal to the submitted value." alt="" coords="129,56,223,83"/>
-</map>

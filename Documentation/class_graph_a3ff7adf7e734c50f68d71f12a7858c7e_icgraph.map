@@ -1,4 +1,0 @@
-<map id="Graph::clear" name="Graph::clear">
-<area shape="rect" id="node1" title="Removes all entries or resets all elements to the default value depending on density." alt="" coords="129,5,223,32"/>
-<area shape="rect" id="node2" href="$class_graph.html#a3817fd2e103dbc91db6106d3da2cb5a1" title="Takes a values and either sets the entry to that value or removes the entry if the submitted value is..." alt="" coords="5,5,81,32"/>
-</map>

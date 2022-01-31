@@ -1,8 +1,0 @@
-<map id="StandardInteraction::set_interaction_probability" name="StandardInteraction::set_interaction_probability">
-<area shape="rect" id="node1" title=" " alt="" coords="5,107,187,149"/>
-<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="264,5,340,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="447,71,562,97"/>
-<area shape="rect" id="node4" href="$class_standard_interaction.html#a644fca7a3b92590d1e9752d46e4edc1e" title=" " alt="" coords="235,107,369,149"/>
-<area shape="rect" id="node5" href="$class_construct.html#a1bb37b0d0b8da609c08e77785c4a20c7" title="Returns the current simulation time step." alt="" coords="417,137,592,178"/>
-<area shape="rect" id="node6" href="$namespacedynet.html#ad5a6f429662cbe34e39c74f153f5a21a" title="Finds the maximum of two numbers." alt="" coords="243,224,361,251"/>
-</map>

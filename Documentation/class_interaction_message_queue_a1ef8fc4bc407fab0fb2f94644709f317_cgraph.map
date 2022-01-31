@@ -1,4 +1,0 @@
-<map id="InteractionMessageQueue::addMessage" name="InteractionMessageQueue::addMessage">
-<area shape="rect" id="node1" title="Adds the msg to the list of InteractionMessages." alt="" coords="5,5,179,47"/>
-<area shape="rect" id="node2" href="$class_interaction_message.html#aa1ff7f06797da16b050a334be342fb96" title="Messages are only valid if the CommunicationMedium is valid and the list size of InteractionItems is ..." alt="" coords="227,5,361,47"/>
-</map>

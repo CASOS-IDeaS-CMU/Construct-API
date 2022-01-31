@@ -1,5 +1,0 @@
-<map id="InteractionMessageQueue::erase" name="InteractionMessageQueue::erase">
-<area shape="rect" id="node1" title="Removes the InteractionMessage at the iterator position." alt="" coords="236,35,409,76"/>
-<area shape="rect" id="node2" href="$class_knowledge_learning_difficulty.html#a232050c10f20635749e546a3952b5a56" title="Function called after the think functions in a simulation cycle." alt="" coords="5,5,188,47"/>
-<area shape="rect" id="node3" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="50,71,143,98"/>
-</map>

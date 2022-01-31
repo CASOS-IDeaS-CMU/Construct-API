@@ -1,5 +1,0 @@
-<map id="InteractionMessage::add_knowledge_item" name="InteractionMessage::add_knowledge_item">
-<area shape="rect" id="node1" title="Uses add_item and InteractionItem::set_knowledge_item to add a knowledge item to the message." alt="" coords="5,39,156,80"/>
-<area shape="rect" id="node2" href="$class_interaction_message.html#a1d358663c1b7ef9d9cf1f95821cd9d7e" title="Adds the item to the list of InteractionItems." alt="" coords="204,5,339,47"/>
-<area shape="rect" id="node3" href="$struct_interaction_item.html#a3dafbd67389380f0cba4fad08baea9d9" title="Sets an item to become a knowledge item." alt="" coords="205,71,338,112"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="Construct::add_message_to_private_message_queue" name="Construct::add_message_to_private_message_queue">
-<area shape="rect" id="node1" title="Adds the msg to the private InteractionMessageQueue." alt="" coords="184,5,371,47"/>
-<area shape="rect" id="node2" href="$class_subscription.html#ab05d3aed151249d20c43f4d66e81a535" title="First function called in a simulation cycle." alt="" coords="5,13,136,39"/>
-</map>

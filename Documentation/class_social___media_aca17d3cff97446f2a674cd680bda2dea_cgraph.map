@@ -1,6 +1,0 @@
-<map id="Social_Media::add_followees" name="Social_Media::add_followees">
-<area shape="rect" id="node1" title=" " alt="" coords="5,56,195,83"/>
-<area shape="rect" id="node2" href="$class_graph.html#a8e6e316fc6741c9a45328c4026013e44" title="Adds a queued modification to the specified element." alt="" coords="258,5,379,32"/>
-<area shape="rect" id="node3" href="$class_construct.html#a95f3e916cce4115196b20a1edfbeb723" title="Returns the pointer to the Random Manager." alt="" coords="243,56,395,83"/>
-<area shape="rect" id="node4" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="259,107,379,133"/>
-</map>

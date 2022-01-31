@@ -1,5 +1,0 @@
-<map id="KnowledgeParsing::KnowledgeParsing" name="KnowledgeParsing::KnowledgeParsing">
-<area shape="rect" id="node1" title="Finds and stores the knowledge network." alt="" coords="5,35,205,76"/>
-<area shape="rect" id="node2" href="$class_nodeset_manager.html#aec3af67dfe3cae40a3c671066ef0f7b6" title="Finds the specified nodeset." alt="" coords="265,5,412,47"/>
-<area shape="rect" id="node3" href="$class_graph_manager.html#a80d82ac30ef23ad0d10746fa882fc728" title="Sets the submitted pointer to the requested 3d graph." alt="" coords="253,71,424,98"/>
-</map>

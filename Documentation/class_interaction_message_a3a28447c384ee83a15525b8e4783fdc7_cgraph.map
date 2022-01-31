@@ -1,5 +1,0 @@
-<map id="InteractionMessage::InteractionMessage" name="InteractionMessage::InteractionMessage">
-<area shape="rect" id="node1" title="Creates a message of information to be sent from agent to agent." alt="" coords="5,35,148,76"/>
-<area shape="rect" id="node2" href="$class_communication_medium.html#a85f9dc47c489bd5b833ddef8c25bbedc" title="Returns the medium&#39;s message complexity." alt="" coords="196,5,355,47"/>
-<area shape="rect" id="node3" href="$namespacedynet.html#a687ba29c55c07467438a6750fc3d1ac5" title="Finds the minimum of two numbers." alt="" coords="218,71,333,98"/>
-</map>

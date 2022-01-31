@@ -1,7 +1,0 @@
-<map id="media_user::read" name="media_user::read">
-<area shape="rect" id="node1" title=" " alt="" coords="5,81,128,108"/>
-<area shape="rect" id="node2" href="$class_graph.html#a4d95580fd9aeede57c5b7c3d3b401c58" title="Gets a reference to the specified link value." alt="" coords="219,5,295,32"/>
-<area shape="rect" id="node3" href="$class_graph.html#a1fe664fa7389869cbaa17244eb07f4a1" title="Gets a constant reference to the specified element." alt="" coords="389,81,504,108"/>
-<area shape="rect" id="node4" href="$classmedia__user.html#aef6c53d8fe14027a1646b36dea3b9db1" title=" " alt="" coords="176,107,339,133"/>
-<area shape="rect" id="node5" href="$class_random.html#a07bcd5e0c45d9acece86765c0d2902e9" title="Generates a U(0,1) as a float." alt="" coords="387,144,507,171"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="media_history" name="media_history">
-<area shape="rect" id="node1" title=" " alt="" coords="172,289,275,316"/>
-<area shape="rect" id="node2" href="$class_communication_medium.html" title="Class to contain the medium used by InteractionMessages." alt="" coords="5,200,164,227"/>
-<area shape="rect" id="node3" href="$class_random.html" title="Manages all random number generation in Construct." alt="" coords="188,200,259,227"/>
-<area shape="rect" id="node4" href="$class_graph.html" title=" " alt="" coords="283,200,388,227"/>
-<area shape="rect" id="node5" href="$class_graph___interface.html" title="Parent class for Graph." alt="" coords="279,124,392,151"/>
-<area shape="rect" id="node6" href="$class_nodeset.html" title="A container for nodes." alt="" coords="300,5,371,32"/>
-</map>

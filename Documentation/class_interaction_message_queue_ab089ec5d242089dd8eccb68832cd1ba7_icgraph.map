@@ -1,9 +1,0 @@
-<map id="InteractionMessageQueue::begin" name="InteractionMessageQueue::begin">
-<area shape="rect" id="node1" title="Returns an iterator pointer to the first element in the list of InteractionMessages." alt="" coords="236,129,409,170"/>
-<area shape="rect" id="node2" href="$class_subscription.html#a160479cbf6c748cf4578badef3dbbd93" title="Function called after the #communicate functions in a simulation cycle." alt="" coords="23,5,170,32"/>
-<area shape="rect" id="node3" href="$class_model.html#a748b7e82f3b9f3b0b73420de95464afc" title="Function called after the update functions in a simulation cycle." alt="" coords="25,56,168,83"/>
-<area shape="rect" id="node4" href="$class_subscription.html#ab05d3aed151249d20c43f4d66e81a535" title="First function called in a simulation cycle." alt="" coords="31,107,162,133"/>
-<area shape="rect" id="node5" href="$class_knowledge_learning_difficulty.html#a232050c10f20635749e546a3952b5a56" title="Function called after the think functions in a simulation cycle." alt="" coords="5,158,188,199"/>
-<area shape="rect" id="node6" href="$class_knowledge_trust.html#a5030265aa9707a7b05eb14dd6d86b580" title="Add knowledge trust to knowledge items in messages if they do not already include them." alt="" coords="16,224,177,251"/>
-<area shape="rect" id="node7" href="$class_mail.html#aaf3c6cea2fb7e7af2bb608d44a7de34f" title="Function called after the think functions in a simulation cycle." alt="" coords="50,275,143,301"/>
-</map>

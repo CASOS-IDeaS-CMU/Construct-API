@@ -1,8 +1,0 @@
-<map id="StandardInteraction" name="StandardInteraction">
-<area shape="rect" id="node1" title="An interaction model that stochastically matches agents based on similarities, knowledge expertise,..." alt="" coords="173,80,307,107"/>
-<area shape="rect" id="node3" href="$class_beliefs.html" title="A variation on the Standard Interaction Model &#160;utilizing beliefs." alt="" coords="5,155,67,181"/>
-<area shape="rect" id="node4" href="$class_grand_interaction.html" title="A variation on the Standard Interaction Model ." alt="" coords="91,155,208,181"/>
-<area shape="rect" id="node5" href="$class_knowledge_transactive_memory.html" title="A variation on the Standard Interaction Model &#160;utilizing transactive memory for knowledge." alt="" coords="232,155,429,181"/>
-<area shape="rect" id="node6" href="$class_tasks.html" title="A variation on the Standard Interaction Model &#160;utilizing tasks." alt="" coords="454,155,511,181"/>
-<area shape="rect" id="node2" href="$class_model.html" title="Parent class for Construct models." alt="" coords="211,5,269,32"/>
-</map>
