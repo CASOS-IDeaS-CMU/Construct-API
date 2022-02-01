@@ -6,13 +6,13 @@
 	<models>
 		<model name="Template Model"/>
 	</models>
-	<nodes>
+	<nodesets>
 		<nodeset name="time">
 			<generator type="constant">
 				<count value="20"/>
 			</generator>
 		</nodeset>
-	</nodes>
+	</nodesets>
 	<networks>
 	</networks>
 	<outputs>

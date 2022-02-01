@@ -6,7 +6,7 @@
 	<models>
 		<model name="Standard Interaction Model"/>
 	</models>
-	<nodes>
+	<nodesets>
 		<nodeset name="agent">
 			<generator type="constant">
 				<count value="50"/>
@@ -31,7 +31,7 @@
 				<attribute name="maximum message complexity" value="10"/>
 			</node>
 		</nodeset>
-	</nodes>
+	</nodesets>
 	<networks>
 		<network name="knowledge network" edge_type="bool" default="false">
 			<source nodeset="agent" representation="dense"/>

@@ -13,7 +13,7 @@
             <param name="relax rate" value="0.2"/>
         </model>
     </models>
-    <nodes>
+    <nodesets>
         <nodeset name="agent">
             <node name="agent_0">
                 <attribute name="Twitter add follower density" value="1"/>
@@ -800,7 +800,7 @@
             <node name="time_8"/>
             <node name="time_9"/>
         </nodeset>
-    </nodes>
+    </nodesets>
     <networks>
         <network default="0" edge_type="bool" name="knowledge network">
             <source nodeset="agent" representation="dense"/>
