@@ -61,16 +61,262 @@
 	#endif
 #endif
 
+/*
+\defgroup Managers Managers
+Managers hold class pointers that should not be deallocated by any other entity.
+\defgroup Models Models
+All the Models in Construct's Model Library.
+\defgroup minterface Model Interfaces
+All the classes that allow Models to pass information without direct interaction.
+\defgroup util Utilities
+All the classes and functions that facilitate model functions.
+*/
+
+
+
+
 
 
 namespace dynet
 {
+	enum class edge_types : char {
+		dbool,
+		dint,
+		duint,
+		dfloat,
+		dstring,
+		vbool,
+		vint,
+		vuint,
+		vfloat,
+		vstring,
+		mbool,
+		mint,
+		muint,
+		mfloat,
+		mstring
+	};
+
+
+	enum class item_keys : char {
+		knowledge,
+		alter,
+		belief,
+		ktm,
+		btm,
+		ktrust,
+		twitter_event,
+		facebook_event,
+		feed_position
+		//ordering of the above items shall not be modified
+		//new items can be added after the above list
+	};
+
+
+	constexpr const char* get_type_name(edge_types edge_type) noexcept {
+		switch (edge_type)
+		{
+		case edge_types::dbool:
+			return "bool";
+		case edge_types::dint:
+			return "int";
+		case edge_types::duint:
+			return "unsigned int";
+		case edge_types::dfloat:
+			return "float";
+		case edge_types::dstring:
+			return "string";
+		case edge_types::vbool:
+			return "vector<bool>";
+		case edge_types::vint:
+			return "vector<int>";
+		case edge_types::vuint:
+			return "vector<unsigned int>";
+		case edge_types::vfloat:
+			return "vector<float>";
+		case edge_types::vstring:
+			return "vector<string>";
+		case edge_types::mbool:
+			return "map<bool>";
+		case edge_types::mint:
+			return "map<int>";
+		case edge_types::muint:
+			return "map<unsigned int>";
+		case edge_types::mfloat:
+			return "map<float>";
+		case edge_types::mstring:
+			return "map<string>";
+		default:
+			return "unknown";
+		}
+	}
+
+	template<typename T> CONSTRUCT_LIB std::string get_type_name(void) noexcept;
+
+	template<typename T> CONSTRUCT_LIB edge_types get_edge_type(void) noexcept;
+
+	constexpr const char* get_item_name(item_keys key) noexcept {
+		switch (key)
+		{
+		case item_keys::knowledge:
+			return "knowledge";
+		case item_keys::alter:
+			return "alter";
+		case item_keys::belief:
+			return "belief";
+		case item_keys::ktm:
+			return "knowledgeTM";
+		case item_keys::btm:
+			return "beliefTM";
+		case item_keys::ktrust:
+			return "knowledge trust";
+		case item_keys::twitter_event:
+			return "twitter event";
+		case item_keys::facebook_event:
+			return "facebook event";
+		case item_keys::feed_position:
+			return "feed position";
+		default:
+			assert(false);
+			return NULL;
+		}
+	}
+
 	using ParameterMap = std::unordered_map<std::string, std::string>;
-	
-	template<typename T> CONSTRUCT_LIB std::string get_type_name(void);
+
+	struct construct_exception : public std::runtime_error {
+		construct_exception(const std::string& message) : std::runtime_error(message) {}
+		std::string string(void) const { return std::string(what()); }
+	};
 
 
-	constexpr inline char seperator() {
+	struct could_not_convert :public construct_exception {
+		std::string type;
+		could_not_convert(const std::string& _type) : construct_exception("Could not convert value to " + _type), type(_type) {}
+	};
+
+
+	struct could_not_convert_value : public construct_exception {
+		could_not_convert_value(const could_not_convert& e, const std::string& ending = "") :
+			construct_exception("Could not convert value to " + e.type + ending) {}
+	};
+
+
+	struct could_not_convert_parameter : public construct_exception {
+		could_not_convert_parameter(const could_not_convert& e, const std::string& param_name, const std::string& ending = "") :
+			construct_exception("Could not convert parameter \"" + param_name + "\" to " + e.type + ending) {}
+	};
+
+
+	struct could_not_convert_attribute : public construct_exception {
+		could_not_convert_attribute(const could_not_convert& e, const std::string& att_name, const std::string& ending = "") :
+			construct_exception("Could not convert attribute \"" + att_name + "\" to " + e.type + ending) {}
+	};
+
+
+	struct could_not_find_parameter : public construct_exception {
+		could_not_find_parameter(const std::string& param_name) :
+			construct_exception("Parameter \"" + param_name + "\" not found") {}
+	};
+
+
+	struct missing_node_attribute : public construct_exception {
+		missing_node_attribute(const std::string& node_name, const std::string& att_name) :
+			construct_exception("Attribute \"" + att_name + "\" not found for node \"" + node_name + "\"") {}
+	};
+
+
+	struct already_exists : public construct_exception {
+		already_exists(const std::string& type, const std::string& name) :
+			construct_exception("A " + type + " with name \"" + name + "\" already exists") {}
+	};
+
+
+	struct could_not_find_node : public construct_exception {
+		could_not_find_node(const std::string& node_name, const std::string& ns_name) :
+			construct_exception("Node \"" + node_name + "\" not found in nodeset \"" + ns_name +"\"") {}
+	};
+
+
+	struct ns_index_out_of_range : public construct_exception {
+		ns_index_out_of_range(unsigned int index, const std::string& ns_name) :
+			construct_exception("Index \"" + std::to_string(index) + "\" is out of range for nodeset \"" + ns_name + "\"") {}
+	};
+
+
+	struct could_not_find_nodeset : public construct_exception {
+		could_not_find_nodeset(const std::string& nodeset_name) :
+			construct_exception("Nodeset \"" + nodeset_name + "\" not found") {}
+	};
+
+
+	struct could_not_find_network : public construct_exception {
+		could_not_find_network(const std::string& network_name) :
+			construct_exception("Network \"" + network_name + "\" not found") {}
+	};
+
+
+	struct out_of_range : public construct_exception {
+		out_of_range(const std::string& val_name, const std::string& range, const std::string& object = "") :
+			construct_exception("\"" + val_name + "\"" + object + " is out of range " + range) {}
+	};
+
+
+	struct could_not_open_file : public construct_exception {
+		could_not_open_file(const std::string& fname) : 
+			construct_exception("Could not open file \"" + fname + "\"") {}
+	};
+
+
+	struct csv_too_many_rows : public construct_exception {
+		csv_too_many_rows(const std::string& fname) : 
+			construct_exception("csv file \"" + fname + "\" has too many rows") {}
+	};
+
+
+	struct csv_too_many_cols : public construct_exception {
+		csv_too_many_cols(const std::string& fname) :
+			construct_exception("csv file \"" + fname + "\" has too many columns") {}
+	};
+
+
+	struct csv_too_many_slcs : public construct_exception {
+		csv_too_many_slcs(const std::string& fname) :
+			construct_exception("csv file \"" + fname + "\" has too many slices") {}
+	};
+
+
+	struct csv_missing_beginning_bracket : public construct_exception {
+		csv_missing_beginning_bracket(const std::string& fname) :
+			construct_exception("csv file \"" + fname + "\" must have slice elements that begin with \"{\" for 3d networks") {}
+	};
+
+
+	struct csv_missing_ending_bracket : public construct_exception {
+		csv_missing_ending_bracket(const std::string& fname) :
+			construct_exception("csv file \"" + fname + "\" must have slice elements that end with \"}\" for 3d networks") {}
+	};
+
+
+	struct unknown_value : public construct_exception {
+		unknown_value(const std::string& param_name, const std::string& param_value) :
+			construct_exception("Parameter \"" + param_name + "\" was given an unknown value of \"" + param_value + "\"") {}
+	};
+
+
+	struct wrong_file_extension : public construct_exception {
+		wrong_file_extension(const std::string& param_name, const std::string& ext) : 
+			construct_exception("Parameter \"" + param_name + "\" must have file extensions of " + ext) {}
+	};
+
+
+	struct model_multually_exclusive : public construct_exception {
+		model_multually_exclusive(const std::string& model_name) :
+			construct_exception("This model is mutually exclusive with the " + model_name) {}
+	};
+
+
+	constexpr inline char seperator() noexcept {
 #ifdef _WIN32
 		return '\\';
 #else
@@ -80,12 +326,12 @@ namespace dynet
 	}
 
 	template<typename T>
-	T minimum(T v1, T v2) { return (v1 > v2) * v2 + (v1 <= v2) * v1; }
+	T minimum(T v1, T v2) noexcept { return (v1 > v2) * v2 + (v1 <= v2) * v1; }
 
 	template<typename T>
-	T maximum(T v1, T v2) { return (v1 > v2) * v1 + (v1 <= v2) * v2; }
+	T maximum(T v1, T v2) noexcept { return (v1 > v2) * v1 + (v1 <= v2) * v2; }
 
-	CONSTRUCT_LIB std::vector<std::string> split(std::string s, std::string delimiter);
+	CONSTRUCT_LIB std::vector<std::string> split(const std::string& s, const std::string& delimiter) noexcept;
 
 	template<typename T>
 	class CONSTRUCT_LIB Type_Interface {
@@ -100,11 +346,11 @@ namespace dynet
 		bool _data;
 	public:
 		Type_Interface(bool data) { _data = data; }
-		operator bool() const { return _data; }
-		operator int() const { return (int)_data; }
-		operator unsigned() const { return (unsigned)_data; }
-		operator float() const { return (float)_data; }
-		operator std::string() const;
+		operator bool() const noexcept { return _data; }
+		operator int() const noexcept { return (int)_data; }
+		operator unsigned() const noexcept { return (unsigned)_data; }
+		operator float() const noexcept { return (float)_data; }
+		operator std::string() const noexcept;
 	};
 
 
@@ -113,10 +359,10 @@ namespace dynet
 		int _data;
 	public:
 		Type_Interface(int data) { _data = data; }
-		operator bool() const { return (bool)_data; }
-		operator int() const { return _data; }
+		operator bool() const noexcept { return (bool)_data; }
+		operator int() const noexcept { return _data; }
 		operator unsigned() const;
-		operator float() const { return (float)_data; }
+		operator float() const noexcept { return (float)_data; }
 		operator std::string() const;
 	};
 
@@ -125,10 +371,10 @@ namespace dynet
 		unsigned int _data;
 	public:
 		Type_Interface(unsigned int data) { _data = data; }
-		operator bool() const { return (bool)_data; }
-		operator int() const { return (unsigned)_data; }
-		operator unsigned() const { return _data; }
-		operator float() const { return (float)_data; }
+		operator bool() const noexcept { return (bool)_data; }
+		operator int() const noexcept { return (unsigned)_data; }
+		operator unsigned() const noexcept { return _data; }
+		operator float() const noexcept { return (float)_data; }
 		operator std::string() const;
 	};
 
@@ -141,7 +387,7 @@ namespace dynet
 		operator int() const;
 		operator unsigned() const;
 		operator float() const;
-		operator std::string() const { return _data; };
+		operator std::string() const noexcept { return _data; };
 
 	};
 
@@ -150,15 +396,16 @@ namespace dynet
 		float _data;
 	public:
 		Type_Interface(float data) { _data = data; }
-		operator bool() const { return (bool)_data; }
-		operator int() const { return (int)_data; }
+		operator bool() const noexcept { return (bool)_data; }
+		operator int() const noexcept { return (int)_data; }
 		operator unsigned() const;
-		operator float() const { return _data; }
+		operator float() const noexcept { return _data; }
 		operator std::string() const;
 	};
 
 
-	template<typename T> Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
+	template<typename T> 
+	Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
 
 }
 #include <random>
@@ -174,23 +421,30 @@ class CONSTRUCT_LIB Random
 public:
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
-	float uniform();
+	//creates a random number >= 0 and <1
+	float uniform() noexcept;
 
-	float uniform(float min, float max);
+	//creates a random number >= min and < max
+	float uniform(float min, float max) noexcept;
 
+	//creates a random integer >= 0 and < max
 	unsigned int integer(unsigned int max);
 
+	//samples from a poisson distribution with mean equal to lambda
 	unsigned int poisson_number(float lambda);
 
+	//returns true with probability equal to the parameter probability
 	bool randombool(float probability = .5);
 
+	//samples from a normal distribution
 	float normal(float mean, float variance);
 
+	//samples from an exoponential distribution
 	float exponential(float mean);
 
-
+	//each element in the vector will be moved to a random position
 	template<typename T>
-	void vector_shuffle(std::vector<T>& A) {
+	void vector_shuffle(std::vector<T>& A) noexcept {
 		for (unsigned int i = 0; i < A.size(); i++) {
 			unsigned int index = i + integer((unsigned int)A.size() - i);
 			T temp = A[index];
@@ -199,8 +453,10 @@ public:
 		}
 	}
 
+	//chooses an index based on the submitted pdf
 	unsigned int find_dist_index(std::vector<float>& pdf);
 
+	//stochastically organizes in descending order the list of indexes based on their values in the pdf.
 	std::vector<unsigned int> order_by_pdf(std::vector<float>& pdf);
 	
 };
@@ -264,8 +520,6 @@ public:
 
 	const unsigned int index;
 
-	using iterator = dynet::ParameterMap::const_iterator;
-
 	const std::string& get_attribute(std::string _name) const;
 };
 
@@ -298,14 +552,14 @@ public:
 
 	const Node* get_node_by_index(unsigned int index) const;
 
-	const Node* get_node_by_name(const std::string& name) const;
+	const Node* get_node_by_name(const std::string& name) const noexcept;
 	
 	//checks to make sure the attribute once converted is in range [min,max]
 	template<typename T>
 	void check_attributes(std::string attribute, T min, T max) const;
 
-	template<typename T>
 	//checks to make sure the attribute can be converted to the type specialiazation
+	template<typename T>
 	void check_attributes(std::string attribute) const;
 };
 
@@ -328,10 +582,10 @@ public:
 	const Nodeset* get_nodeset(const std::string& name) const;
 
 	//only checks nodesets that have been turned to constant
-	bool does_nodeset_exist(std::string name)const;
+	bool does_nodeset_exist(const std::string& name) const noexcept;
 
 	//sets a mutable nodeset to an immutable nodeset
-	void turn_to_const(Nodeset* nodeset);
+	void turn_to_const(Nodeset* nodeset) noexcept;
 };
 
 
@@ -372,79 +626,39 @@ struct CONSTRUCT_LIB CommunicationMedium
 };
 
 
-enum class item_keys : char {
-	knowledge,
-	alter,
-	belief,
-	ktm,
-	btm,
-	ktrust,
-	twitter_event,
-	facebook_event,
-	feed_position
-	//ordering of the above items shall not be modified
-	//new items can be added after the above list
-};
 
-
-constexpr const char* get_name(item_keys key) {
-	switch (key)
-	{
-	case item_keys::knowledge:
-		return "knowledge";
-	case item_keys::alter:
-		return "alter";
-	case item_keys::belief:
-		return "belief";
-	case item_keys::ktm:
-		return "knowledgeTM";
-	case item_keys::btm:
-		return "beliefTM";
-	case item_keys::ktrust:
-		return "knowledge trust";
-	case item_keys::twitter_event:
-		return "twitter event";
-	case item_keys::facebook_event:
-		return "facebook event";
-	case item_keys::feed_position:
-		return "feed position";
-	default:
-		assert(false);
-		return NULL;
-	}
-}
 
 
 struct CONSTRUCT_LIB InteractionItem
 {
-	using attribute_iterator = std::unordered_set<item_keys>::iterator;
-	using attribute_const_iterator = std::unordered_set<item_keys>::const_iterator;
+	using attribute_iterator = std::unordered_set<dynet::item_keys>::iterator;
+	using attribute_const_iterator = std::unordered_set<dynet::item_keys>::const_iterator;
 
-	using index_iterator = std::unordered_map<item_keys, unsigned int>::iterator;
-	using index_const_iterator = std::unordered_map<item_keys, unsigned int>::const_iterator;
+	using index_iterator = std::unordered_map<dynet::item_keys, unsigned int>::iterator;
+	using index_const_iterator = std::unordered_map<dynet::item_keys, unsigned int>::const_iterator;
 
-	using value_iterator = std::unordered_map<item_keys, float>::iterator;
-	using value_const_iterator = std::unordered_map<item_keys, float>::const_iterator;
+	using value_iterator = std::unordered_map<dynet::item_keys, float>::iterator;
+	using value_const_iterator = std::unordered_map<dynet::item_keys, float>::const_iterator;
 	
-	InteractionItem& set_knowledge_item(unsigned int knowledge_index);
+	InteractionItem& set_knowledge_item(unsigned int knowledge_index) noexcept;
 
-	InteractionItem& set_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent);
+	InteractionItem& set_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent) noexcept;
 
-	InteractionItem& set_belief_item(unsigned int belief_index, float belief_value);
+	InteractionItem& set_belief_item(unsigned int belief_index, float belief_value) noexcept;
 
-	InteractionItem& set_beliefTM_item(unsigned int belief_index, unsigned int alter_agent, float belief_value);
+	InteractionItem& set_beliefTM_item(unsigned int belief_index, unsigned int alter_agent, float belief_value) noexcept;
 
-	InteractionItem& set_knowledge_trust_item(unsigned int knowledge_index, float ktrust);
+	InteractionItem& set_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
-	static InteractionItem create_knowledge_item(unsigned int knowledge_index);
+	static InteractionItem create_knowledge_item(unsigned int knowledge_index) noexcept;
 
-	static InteractionItem create_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent);
+	static InteractionItem create_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent) noexcept;
 
-	static InteractionItem create_belief_item(unsigned int belief_index, float belief_value);
+	static InteractionItem create_belief_item(unsigned int belief_index, float belief_value) noexcept;
 
-	static InteractionItem create_beliefTM_item(unsigned int belief_index, unsigned int alter_agent, float belief_value);
+	static InteractionItem create_beliefTM_item(unsigned int belief_index, unsigned int alter_agent, float belief_value) noexcept;
 
-	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust);
+	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
 	bool get_knowledge_item(unsigned int& knowledge_index);
 
@@ -456,17 +670,17 @@ struct CONSTRUCT_LIB InteractionItem
 
 	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust);
 
-	void clear(void);
+	void clear(void) noexcept;
 
 	//store any relevant indexes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_map<item_keys, unsigned int> indexes;
+	std::unordered_map<dynet::item_keys, unsigned int> indexes;
 	//store any relevant float values in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_map<item_keys, float> values;
+	std::unordered_map<dynet::item_keys, float> values;
 	//store any relevant attributes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_set<item_keys> attributes;
+	std::unordered_set<dynet::item_keys> attributes;
 
 	
 };
@@ -506,29 +720,29 @@ public:
 
 	
 
-	iterator begin(void){return items.begin();}
+	iterator begin(void) noexcept {return items.begin();}
 
-	iterator end(void){return items.end();}
+	iterator end(void) noexcept {return items.end();}
 
-	const_iterator begin(void) const {return items.begin();}
+	const_iterator begin(void) const noexcept {return items.begin();}
 	
-	const_iterator end(void) const {return items.end();}
+	const_iterator end(void) const noexcept {return items.end();}
 
-	unsigned int size() {return (unsigned int)items.size();}
+	unsigned int size() noexcept {return (unsigned int)items.size();}
 
-	iterator erase(iterator itr);
+	iterator erase(iterator itr) noexcept;
 
-	bool add_item(const InteractionItem& item);
+	bool add_item(const InteractionItem& item) noexcept;
 
-	bool add_knowledge_item(unsigned int knowledge_index);
+	bool add_knowledge_item(unsigned int knowledge_index) noexcept;
 
-	bool add_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter);
+	bool add_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter) noexcept;
 
-	bool add_belief_item(unsigned int belief_index, float belief_value);
+	bool add_belief_item(unsigned int belief_index, float belief_value) noexcept;
 
-	bool add_beliefTM_item(unsigned int belief_index, unsigned int alter, float belief_value);
+	bool add_beliefTM_item(unsigned int belief_index, unsigned int alter, float belief_value) noexcept;
 
-	bool add_knowledge_trust_item(unsigned int knowledge_index, float ktrust);
+	bool add_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 };
 
 
@@ -545,27 +759,27 @@ public:
 	using reverse_iterator = std::list<InteractionMessage>::reverse_iterator;
 	using const_reverse_iterator = std::list<InteractionMessage>::const_reverse_iterator;
 
-	iterator begin(void) { return _queue.begin(); }
+	iterator begin(void) noexcept { return _queue.begin(); }
 
-	iterator end(void) { return _queue.end(); }
+	iterator end(void) noexcept { return _queue.end(); }
 
-	const_iterator begin(void)const { return _queue.begin(); }
+	const_iterator begin(void) const noexcept { return _queue.begin(); }
 
-	const_iterator end(void)const { return _queue.end(); }
+	const_iterator end(void) const noexcept { return _queue.end(); }
 
-	reverse_iterator rbegin(void) { return _queue.rbegin(); }
+	reverse_iterator rbegin(void) noexcept { return _queue.rbegin(); }
 
-	reverse_iterator rend(void) { return _queue.rend(); }
+	reverse_iterator rend(void) noexcept { return _queue.rend(); }
 
-	const_reverse_iterator rbegin(void)const { return _queue.rbegin(); }
+	const_reverse_iterator rbegin(void)const noexcept { return _queue.rbegin(); }
 
-	const_reverse_iterator rend(void)const { return _queue.rend(); }
+	const_reverse_iterator rend(void) const noexcept { return _queue.rend(); }
 
-	void clear(void) { _queue.clear(); }
+	void clear(void) noexcept { _queue.clear(); }
 
 	void addMessage(const InteractionMessage& msg);
 
-	iterator erase(iterator itr);
+	iterator erase(iterator itr) noexcept;
 };
 
 
@@ -574,6 +788,11 @@ public:
 #undef max
 #endif // max
 
+
+
+
+
+
 class CONSTRUCT_LIB Graph_Interface {
 	
 	
@@ -581,11 +800,11 @@ class CONSTRUCT_LIB Graph_Interface {
 protected:
 
 
-	Graph_Interface(const Nodeset* const src, const Nodeset* const trg, const Nodeset* const slc, const std::string& network_name, const std::string& edge);
+	Graph_Interface(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, dynet::edge_types edge);
 	virtual ~Graph_Interface() { ; }
 public:
 
-	virtual void push_deltas(void) { ; } 
+	virtual void push_deltas(void) noexcept { ; } 
 
 	const Nodeset* const source_nodeset;
 
@@ -595,7 +814,7 @@ public:
 
 	const std::string name;
 
-	const std::string edge_type;
+	const dynet::edge_types edge_type;
 
 	const unsigned int row_size;
 
@@ -614,17 +833,17 @@ public:
 
 	Graph_iterator(unsigned int row, unsigned int col);
 
-	const unsigned int row(void) const;
+	unsigned int row(void) const noexcept;
 
-	const unsigned int col(void) const;
+	unsigned int col(void) const noexcept;
 
-	friend bool CONSTRUCT_LIB operator==(const Graph_iterator& l, const Graph_iterator& r);
+	friend bool CONSTRUCT_LIB operator==(const Graph_iterator& l, const Graph_iterator& r) noexcept;
 
-	friend bool CONSTRUCT_LIB operator!=(const Graph_iterator& l, const Graph_iterator& r);
+	friend bool CONSTRUCT_LIB operator!=(const Graph_iterator& l, const Graph_iterator& r) noexcept;
 
-	virtual unsigned int index() const;
+	virtual unsigned int index() const noexcept;
 
-	virtual unsigned int max() const;
+	virtual unsigned int max() const noexcept;
 
 	virtual const Graph_iterator& operator++(void) const;
 
@@ -679,7 +898,7 @@ public:
 
 	public:
 
-		const_full_row_iterator operator=(const full_row_iterator& other);
+		const_full_row_iterator operator=(const full_row_iterator& other) noexcept;
 
 		const const_full_row_iterator& operator++(void) const;
 
@@ -687,9 +906,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -711,9 +930,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -730,7 +949,7 @@ public:
 
 	public:
 
-		const_sparse_row_iterator operator=(const sparse_row_iterator& other);
+		const_sparse_row_iterator operator=(const sparse_row_iterator& other) noexcept;
 
 		const const_sparse_row_iterator& operator++(void) const;
 
@@ -738,9 +957,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -763,9 +982,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -783,7 +1002,7 @@ public:
 
 	public:
 
-		const_row_begin_iterator operator=(const row_begin_iterator& other);
+		const_row_begin_iterator operator=(const row_begin_iterator& other) noexcept;
 
 		const_full_row_iterator full_begin(void) const;
 
@@ -793,11 +1012,11 @@ public:
 
 		const const_row_begin_iterator& operator++(void) const;
 
-		unsigned int operator*(void) const;
+		unsigned int operator*(void) const noexcept;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -823,11 +1042,11 @@ public:
 
 		const row_begin_iterator& operator++(void) const;
 
-		unsigned int operator*(void) const;
+		unsigned int operator*(void) const  noexcept;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -843,7 +1062,7 @@ public:
 
 	public:
 
-		const_full_col_iterator operator=(const full_col_iterator& other);
+		const_full_col_iterator operator=(const full_col_iterator& other) noexcept;
 
 		const const_full_col_iterator& operator++(void) const;
 
@@ -851,9 +1070,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -875,9 +1094,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -897,7 +1116,7 @@ public:
 
 	public:
 
-		const_sparse_col_iterator operator=(const sparse_col_iterator& other);
+		const_sparse_col_iterator operator=(const sparse_col_iterator& other) noexcept;
 
 		const const_sparse_col_iterator& operator++(void) const;
 
@@ -905,9 +1124,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -932,9 +1151,9 @@ public:
 
 		const T* operator->(void) const;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -954,7 +1173,7 @@ public:
 
 	public:
 
-		const_col_begin_iterator operator=(const col_begin_iterator& other);
+		const_col_begin_iterator operator=(const col_begin_iterator& other) noexcept;
 
 		const_full_col_iterator full_begin(void) const;
 
@@ -964,12 +1183,12 @@ public:
 
 		const const_col_begin_iterator& operator++(void) const;
 
-		unsigned int operator*(void) const;
+		unsigned int operator*(void) const noexcept;
 
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
 		//returns target dimension size
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -996,13 +1215,13 @@ public:
 
 		const col_begin_iterator& operator++(void) const;
 
-		unsigned int operator*(void) const;
+		unsigned int operator*(void) const noexcept;
 
 		//returns col index
-		unsigned int index() const;
+		unsigned int index() const noexcept;
 
 		//returns target dimension size
-		unsigned int max() const;
+		unsigned int max() const noexcept;
 	};
 
 
@@ -1016,13 +1235,13 @@ public:
 	virtual const T& examine(unsigned int row, unsigned int col) const { virtual_func_body(T); }
 
 	//sets all elements to the submitted value
-	virtual void clear(const T& data) { ; }
+	virtual void clear(const T& data) noexcept { ; }
 
 	//records the value an element should become when deltas are pushed
 	void add_delta(unsigned int row, unsigned int col, const T& data);
 
 	//updates all elements based on queued deltas
-	void push_deltas(void); 
+	void push_deltas(void) noexcept;
 
 	//returns a reference to the element
 	virtual T& at(full_row_iterator& it) { virtual_func_body(T); }
@@ -1057,11 +1276,11 @@ public:
 
 	virtual const_sparse_row_iterator sparse_row_cbegin(unsigned int row_index, const T& skip_data) const { virtual_func_body(const_sparse_row_iterator); }
 
-	virtual row_begin_iterator begin_rows(void) { virtual_func_body(row_begin_iterator); }
+	virtual row_begin_iterator begin_rows(void) noexcept { virtual_func_body(row_begin_iterator); }
 
-	virtual const_row_begin_iterator begin_rows(void) const { virtual_func_body(const_row_begin_iterator); }
+	virtual const_row_begin_iterator begin_rows(void) const noexcept { virtual_func_body(const_row_begin_iterator); }
 
-	virtual const_row_begin_iterator cbegin_rows(void) const { virtual_func_body(const_row_begin_iterator); }
+	virtual const_row_begin_iterator cbegin_rows(void) const noexcept { virtual_func_body(const_row_begin_iterator); }
 
 	virtual row_begin_iterator begin_rows(unsigned int row_index) { virtual_func_body(row_begin_iterator); }
 
@@ -1071,7 +1290,7 @@ public:
 
 	const Graph_iterator row_end(unsigned int row_index) const;
 
-	const Graph_iterator end_rows(void) const;
+	const Graph_iterator end_rows(void) const noexcept;
 
 	virtual full_col_iterator full_col_begin(unsigned int col_index) { virtual_func_body(full_col_iterator); }
 
@@ -1085,11 +1304,11 @@ public:
 
 	virtual const_sparse_col_iterator sparse_col_cbegin(unsigned int col_index, const T& skip_data) const { virtual_func_body(const_sparse_col_iterator); }
 
-	virtual col_begin_iterator begin_cols(void) { virtual_func_body(col_begin_iterator); }
+	virtual col_begin_iterator begin_cols(void) noexcept { virtual_func_body(col_begin_iterator); }
 
-	virtual const_col_begin_iterator begin_cols(void) const { virtual_func_body(const_col_begin_iterator); }
+	virtual const_col_begin_iterator begin_cols(void) const noexcept { virtual_func_body(const_col_begin_iterator); }
 
-	virtual const_col_begin_iterator cbegin_cols(void) const { virtual_func_body(const_col_begin_iterator); }
+	virtual const_col_begin_iterator cbegin_cols(void) const noexcept { virtual_func_body(const_col_begin_iterator); }
 
 	virtual col_begin_iterator begin_cols(unsigned int col_index) { virtual_func_body(col_begin_iterator); }
 
@@ -1099,7 +1318,7 @@ public:
 
 	const Graph_iterator col_end(unsigned int col_index) const;
 
-	const Graph_iterator end_cols(void) const;
+	const Graph_iterator end_cols(void) const noexcept;
 };
 
 namespace graph_utils {
@@ -1177,11 +1396,44 @@ namespace graph_names {
 	const std::string unused               = "unused knowledge network";                         // "unused knowledge network"
 }
 
+namespace generator_names {
+
+	//generator parameters
+
+	const std::string density = "density"; //"density"
+	const std::string symmetrical = "symmetrical"; //"symmetrical"
+	const std::string min = "min"; //"min"
+	const std::string max = "max"; //"max"
+	const std::string begin = "begin"; //"begin"
+	const std::string end = "end"; //"end"
+	const std::string first = "first"; //"first"
+	const std::string last = "last"; //"last"
+	const std::string p_net = "perception network"; //"perception network"
+	const std::string inf_net = "influence network"; //"influence network"
+	const std::string variance = "variance"; //"variance"
+	const std::string fpr = "false positive rate"; //"false positive rate"
+	const std::string fnr = "false negative rate"; //"false positive rate"
+	const std::string noise = "noise implementation"; //"noise implementation"
+	const std::string unit_normal = "unit normal"; //"unit normal"
+	const std::string normal = "normal"; //"normal"
+
+	//generator names
+
+	const std::string random_uniform = "random uniform"; //"random uniform"
+	const std::string random_binary = "random binary"; //"random binary"
+	const std::string perception = "perception"; //"perception"
+	const std::string dynetml = "dynetml"; //"dynetml"
+	const std::string csv = "csv";
+}
+
+
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
+
+
 
 class CONSTRUCT_LIB GraphManager 
 {
-	GraphManager(NodesetManager* ns_manager, Random* random);
+	GraphManager(Random* random);
 	~GraphManager();
 
 
@@ -1190,43 +1442,91 @@ public:
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
 	template<typename T>
-	void hard_load(std::string name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, std::string model_name="unknown model");
+	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, const std::string& model_name="unknown model");
 
 	template<typename T>
-	void hard_load(std::string name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, std::string model_name = "unknown model");
+	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, const std::string& model_name = "unknown model");
 
 	template<typename T>
-	void hard_load(std::string name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g, std::string model_name = "unknown model") const;
+	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g, const std::string& model_name = "unknown model") const;
 
 	template<typename T>
-	void hard_load(std::string name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g, std::string model_name = "unknown model") const;
+	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g, const std::string& model_name = "unknown model") const;
 
 	template<typename T>
-	void soft_load(std::string name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, std::string model_name = "unknown model");
+	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, const std::string& model_name = "unknown model");
 
 	template<typename T>
-	void soft_load(std::string name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g, std::string model_name = "unknown model") const;
+	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g, const std::string& model_name = "unknown model") const;
 
 	template<typename T>
-	void soft_load(std::string name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, std::string model_name = "unknown model");
+	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, const std::string& model_name = "unknown model");
 
 	template<typename T>
-	void soft_load(std::string name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g, std::string model_name = "unknown model") const;
+	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g, const std::string& model_name = "unknown model") const;
 
+	//creates a new graph data structure if a graph by the same name does not yet exists.
+	//An allocated Graph pointer is guarenteed to be returned if no exceptions are thrown and no assertions raised.
 	template<typename T>
-	Graph<T>* add_network(std::string name,
+	Graph<T>* add_network(const std::string& name,
 		const Nodeset* src, bool row_dense,
 		const Nodeset* trg, bool col_dense,
-		const T& vals, std::string model_name = "unknown model", bool verbose = true);
+		const T& vals, const std::string& model_name = "unknown model", bool verbose = true);
 
+	//creates a new graph data structure if a graph by the same name does not yet exists.
+	//An allocated Graph pointer is guarenteed to be returned if no exceptions are thrown and no assertions raised.
 	template<typename T>
-	Graph<T>* add_3dnetwork(std::string name,
+	Graph<T>* add_3dnetwork(const std::string& name,
 		const Nodeset* src, bool row_dense,
 		const Nodeset* trg, bool col_dense,
 		const Nodeset* slc,
-		const T& vals, std::string model_name = "unknown model", bool verbose = true);
+		const T& vals, const std::string& model_name = "unknown model", bool verbose = true);
 
-	Graph_Interface* get_network(std::string name);
+	Graph_Interface* get_network(const std::string& name) noexcept;
+	
+	struct set_of_generators {
+		GraphManager* const graph_manager;
+		Random* const random;
+		set_of_generators(GraphManager* _graph_manager, Random* _random) : graph_manager(_graph_manager), random(_random) { ; }
+
+		template<typename T>
+		void dynetml_generator(const dynet::ParameterMap& params, Graph<T>* graph);
+
+		template<typename T>
+		void binary_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
+
+		template<typename T>
+		void binary_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
+
+		template<typename T>
+		void uniform_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
+
+		template<typename T>
+		void uniform_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
+
+		template<typename T>
+		void uniform_generator_3d(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
+
+		template<typename T>
+		void csv_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
+
+		template<typename T>
+		void csv_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
+
+		template<typename T>
+		void csv_generator_3d(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
+
+		template<typename T>
+		void perception_generator(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
+
+		template<typename T>
+		void perception_generator(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
+
+	};
+
+	set_of_generators generators;
+
+
 	
 #ifdef DEBUG
 	const std::set<std::string>& get_accesses(std::string name) const;
@@ -1275,8 +1575,6 @@ struct CONSTRUCT_LIB PlaceHolder : virtual public Model {
 namespace model_names {
 	//Interaction Models
 
-	
-
 	//"Standard Interaction Model"
 	const std::string SIM		= "Standard Interaction Model";
 	//"Knowledge Transactive Memory Interaction Model"
@@ -1290,8 +1588,6 @@ namespace model_names {
 
 	//Interaction Models not ME with SIM
 	
-	
-
 	//"Location Interaction Model"
 	const std::string LOC		= "Location Interaction Model";
 	//"Twitter Interaction Model"
@@ -1300,8 +1596,6 @@ namespace model_names {
 	const std::string FB		= "Facebook Interaction Model";
 
 	//Modification Models
-
-	//@python->add_line
 
 	//"Forget Model"
 	const std::string FORGET	= "Forgetting Model";
@@ -1318,8 +1612,6 @@ namespace model_names {
 
 	//Parsing Models
 
-	
-
 	//"Knowledge Parsing Model"
 	const std::string KPARSE	= "Knowledge Parsing Model";
 	
@@ -1335,11 +1627,11 @@ public:
 
 	void move_model_to_front(Model* model);
 
-	Model* get_model_by_name(const std::string &model_name);
+	Model* get_model_by_name(const std::string &model_name) noexcept;
 
-	const Model* get_model_by_name(const std::string &model_name) const;
+	const Model* get_model_by_name(const std::string &model_name) const noexcept;
 
-	void add_model(Model* model);
+	void add_model(Model* model) noexcept;
 		
 
 };
@@ -1360,12 +1652,14 @@ struct CONSTRUCT_LIB Output {
 
 
 class CONSTRUCT_LIB OutputManager {
-	OutputManager() { ; }
+
+	OutputManager(void) { ; };
+
 	~OutputManager(void);
 public:
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
-	void add_output(Output* output);
+	void add_output(Output* output) noexcept;
 };
 
 
@@ -1386,6 +1680,7 @@ class CONSTRUCT_LIB Output_dynetml : public Output {
 	void process(unsigned int t);
 public:
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
+
 	Output_dynetml(const dynet::ParameterMap& params, Construct* construct);
 };
 
@@ -1396,6 +1691,7 @@ class CONSTRUCT_LIB Output_Messages : public Output {
 	void process(unsigned int t);
 public:
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
+
 	Output_Messages(const dynet::ParameterMap& params, Construct* construct);
 };
 
@@ -1417,11 +1713,11 @@ public:
 
 	// returns the size of the "time" nodeset if it exists
 	// otherwise it returns 1
-	unsigned int getTimeCount() const;
+	unsigned int getTimeCount() const noexcept;
 
 	// gets the current time period index
 	// the first time period index is zero
-	unsigned int getCurrentTimePeriod(void)const;
+	const unsigned int& getCurrentTimePeriod(void) const noexcept;
 
 	// The manager that produces random variables and ensures exact reproduction of results given a random seed.
 	Random* const random;
@@ -1846,10 +2142,10 @@ struct CONSTRUCT_LIB media_event {
     unsigned int user = 0;
 
     //set of indexes the event contains
-    std::unordered_map<item_keys, unsigned int> indexes;
+    std::unordered_map<dynet::item_keys, unsigned int> indexes;
 
     //set of values the event contains
-    std::unordered_map<item_keys, float> values;
+    std::unordered_map<dynet::item_keys, float> values;
 
     //the time that this event was created
     float time_stamp = -1;
@@ -1918,7 +2214,7 @@ public:
     CommunicationMedium medium;
 
     //this key is added to messages created by this model for items that contain the feed index
-    item_keys event_key = item_keys::twitter_event;
+    dynet::item_keys event_key = dynet::item_keys::twitter_event;
 
     //list of all current active events, all users can access this list
     std::list<media_event> list_of_events;
@@ -1963,7 +2259,7 @@ public:
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media::users
-	Social_Media(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* construct);
+	Social_Media(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
 
     //delete all pointers in stored in the Social_Media::users data structure
     virtual ~Social_Media();

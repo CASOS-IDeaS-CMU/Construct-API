@@ -1,2 +1,6 @@
-﻿  Template.cpp
-  Construct_DLL.vcxproj -> C:\Users\sdipple\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.dll
+﻿  pch.cpp
+  Template.cpp
+  dllmain.cpp
+  Supp_Library.cpp
+  Generating Code...
+  Construct_DLL.vcxproj -> C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.dll

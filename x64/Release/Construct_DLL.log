@@ -2,10 +2,10 @@
   Template.cpp
   dllmain.cpp
   Supp_Library.cpp
-     Creating library C:\Users\sdipple\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.lib and object C:\Users\sdipple\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.exp
+     Creating library C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.lib and object C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.exp
   Generating code
-  0 of 469 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
+  305 of 356 functions (85.7%) were compiled, the rest were copied from previous compilation.
+    9 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  Construct_DLL.vcxproj -> C:\Users\sdipple\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.dll
+  Construct_DLL.vcxproj -> C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Release\Construct_DLL.dll
