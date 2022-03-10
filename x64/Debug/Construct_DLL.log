@@ -1,6 +1,5 @@
-﻿  pch.cpp
-  Template.cpp
+﻿  Template.cpp
   dllmain.cpp
-  Supp_Library.cpp
   Generating Code...
+     Creating library C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.lib and object C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.exp
   Construct_DLL.vcxproj -> C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.dll

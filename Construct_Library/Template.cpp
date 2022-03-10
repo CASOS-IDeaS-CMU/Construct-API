@@ -123,7 +123,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 
 	auto rit = interaction_network->full_row_begin(row);
 	auto cit = interaction_network->sparse_col_begin(col, false);
-	std::vector<Graph_iterator*> it_list = { &rit, &cit };
+	std::vector<typeless_graph_iterator*> it_list = { &rit, &cit };
 
 	//to align the iterators without first incrementing them use init_align
 	//to advance to the next alignment of iterators use it_align
@@ -144,7 +144,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 
 	auto it1 = interaction_network->sparse_row_begin(row, false);
 	auto it2 = interaction_network->sparse_row_begin(row + 1, false);
-	std::vector<Graph_iterator*> it_list2 = { &it1, &it2 };
+	std::vector<typeless_graph_iterator*> it_list2 = { &it1, &it2 };
 
 	count = 0;
 
@@ -172,9 +172,9 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//items have three data storage members; attributes, indexes, and values.
 
 	InteractionItem item;
-	item.attributes.insert(item_keys::knowledge);
-	item.indexes[item_keys::knowledge] = 2;
-	item.values[item_keys::ktrust] = 0.5;
+	item.attributes.insert(dynet::item_keys::knowledge);
+	item.indexes[dynet::item_keys::knowledge] = 2;
+	item.values[dynet::item_keys::ktrust] = 0.5;
 
 	//messages require a vector of items
 

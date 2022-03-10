@@ -74,8 +74,9 @@ All the classes and functions that facilitate model functions.
 
 
 
-
-
+//defines the data type of the index for a nodeset
+//this also affects the index definitions for a graph
+typedef unsigned int index_type;
 
 namespace dynet
 {
@@ -518,7 +519,7 @@ public:
 
 	const std::string name;
 
-	const unsigned int index;
+	const index_type index;
 
 	const std::string& get_attribute(std::string _name) const;
 };
@@ -540,7 +541,7 @@ public:
 
 	iterator end(void) const;
 
-	unsigned int size(void) const;
+	index_type size(void) const;
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
@@ -550,7 +551,7 @@ public:
 	//if true is returned the submitted attributes pointer needs to be deallocated
 	bool add_node(const std::string& node_name, const dynet::ParameterMap* attributes);
 
-	const Node* get_node_by_index(unsigned int index) const;
+	const Node* get_node_by_index(index_type index) const;
 
 	const Node* get_node_by_name(const std::string& name) const noexcept;
 	
@@ -788,23 +789,13 @@ public:
 #undef max
 #endif // max
 
-
-
-
-
-
 class CONSTRUCT_LIB Graph_Interface {
-	
-	
-
 protected:
-
-
 	Graph_Interface(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, dynet::edge_types edge);
 	virtual ~Graph_Interface() { ; }
 public:
 
-	virtual void push_deltas(void) noexcept { ; } 
+	virtual void push_deltas(void) noexcept = 0;
 
 	const Nodeset* const source_nodeset;
 
@@ -816,36 +807,38 @@ public:
 
 	const dynet::edge_types edge_type;
 
-	const unsigned int row_size;
+	const index_type row_size;
 
-	const unsigned int col_size;
+	const index_type col_size;
 
 };
 
 
 
-class CONSTRUCT_LIB Graph_iterator {
+class CONSTRUCT_LIB typeless_graph_iterator {
 protected:
-	mutable unsigned int _row;
-	mutable unsigned int _col;
+	mutable index_type _row;
+	mutable index_type _col;
+	//the graph will know how to cast this value to the correct type
+	mutable void* _ptr;
 
 public:
 
-	Graph_iterator(unsigned int row, unsigned int col);
+	typeless_graph_iterator(index_type row = 0, index_type col = 0, void* ptr = NULL);
 
-	unsigned int row(void) const noexcept;
+	index_type row(void) const noexcept;
 
-	unsigned int col(void) const noexcept;
+	index_type col(void) const noexcept;
 
-	friend bool CONSTRUCT_LIB operator==(const Graph_iterator& l, const Graph_iterator& r) noexcept;
+	friend bool CONSTRUCT_LIB operator==(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
 
-	friend bool CONSTRUCT_LIB operator!=(const Graph_iterator& l, const Graph_iterator& r) noexcept;
+	friend bool CONSTRUCT_LIB operator!=(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
 
-	virtual unsigned int index() const noexcept;
+	virtual index_type index() const noexcept;
 
-	virtual unsigned int max() const noexcept;
+	virtual index_type max() const noexcept;
 
-	virtual const Graph_iterator& operator++(void) const;
+	virtual const typeless_graph_iterator& operator++(void) const;
 
 	
 
@@ -857,479 +850,321 @@ template<typename T>
 class CONSTRUCT_LIB Graph : public Graph_Interface {
 protected:
 	virtual ~Graph() { ; }
-	Graph(const Nodeset* const src, bool row_dense, const Nodeset* const trg, bool col_dense, const Nodeset* const slc, const T& def, const std::string& name);
+	Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const T& def, const std::string& name);
 public:
 
 	//all elements are intiailized with this value
 	//if an element is not held in memory, it is assumed that element equals this value
 	const T def_val;
 
-	//whether the data for each column is stored in an array or map
+	//whether the data for each column is stored in an array or tree
 	const bool col_dense;
 
-	//whether the data for each row is stored in an array or map
+	//whether the data for each row is stored in an array or tree
 	const bool row_dense;
 
 	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
-#define include_iterator_indexes \
-	using Graph_iterator::_row; \
-	using Graph_iterator::_col
 
-	//this a macro for the body of virtual functions
-	//it creates an assertion bringing you here if called
-	//while also making the compiler happy
-	//unravel the stack to find which function is raising the assertion
-#define virtual_func_body(class_name) \
-	assert(false); \
-	class_name* t = NULL; \
-	return *t
 
-	class full_row_iterator;
+	// ------------ iterator parents -----------------------------
 
-	class CONSTRUCT_LIB const_full_row_iterator : public Graph_iterator {
+
+
+
+	class CONSTRUCT_LIB graph_iterator : public typeless_graph_iterator {
 		
-		include_iterator_indexes;
-		
-		const Graph<T>* _parent;
-		mutable T* _cd;
-		mutable typename std::map<unsigned int, T>::const_iterator _cs;
-		const_full_row_iterator() : _parent(), _cd(), _row(), _col() { ; }
+	protected:
+		Graph<T>* _parent = NULL;
+		graph_iterator(index_type row, index_type col, const Graph<T>* parent, void* ptr) : typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<T>*>(parent)) {}
+	};
 
+
+	class CONSTRUCT_LIB sparse_graph_iterator {
+	protected:
+		const T _skip;
+		sparse_graph_iterator(const T& skip_data) : _skip(skip_data) {}
+	};
+
+
+	class CONSTRUCT_LIB row_graph_iterator : public graph_iterator {
+	protected:
+		using graph_iterator::graph_iterator;
 	public:
+		index_type index() const noexcept;
 
-		const_full_row_iterator operator=(const full_row_iterator& other) noexcept;
+		index_type max() const noexcept;
 
+		const T& operator*(void) const;
+
+		const T* operator->(void) const;
+	};
+
+
+	class CONSTRUCT_LIB col_graph_iterator : public graph_iterator {
+	protected:
+		using graph_iterator::graph_iterator;
+	public:
+		index_type index() const noexcept;
+
+		index_type max() const noexcept;
+
+		const T& operator*(void) const;
+
+		const T* operator->(void) const;
+	};
+
+
+
+
+
+
+	// ------------ row iterators ------------------------------
+
+
+
+
+
+	class CONSTRUCT_LIB const_full_row_iterator : public row_graph_iterator {
+	protected:
+		using row_graph_iterator::row_graph_iterator;
+	public:
 		const const_full_row_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
 	};
 
 
-	class CONSTRUCT_LIB full_row_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		
-		Graph<T>* _parent;
-		mutable T* _cd;
-		mutable typename std::map<unsigned int, T>::iterator _cs;
-		full_row_iterator() : _parent(), _cd(), _row(), _col() { ; }
-
-	public:
-
-		//operator const_full_row_iterator();
-
-		const full_row_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
+	class CONSTRUCT_LIB full_row_iterator : public const_full_row_iterator {
+		using const_full_row_iterator::const_full_row_iterator;
 	};
 
 
-	class sparse_row_iterator;
-
-	class CONSTRUCT_LIB const_sparse_row_iterator : public Graph_iterator {
-		include_iterator_indexes;
-
-		const Graph<T>* _parent;
-		mutable T* _cd;
-		mutable typename std::map<unsigned int, T>::const_iterator _cs;
-		T _skip;
-		const_sparse_row_iterator() : _parent(), _cd(), _row(), _col() { ; }
-
+	class CONSTRUCT_LIB const_sparse_row_iterator : public row_graph_iterator, public sparse_graph_iterator {
+		using sparse_graph_iterator::_skip;
+	protected:
+		const_sparse_row_iterator(index_type row, index_type col, const Graph<T>* parent, void* ptr, const T& skip_data) :
+			row_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {}
 	public:
-
-		const_sparse_row_iterator operator=(const sparse_row_iterator& other) noexcept;
-
 		const const_sparse_row_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
 	};
 
 
-	class CONSTRUCT_LIB sparse_row_iterator : public Graph_iterator {
-		include_iterator_indexes;
-
-		Graph<T>* _parent;
-		mutable T* _cd;
-		mutable typename std::map<unsigned int, T>::iterator _cs;
-		T _skip;
-		sparse_row_iterator() : _parent(), _cd(), _row(), _col() { ; }
-
-	public:
-
-		//operator const_sparse_row_iterator();
-
-		const sparse_row_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
+	class CONSTRUCT_LIB sparse_row_iterator : public const_sparse_row_iterator {
+		using sparse_graph_iterator::_skip;
+	protected:
+		using const_sparse_row_iterator::const_sparse_row_iterator;
 	};
 
 
-	class row_begin_iterator;
 
-	class CONSTRUCT_LIB const_row_begin_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		
-		const Graph<T>* _parent;
-		mutable T* _dd;
-		mutable std::map<unsigned int, T>* _ds;
-		mutable typename std::map<unsigned int, T*>::const_iterator _sd;
-		mutable typename std::map<unsigned int, std::map<unsigned int, T> >::const_iterator _ss;
-		const_row_begin_iterator() : _parent(), _dd(), _ds(), _row(), _col() { ; }
 
+
+
+	// ------------ column iterators ---------------------------
+
+
+
+
+	class CONSTRUCT_LIB const_full_col_iterator : public col_graph_iterator {
+	protected:
+		using col_graph_iterator::col_graph_iterator;
 	public:
+		const const_full_col_iterator& operator++(void) const;
+	};
 
-		const_row_begin_iterator operator=(const row_begin_iterator& other) noexcept;
+
+	class CONSTRUCT_LIB full_col_iterator : public const_full_col_iterator {
+		using const_full_col_iterator::const_full_col_iterator;
+	};
+
+
+	class CONSTRUCT_LIB const_sparse_col_iterator : public col_graph_iterator, public sparse_graph_iterator {
+		using sparse_graph_iterator::_skip;
+	protected:
+		const_sparse_col_iterator(index_type row, index_type col, const Graph<T>* parent, void* ptr, const T& skip_data) :
+			col_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {}
+	public:
+		const const_sparse_col_iterator& operator++(void) const;
+	};
+
+
+	class CONSTRUCT_LIB sparse_col_iterator : public const_sparse_col_iterator {
+		using sparse_graph_iterator::_skip;
+		using const_sparse_col_iterator::const_sparse_col_iterator;
+	};
+
+
+
+
+
+
+	// -------------- begin iterators ---------------------------
+
+
+
+
+
+	class CONSTRUCT_LIB const_row_begin_iterator : public col_graph_iterator {
+	protected:
+		const_row_begin_iterator(index_type row, const Graph<T>* parent, void* ptr) : col_graph_iterator(row, 0, parent, ptr) {}
+		using col_graph_iterator::operator->;
+	public:
+		index_type operator*(void) const;
 
 		const_full_row_iterator full_begin(void) const;
 
-		const_sparse_row_iterator sparse_begin(const T& skip_data) const;
+		const_sparse_row_iterator sparse_begin(const T& data) const;
 
-		Graph_iterator end(void) const;
+		typeless_graph_iterator end(void) const;
 
 		const const_row_begin_iterator& operator++(void) const;
-
-		unsigned int operator*(void) const noexcept;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
 	};
 
 
-	class CONSTRUCT_LIB row_begin_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		
-		Graph<T>* _parent;
-		mutable T* _dd;
-		mutable std::map<unsigned int, T>* _ds;
-		mutable typename std::map<unsigned int, T*>::iterator _sd;
-		mutable typename std::map<unsigned int, std::map<unsigned int, T> >::iterator _ss;
-		row_begin_iterator() : _parent(), _dd(), _ds(), _row(), _col() { ; }
-
+	class CONSTRUCT_LIB row_begin_iterator : public const_row_begin_iterator {
+		using const_row_begin_iterator::const_row_begin_iterator;
 	public:
-
-		//operator const_row_begin_iterator();
-
 		full_row_iterator full_begin(void);
 
-		sparse_row_iterator sparse_begin(const T& skip_data);
-
-		Graph_iterator end(void) const;
-
-		const row_begin_iterator& operator++(void) const;
-
-		unsigned int operator*(void) const  noexcept;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
+		sparse_row_iterator sparse_begin(const T& data);
 	};
 
 
-	class full_col_iterator;
-
-	class CONSTRUCT_LIB const_full_col_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		
-		const Graph<T>* _parent;
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, T*>::const_iterator _ndd;
-		const_full_col_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
+	class CONSTRUCT_LIB const_col_begin_iterator : public row_graph_iterator {
+	protected:
+		const_col_begin_iterator(index_type col, const Graph<T>* parent, void* ptr) : row_graph_iterator(0, col, parent, ptr) {}
+		using row_graph_iterator::operator->;
 	public:
-
-		const_full_col_iterator operator=(const full_col_iterator& other) noexcept;
-
-		const const_full_col_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-	};
-
-
-	class CONSTRUCT_LIB full_col_iterator : public Graph_iterator {
-		include_iterator_indexes;
-
-		Graph<T>* _parent;
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, T*>::iterator _ndd;
-		full_col_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
-	public:
-
-		//operator const_full_col_iterator();
-
-		const full_col_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-	};
-
-
-	class sparse_col_iterator;
-
-	class CONSTRUCT_LIB const_sparse_col_iterator : public Graph_iterator {
-		include_iterator_indexes;
-
-		const Graph<T>* _parent;
-
-		//each member corresponds to a way to find an element in the graph for each representation
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, T*>::const_iterator _ndd;
-		T _skip;
-		const_sparse_col_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
-
-	public:
-
-		const_sparse_col_iterator operator=(const sparse_col_iterator& other) noexcept;
-
-		const const_sparse_col_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-	};
-
-
-	class CONSTRUCT_LIB sparse_col_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		Graph<T>* _parent;
-
-		//each member corresponds to a way to find an element in the graph for each representation
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, T*>::iterator _ndd;
-		const T _skip;
-		sparse_col_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
-
-	public:
-
-		//operator const_sparse_col_iterator();
-
-		const sparse_col_iterator& operator++(void) const;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-	};
-
-
-
-	class col_begin_iterator;
-
-	class CONSTRUCT_LIB const_col_begin_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		const Graph<T>* _parent;
-
-		//each member coresponds to the beginning of a row
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, std::map<unsigned int, T*> >::const_iterator _cs;
-		mutable typename std::map<unsigned int, T*>::const_iterator _sd;
-		const_col_begin_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
-
-	public:
-
-		const_col_begin_iterator operator=(const col_begin_iterator& other) noexcept;
+		index_type operator*(void) const;
 
 		const_full_col_iterator full_begin(void) const;
 
-		const_sparse_col_iterator sparse_begin(const T& skip_data) const;
+		const_sparse_col_iterator sparse_begin(const T& data) const;
 
-		Graph_iterator end(void) const;
+		typeless_graph_iterator end(void) const;
 
 		const const_col_begin_iterator& operator++(void) const;
-
-		unsigned int operator*(void) const noexcept;
-
-		unsigned int index() const noexcept;
-
-		//returns target dimension size
-		unsigned int max() const noexcept;
 	};
 
 
-	class CONSTRUCT_LIB col_begin_iterator : public Graph_iterator {
-		include_iterator_indexes;
-		Graph<T>* _parent;
-
-		//each member coresponds to the beginning of a row
-		mutable T* _dd;
-		mutable typename std::map<unsigned int, std::map<unsigned int, T*> >::iterator _cs;
-		mutable typename std::map<unsigned int, T*>::iterator _sd;
-		col_begin_iterator() : _parent(), _dd(), _row(), _col() { ; }
-
-
+	class CONSTRUCT_LIB col_begin_iterator : public const_col_begin_iterator {
+		using const_col_begin_iterator::const_col_begin_iterator;
 	public:
-
-		//operator const_col_begin_iterator();
-
 		full_col_iterator full_begin(void);
 
-		sparse_col_iterator sparse_begin(const T& skip_data);
-
-		Graph_iterator end(void) const;
-
-		const col_begin_iterator& operator++(void) const;
-
-		unsigned int operator*(void) const noexcept;
-
-		//returns col index
-		unsigned int index() const noexcept;
-
-		//returns target dimension size
-		unsigned int max() const noexcept;
+		sparse_col_iterator sparse_begin(const T& data);
 	};
+
+
+
+
+
+
 
 
 	//returns a reference to the element
-	virtual T& at(unsigned int row, unsigned int col) { virtual_func_body(T); }
+	virtual T& at(index_type row, index_type col) = 0;
 
 	//updates an element's value
-	void at(unsigned int row, unsigned int col, const T& data);
+	void at(index_type row, index_type col, const T& data);
 
 	//returns a constant reference to the element
-	virtual const T& examine(unsigned int row, unsigned int col) const { virtual_func_body(T); }
+	virtual const T& examine(index_type row, index_type col) const = 0;
 
 	//sets all elements to the submitted value
-	virtual void clear(const T& data) noexcept { ; }
+	virtual void clear(const T& data) noexcept = 0;
 
 	//records the value an element should become when deltas are pushed
-	void add_delta(unsigned int row, unsigned int col, const T& data);
+	void add_delta(index_type row, index_type col, const T& data);
 
 	//updates all elements based on queued deltas
 	void push_deltas(void) noexcept;
 
 	//returns a reference to the element
-	virtual T& at(full_row_iterator& it) { virtual_func_body(T); }
+	virtual T& at(row_graph_iterator& it) = 0;
 
 	//returns a reference to the element
-	virtual T& at(sparse_row_iterator& it) { virtual_func_body(T); }
-
-	//returns a reference to the element
-	virtual T& at(full_col_iterator& it) { virtual_func_body(T); }
-
-	//returns a reference to the element
-	virtual T& at(sparse_col_iterator& it) { virtual_func_body(T); }
+	virtual T& at(col_graph_iterator& it) = 0;
 
 	//updates an element's value
-	void at(full_row_iterator& it, const T& data);
+	void at(row_graph_iterator& it, const T& data);
+
 	//updates an element's value
-	void at(sparse_row_iterator& it, const T& data);
-	//updates an element's value
-	void at(full_col_iterator& it, const T& data);
-	//updates an element's value
-	void at(sparse_col_iterator& it, const T& data);
+	void at(col_graph_iterator& it, const T& data);
 
-	virtual full_row_iterator full_row_begin(unsigned int row_index) { virtual_func_body(full_row_iterator); }
+	virtual full_row_iterator full_row_begin(index_type row_index) = 0;
 
-	virtual const_full_row_iterator full_row_begin(unsigned int row_index) const { virtual_func_body(const_full_row_iterator); }
+	virtual const_full_row_iterator full_row_begin(index_type row_index) const = 0;
 
-	virtual const_full_row_iterator full_row_cbegin(unsigned int row_index) const { virtual_func_body(const_full_row_iterator); }
+	const_full_row_iterator full_row_cbegin(index_type row_index) const { return full_row_begin(row_index); };
 
-	virtual sparse_row_iterator sparse_row_begin(unsigned int row_index, const T& skip_data) { virtual_func_body(sparse_row_iterator); }
 
-	virtual const_sparse_row_iterator sparse_row_begin(unsigned int row_index, const T& skip_data) const { virtual_func_body(const_sparse_row_iterator); }
+	virtual sparse_row_iterator sparse_row_begin(index_type row_index, const T& skip_data) = 0;
 
-	virtual const_sparse_row_iterator sparse_row_cbegin(unsigned int row_index, const T& skip_data) const { virtual_func_body(const_sparse_row_iterator); }
+	virtual const_sparse_row_iterator sparse_row_begin(index_type row_index, const T& skip_data) const = 0;
 
-	virtual row_begin_iterator begin_rows(void) noexcept { virtual_func_body(row_begin_iterator); }
+	const_sparse_row_iterator sparse_row_cbegin(index_type row_index, const T& skip_data) const { return sparse_row_begin(row_index, skip_data); };
 
-	virtual const_row_begin_iterator begin_rows(void) const noexcept { virtual_func_body(const_row_begin_iterator); }
 
-	virtual const_row_begin_iterator cbegin_rows(void) const noexcept { virtual_func_body(const_row_begin_iterator); }
+	virtual row_begin_iterator begin_rows(void) noexcept = 0;
 
-	virtual row_begin_iterator begin_rows(unsigned int row_index) { virtual_func_body(row_begin_iterator); }
+	virtual const_row_begin_iterator begin_rows(void) const noexcept = 0;
 
-	virtual const_row_begin_iterator begin_rows(unsigned int row_index) const { virtual_func_body(const_row_begin_iterator); }
+	const_row_begin_iterator cbegin_rows(void) const noexcept { return begin_rows(); };
 
-	virtual const_row_begin_iterator cbegin_rows(unsigned int row_index) const { virtual_func_body(const_row_begin_iterator); }
 
-	const Graph_iterator row_end(unsigned int row_index) const;
+	virtual row_begin_iterator begin_rows(index_type row_index) = 0;
 
-	const Graph_iterator end_rows(void) const noexcept;
+	virtual const_row_begin_iterator begin_rows(index_type row_index) const = 0;
 
-	virtual full_col_iterator full_col_begin(unsigned int col_index) { virtual_func_body(full_col_iterator); }
+	const_row_begin_iterator cbegin_rows(index_type row_index) const { return begin_rows(row_index); };
 
-	virtual const_full_col_iterator full_col_begin(unsigned int col_index) const { virtual_func_body(const_full_col_iterator); }
 
-	virtual const_full_col_iterator full_col_cbegin(unsigned int col_index) const { virtual_func_body(const_full_col_iterator); }
+	const typeless_graph_iterator row_end(index_type row_index) const;
 
-	virtual sparse_col_iterator sparse_col_begin(unsigned int col_index, const T& skip_data) { virtual_func_body(sparse_col_iterator); }
+	const typeless_graph_iterator end_rows(void) const noexcept;
 
-	virtual const_sparse_col_iterator sparse_col_begin(unsigned int col_index, const T& skip_data) const { virtual_func_body(const_sparse_col_iterator); }
+	virtual full_col_iterator full_col_begin(index_type col_index) = 0;
 
-	virtual const_sparse_col_iterator sparse_col_cbegin(unsigned int col_index, const T& skip_data) const { virtual_func_body(const_sparse_col_iterator); }
+	virtual const_full_col_iterator full_col_begin(index_type col_index) const = 0;
 
-	virtual col_begin_iterator begin_cols(void) noexcept { virtual_func_body(col_begin_iterator); }
+	const_full_col_iterator full_col_cbegin(index_type col_index) const { return full_col_begin(col_index); };
 
-	virtual const_col_begin_iterator begin_cols(void) const noexcept { virtual_func_body(const_col_begin_iterator); }
 
-	virtual const_col_begin_iterator cbegin_cols(void) const noexcept { virtual_func_body(const_col_begin_iterator); }
+	virtual sparse_col_iterator sparse_col_begin(index_type col_index, const T& skip_data) = 0;
 
-	virtual col_begin_iterator begin_cols(unsigned int col_index) { virtual_func_body(col_begin_iterator); }
+	virtual const_sparse_col_iterator sparse_col_begin(index_type col_index, const T& skip_data) const = 0;
 
-	virtual const_col_begin_iterator begin_cols(unsigned int col_index) const { virtual_func_body(const_col_begin_iterator); }
+	const_sparse_col_iterator sparse_col_cbegin(index_type col_index, const T& skip_data) const { return sparse_col_begin(col_index, skip_data); };
 
-	virtual const_col_begin_iterator cbegin_cols(unsigned int col_index) const { virtual_func_body(const_col_begin_iterator); }
 
-	const Graph_iterator col_end(unsigned int col_index) const;
+	virtual col_begin_iterator begin_cols(void) noexcept = 0;
 
-	const Graph_iterator end_cols(void) const noexcept;
+	virtual const_col_begin_iterator begin_cols(void) const noexcept = 0;
+
+	const_col_begin_iterator cbegin_cols(void) const noexcept { return begin_cols(); };
+
+
+	virtual col_begin_iterator begin_cols(index_type col_index) = 0;
+
+	virtual const_col_begin_iterator begin_cols(index_type col_index) const = 0;
+
+	const_col_begin_iterator cbegin_cols(index_type col_index) const { return begin_cols(col_index); };
+
+
+	const typeless_graph_iterator col_end(index_type col_index) const;
+
+	const typeless_graph_iterator end_cols(void) const noexcept;
 };
 
 namespace graph_utils {
 
-	void CONSTRUCT_LIB it_align(std::vector<Graph_iterator*>& it_list);
+	void CONSTRUCT_LIB it_align(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB init_align(std::vector<Graph_iterator*>& it_list);
+	void CONSTRUCT_LIB init_align(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB it_align_before_first(std::vector<Graph_iterator*>& it_list);
+	void CONSTRUCT_LIB it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB init_align_before_first(std::vector<Graph_iterator*>& it_list);
+	void CONSTRUCT_LIB init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 }
 
 namespace graph_names {
