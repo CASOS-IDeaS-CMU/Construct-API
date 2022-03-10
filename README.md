@@ -6,7 +6,7 @@ Agents can decide which person to interact with based on their connections in ce
 When agents interact they send interaction messages with content determined by the state of various networks and node attributes.
 
 Construct hosts a plethora of models built on this framework.
-For a full review of how Construct handles the input of nodes, networks, models, and outputs, as well as a review of the behavior of each model, refer to the [Construct User Guide](http://www.casos.cs.cmu.edu/publications/papers/CMU-ISR-21-102-Construct%20User%20Guide.pdf).
+For a full review of how Construct handles the input of nodes, networks, models, and outputs, as well as a review of the behavior of each model, refer to the [Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf).
 This guide handles how to create new models to interact with prexisting models and how to call those models via the input xml file.
 In addition this guide will also go over creating custom networks, nodesets, and outputs and how to load those entities into Construct.
 For documentation of how to use the various classes and functions in Construct, refer to the [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html).
