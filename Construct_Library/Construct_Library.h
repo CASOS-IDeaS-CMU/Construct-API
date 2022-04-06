@@ -50,7 +50,7 @@
 #include <unordered_set>
 
 
-
+#if defined WIN32 || defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
 #ifdef USE_DLL
 	#define CONSTRUCT_LIB __declspec(dllexport)
 #else
@@ -59,6 +59,9 @@
 	#else
 		#define CONSTRUCT_LIB
 	#endif
+#endif
+#else
+	#define CONSTRUCT_LIB
 #endif
 
 /*
@@ -942,7 +945,9 @@ public:
 		using sparse_graph_iterator::_skip;
 	protected:
 		const_sparse_row_iterator(index_type row, index_type col, const Graph<T>* parent, void* ptr, const T& skip_data) :
-			row_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {}
+			row_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {
+			if (row_graph_iterator::operator*() == skip_data) this->operator++();
+		}
 	public:
 		const const_sparse_row_iterator& operator++(void) const;
 	};
@@ -981,7 +986,9 @@ public:
 		using sparse_graph_iterator::_skip;
 	protected:
 		const_sparse_col_iterator(index_type row, index_type col, const Graph<T>* parent, void* ptr, const T& skip_data) :
-			col_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {}
+			col_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {
+			if (col_graph_iterator::operator*() == skip_data) this->operator++();
+		}
 	public:
 		const const_sparse_col_iterator& operator++(void) const;
 	};
@@ -1627,7 +1634,7 @@ public:
 
 	void update(void);
 
-	void communicate(InteractionMessageQueue::iterator& msg);
+	void communicate(InteractionMessageQueue::iterator msg);
 
 	void cleanup(void);
 };
@@ -1907,7 +1914,7 @@ public:
 	KnowledgeTransactiveMemory(const dynet::ParameterMap& parameters, Construct* construct);
 	
 	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator& msg);
+	void communicate(InteractionMessageQueue::iterator msg);
 	void cleanup();
 
 	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm);
@@ -2110,7 +2117,7 @@ public:
     //only parses messages that have an attribute equal to Social_Media::event_key for the feed position index corresponding to a media_event pointer
     //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
     //the reading user will then decide whether to follow based on the event author's charisma and similarity based on the trust transactive memory
-    void communicate(InteractionMessageQueue::iterator& msg);
+    void communicate(InteractionMessageQueue::iterator msg);
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
     void cleanup(void);
@@ -2336,7 +2343,7 @@ public:
 
 	GrandInteraction(const dynet::ParameterMap& parameters, Construct* construct);
 	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator& msg);
+	void communicate(InteractionMessageQueue::iterator msg);
 	void cleanup(void);
 
 	//see Beliefs::think for why these functions are here
@@ -2484,7 +2491,7 @@ public:
 	Subscription(Construct* construct);
 
 	void think();
-	void communicate(InteractionMessageQueue::iterator& msg);
+	void communicate(InteractionMessageQueue::iterator msg);
 	void cleanup();
 
 	InteractionMessageQueue* public_queue;

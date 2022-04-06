@@ -1,0 +1,4 @@
+Fixed a bug where construct.run() would not check for a time nodeset to adjust the number of timeperiods in the simultion
+Fixed a bug where the entire row of a graph was being cleared everytime an element was changed
+Fixed a bug where sparse iterators were not initialized to a value that did not equal the skip value
+Fixed a bug where not all communicate functions of Construct Models were implemented correctly. This caused these communicate functions to be not be called at all.
