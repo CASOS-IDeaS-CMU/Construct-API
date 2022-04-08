@@ -12,4 +12,6 @@
 *.idb
 *.iobj
 *.ipdb
+*.o
+*.swp
 /x64/Release/Construct_DLL.tlog

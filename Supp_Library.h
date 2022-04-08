@@ -1,9 +1,12 @@
 #pragma once
-
+#if defined WIN32 || defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
 #ifdef CONSTRUCTDLL_EXPORTS
 #define CONSTRUCT_API __declspec(dllexport)
 #else
 #define CONSTRUCT_API __declspec(dllimport)
+#endif
+#else
+#define CONSTRUCT_API
 #endif
 
 #include "pch.h"
