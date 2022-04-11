@@ -38,7 +38,7 @@ override INC += $(SRC_DIR) $(CONSTRUCT_HEADER_DIR)
 #The dir is created if not already present
 #location is relative to makefile
 
-CXX ?= g++ -std=c++20
+CXX = g++ -std=c++20
 # end user defined variables
 
 
