@@ -14,4 +14,6 @@
 *.ipdb
 *.o
 *.swp
+*.log
+/x64/*/Construct_DLL.lib
 /x64/Release/Construct_DLL.tlog

@@ -4,15 +4,12 @@
 
 #include "pch.h" 
 
-class Template : public Model
-{
-public:
-
+struct Template : public Model {
 	Template(const dynet::ParameterMap& parameters, Construct* construct);
 	void initialize(void);
 	void think(void);
 	void update(void);
-	void communicate(InteractionMessageQueue::iterator& msg);
+	void communicate(InteractionMessageQueue::iterator msg);
 	void cleanup(void);
 };
 #endif

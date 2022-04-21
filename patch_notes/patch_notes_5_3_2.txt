@@ -1,0 +1,10 @@
+When the source header files were combined into Construct_Library.h, some members of classes were not included. All classes should now have all members stored in memory displayed for the user.
+Added methods for importing and exporting nodesets and networks in the NodesetManager and GraphManager, respectively. These allow nodesets and networks to persist between Construct runs.
+Added a method to allow Construct to import an input xml file and parse it as if it were being done so in the API exes.
+Added a method to nodesets that allow them to import from a DyNetML file as if it were being done through a nodeset generator in the input xml file.
+The Constructor for Construct no longer requires a seed. Instead, the random seed can be set through the new function Random::set_seed.
+The manager classes have been changed to member variables rather than pointers allocated on the heap. This simplifies data management for Construct.
+Nodes and nodesets can now be created outside of the NodesetManager, however to ensure indexes are handled properly, nodes created outside a nodeset can not be added to a nodeset.
+Dropped the & from the communicate function of models as iterator copies are inexpensive.
+The current_time and time_count members are now public in Construct. Time count is still set by the time nodeset during loading in the API exe or when Construct::run is called.
+Removed various restriction on dereferencing certain classes.

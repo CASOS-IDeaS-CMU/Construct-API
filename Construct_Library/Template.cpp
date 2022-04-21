@@ -1,15 +1,8 @@
-
-
 #include "pch.h"
 #include "Template.h"
 
-
-
 Template::Template(const dynet::ParameterMap& parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
 {
-	//To see some of the code through visual studio and to test compilation,
-	//change the following flag to #ifndef DO_NOT_FLAG
-	//not all 
 #ifdef DO_NOT_FLAG
 	//this section goes over a few examples
 	//none of the following examples will be compiled or affect runtime
@@ -172,9 +165,9 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//items have three data storage members; attributes, indexes, and values.
 
 	InteractionItem item;
-	item.attributes.insert(dynet::item_keys::knowledge);
-	item.indexes[dynet::item_keys::knowledge] = 2;
-	item.values[dynet::item_keys::ktrust] = 0.5;
+	item.attributes.insert("my_attribute");
+	item.indexes["my_index"] = 2;
+	item.values["my_value"] = 0.5;
 
 	//messages require a vector of items
 
@@ -192,16 +185,11 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	const Nodeset* comms = ns_manager->get_nodeset(nodeset_names::comm);
 
 	comms->check_attributes<float>(comms_att::percent_learnable);
-	//The previous call will only check that the attributes are convertable
-	//The next call will also check if their resulting value is within the specified range
-	//A string exception will be thrown if any problem occurs.
-	comms->check_attributes<float>(comms_att::percent_learnable, 0.0, 1.0);
 	comms->check_attributes<unsigned int>(comms_att::msg_complex);
 	comms->check_attributes<unsigned int>(comms_att::tts);
 	auto medium_node = comms->begin();
 
-	//If not deallocated in the deconstructor this can cause memory leaks
-	CommunicationMedium* medium = new CommunicationMedium(medium_node);
+	CommunicationMedium medium(medium_node);
 
 	//A custom CommunicationMedium can be created with all the relevant attribute information
 	std::string comm_name = "medium name";
@@ -217,9 +205,6 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	unsigned int sndr = 0;
 	unsigned int recv = 1;
 
-	//Messages use medium pointers so be sure to check the scope of the CommunicationMedium to ensure it will persist outside the model.
-	//This can either be done by using new or having the class be stored within a model.
-	//See StandardInteraction and Social_Media for examples.
 	InteractionMessage msg(sndr, recv, medium, items);
 
 	//This messages can then be added to the message queue
@@ -229,7 +214,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//this manager is not pre loaded as it has a limited applications
 	//models can be queried for their pointers. This is primarily to check if a model exists though other applications may be useful
 
-	if (construct->model_manager->get_model_by_name(model_names::SIM)) {
+	if (construct->model_manager.get_model_by_name(model_names::SIM)) {
 		std::cout << "Standard Interaction Model is active." << std::endl;
 	}
 
@@ -237,14 +222,14 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//To avoid potential conflicts and double parsing that model may not be directly loaded in the model manager
 	//If two or more models use seperately the same model internally they can communicate their usage through a placeholder model
 
-	construct->model_manager->add_model(new PlaceHolder(model_names::SIM));
+	construct->model_manager.add_model(new PlaceHolder(model_names::SIM));
 
 	//now when all other models query for the Standard Interaction Model, they will see the model as currently active
 	//importantly the PlaceHolder model does not perform any operations when called by the model manager
 	//lastly it is important that other entities know if this model is a real model or a placeholder
 	//all models have the variable valid which will be false if created using the PlaceHolder class
 
-	if (!construct->model_manager->get_model_by_name(model_names::SIM)->valid) {
+	if (!construct->model_manager.get_model_by_name(model_names::SIM)->valid) {
 		std::cout << "The Standard Interaction Model loaded is a placeholder." << std::endl;
 	}
 
@@ -283,6 +268,6 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 void Template::initialize(void) {}
 void Template::think(void) {}
 void Template::update(void) {}
-void Template::communicate(InteractionMessageQueue::iterator& msg) {}
+void Template::communicate(InteractionMessageQueue::iterator msg) {}
 void Template::cleanup() {}
 
