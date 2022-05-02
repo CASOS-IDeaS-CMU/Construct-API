@@ -1,3 +1,0 @@
-C:\Users\Stephen\Documents\GitHub\Construct-TwitterSim\Construct_DLL\x64\Debug\Construct_DLL.dll
-C:\Users\sdipple\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.dll
-C:\Users\Stephen\Documents\GitHub\Construct-API\x64\Debug\Construct_DLL.dll

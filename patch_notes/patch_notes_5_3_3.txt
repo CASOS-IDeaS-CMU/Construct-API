@@ -1,0 +1,8 @@
+Modified the library loading process such that the dll/shared library is no longer required to run the executable. Construct will search for the library in the local directory. If the library is found and verbose initialization is enabled, a message will be displayed. Similarily, a message will also be displayed if the associated function pointers are also found.
+When creating an instance of Construct outside of the dll/shared library using the Construct static library, it will no longer be required to install the dll/shared library due to the previous change.
+A typo caused default values for bounding boxes to not all be included in the parameters input for network generators.
+Constructors for default reposting and quoting in Social Media models were accidentally swapped.
+Checks on media_event deconstruction were accidently throwing assertions. This was not affecting release builds.
+Some functions were reimplemented as const to improve performance.
+The API functions have been moved into their own dedicated folder and a new folder has been created along side it. The Custom_Construct folder holds examples for how to manually create, initialize, and run a Construct simulation through c++ rather than an input xml file.
+To better organize files, the construct static libraries have been moved to the include folder. In addition the Construct_Library.h function has been moved to the include folder and been renamed to simply Construct.h. Executables for the API still remain in the API_Functions folder.

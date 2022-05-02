@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<construct>
+    <construct_parameters>
+        <param name="verbose initialization" value="true"/>
+        <param name="verbose runtime" value="true"/>
+    </construct_parameters>
+    <models>
+        <model name="Twitter Interaction Model">
+            <param name="interval time duration" value="1.0"/>
+            <param name="maximum post inactivity" value="10.0"/>
+        </model>
+        <model name="Knowledge Trust Model">
+            <param name="relax rate" value="0.2"/>
+        </model>
+    </models>
+    <nodesets>
+        <nodeset name="agent">
+            <node name="agent_0">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_1">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_2">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_3">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_4">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_5">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_6">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_7">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_8">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_9">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_10">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_11">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_12">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_13">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_14">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_15">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_16">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_17">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_18">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_19">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_20">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_21">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_22">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_23">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_24">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_25">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_26">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_27">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_28">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_29">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_30">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_31">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_32">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_33">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_34">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_35">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_36">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_37">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_38">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_39">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_40">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_41">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_42">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_43">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_44">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_45">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_46">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_47">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_48">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+            <node name="agent_49">
+                <attribute name="Twitter add follower density" value="1"/>
+                <attribute name="Twitter auto follow" value="true"/>
+                <attribute name="Twitter charisma" value=".5"/>
+                <attribute name="Twitter post density" value="1"/>
+                <attribute name="Twitter quote probability" value=".1"/>
+                <attribute name="Twitter reading density" value="5"/>
+                <attribute name="Twitter remove follower scale factor" value="50"/>
+                <attribute name="Twitter reply probability" value=".1"/>
+                <attribute name="Twitter repost probability" value=".1"/>
+                <attribute name="can receive knowledge" value="true"/>
+                <attribute name="can receive knowledge trust" value="true"/>
+                <attribute name="can send knowledge" value="true"/>
+                <attribute name="can send knowledge trust" value="true"/>
+            </node>
+        </nodeset>
+        <nodeset name="knowledge">
+            <node name="knowledge_0"/>
+            <node name="knowledge_1"/>
+            <node name="knowledge_2"/>
+            <node name="knowledge_3"/>
+            <node name="knowledge_4"/>
+            <node name="knowledge_5"/>
+            <node name="knowledge_6"/>
+            <node name="knowledge_7"/>
+            <node name="knowledge_8"/>
+            <node name="knowledge_9"/>
+            <node name="knowledge_10"/>
+            <node name="knowledge_11"/>
+            <node name="knowledge_12"/>
+            <node name="knowledge_13"/>
+            <node name="knowledge_14"/>
+            <node name="knowledge_15"/>
+            <node name="knowledge_16"/>
+            <node name="knowledge_17"/>
+            <node name="knowledge_18"/>
+            <node name="knowledge_19"/>
+        </nodeset>
+        <nodeset name="time">
+            <node name="time_0"/>
+            <node name="time_1"/>
+            <node name="time_2"/>
+            <node name="time_3"/>
+            <node name="time_4"/>
+            <node name="time_5"/>
+            <node name="time_6"/>
+            <node name="time_7"/>
+            <node name="time_8"/>
+            <node name="time_9"/>
+        </nodeset>
+    </nodesets>
+    <networks>
+        <network default="0" edge_type="bool" name="knowledge network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="knowledge" representation="sparse"/>
+            <generator type="random binary">
+                <param name="density" value="0.2"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="bool" name="twitter follower network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="agent" representation="sparse"/>
+            <generator type="random binary">
+                <param name="density" value="0.2"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="knowledge trust network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="knowledge" representation="sparse"/>
+            <generator type="random uniform">
+                <param name="density" value="0.2"/>
+                <param name="min" value="0.0"/>
+                <param name="max" value="1.0"/>
+            </generator>
+        </network>
+    </networks>
+    <outputs>
+        <output type="dynetml">
+            <param name="network names" value="knowledge network,knowledge trust network,twitter follower network"/>
+            <param name="output file" value="my_ouput.xml"/>
+            <param name="timeperiods" value="all"/>
+        </output>
+    </outputs>
+</construct>

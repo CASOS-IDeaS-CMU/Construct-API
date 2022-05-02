@@ -2,8 +2,8 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/Construct_DLL/v16
-/x64/Debug/Construct_DLL.tlog
+/API_Functions/.vs/*
+/Custom_Construct/.vs/*
 *.exp
 *.ilk
 *.pch
@@ -15,5 +15,4 @@
 *.o
 *.swp
 *.log
-/x64/*/Construct_DLL.lib
-/x64/Release/Construct_DLL.tlog
+
