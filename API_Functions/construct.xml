@@ -2,7 +2,7 @@
 <construct>
     <construct_parameters>
         <param name="verbose initialization" value="true"/>
-        <param name="verbose runtime" value="true"/>
+        <param name="verbose runtime" value="false"/>
     </construct_parameters>
     <models>
         <model name="Twitter Interaction Model">

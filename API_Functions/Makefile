@@ -69,21 +69,16 @@ CXXFLAGS ?=
 SRC_DIR := .
 
 # Defines any additional directories that should be included
+# All cpp files included in these directories are compiled.
 # The base set of include directories are defined in Section 2.
 ADD_INC ?=
 
-#Add all includes here
-#make sure there aren't any forward slashes before or after the dir
-#location is relative to makefile
-#the include dir needs to be in a subdir of the makefile
-#in order for the the cpp files to be found
+# The location of the Construct Header
 CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
 
+# The location of the static library that provides definitions for the declarations in the Construct Header
 IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
 
-#All object files get moved to this dir
-#The dir is created if not already present
-#location is relative to makefile
 
 CXX = g++ -std=c++20
 # end user defined variables
@@ -194,21 +189,24 @@ override SHARED_LIB_OPTIONS := $(SHARED_OPTION) -L$(IMPORT_LIB_DIR) -l$(IMPORT_L
 
 # creates the shared library for the API
 %/lib$(API_LIB).$(LIB_EXT): $(SRC_OBJ) $(SRC_HED) $(IMPORT_LIB_DIR)/lib$(IMPORT_LIB).a
-	$(CXX) $(LINKER_OPTIONS) $(SHARED_LIB_OPTIONS) -o $@ $(API_OUT_DIR)/*.o $(MACROS)
+	$(CXX) $(LINKER_OPTIONS) $(SRC_OBJ) $(SHARED_LIB_OPTIONS) -o $@ $(MACROS)
 	
 
 #this is needed to do the recursive search for the specified cpp and h files in build/%.o
 .SECONDEXPANSION:
 
+.SECONDARY: $(SRC_OBJ)
+
 # because each object file is in a different location that the the corresponding cpp file
 # we have to search for the cpp file which is what this shell command does
 # it only searches files in this directory so as to make sure other files aren't accidently used
 $(API_OUT_DIR)/%.o: $$(shell find .. -name $$*.cpp)
-	@$(CXX) -c -fPIC $(OBJECT_OPTIONS) $(INC_DIR) $< -o $@ $(MACROS)
+	$(CXX) -c -fPIC $(OBJECT_OPTIONS) $(INC_DIR) $< -o $@ $(MACROS)
 
 
 	
 clean:
-	-rm -f $(OUT)/*.o 
+	-rm -f $(API_OUT_DIR)/*.o 
 	-rm $(API_OUT_DIR)/lib$(API_LIB).$(LIB_EXT)
+
 
