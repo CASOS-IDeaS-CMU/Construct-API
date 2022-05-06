@@ -1,9 +1,32 @@
-# Construct-API
+# The Construct API
+Useful Links:
+[Casos Construct Webpage](http://casos.cs.cmu.edu/projects/construct)
+[Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
+[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf)
+[API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
+
+## What is Construct?
 Construct is an agent-based simulation framework based in C++. 
 Within this framework are various agent-based models that allow the simulated agents to make desicisions based on stimuli.
 Stimuli in these models comes from three sources, examining the current state of various networks, the attributes a node has, and receiving interaction messages from other agents.
+Nodesets, networks, models, and output are all loaded from an input xml file.
 Agents can decide which person to interact with based on their connections in certain networks.
 When agents interact they send interaction messages with content determined by the state of various networks and node attributes.
+
+## What is the Construct API?
+The API allows users to have greater customization of Construct than what is available in the text input.
+While it is certainly possible to add additional features available through the input, this adds complexity and increases the difficulty for a new user to begin using the software.
+Instead, the Construct API has been developed to give developers the customization that may be lacking in the software package.
+Using this API, developers have the ability to include dynamic changes in proximity between agents, develop sophisticated and intritic relational dynamics between agents, and reconfigure how feeds are structured in social media.
+
+To accomplish this, three functions are exported to a dynamic/shared library that allow developers to inject custom models, outputs, and media users.
+Custom models can be created that inheriet from existing models allowing users to modify a behaviour without completely rebuilding all dynamics or a unique model can be created that interacts with other existing models.
+Custom outputs allow developers to create dedicated output interface or do precalculations before exporting information to disk.
+Custom media users allows user to customize agent decision making without having to modify the Social Media model.
+These options provide a majority of the customization developers may want to use
+
+
+
 
 Construct hosts a plethora of models built on this framework.
 For a full review of how Construct handles the input of nodes, networks, models, and outputs, as well as a review of the behavior of each model, refer to the [Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf).
