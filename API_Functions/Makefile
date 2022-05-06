@@ -80,7 +80,7 @@ CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
 IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
 
 
-CXX = g++ -std=c++20
+CXX = g++ -g -std=c++20
 # end user defined variables
 
 
