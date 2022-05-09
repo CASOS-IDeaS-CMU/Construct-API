@@ -1,12 +1,12 @@
 # The Construct API
 Useful Links:
-[Casos Construct Webpage](http://casos.cs.cmu.edu/projects/construct)
+[CASOS Construct Webpage](http://casos.cs.cmu.edu/projects/construct)
 [Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
 [Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf)
 [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
 
 ## What is Construct?
-Construct is an agent-based simulation framework based in C++. 
+Construct is an agent-based simulation framework based in C++20. 
 Within this framework are various agent-based models that allow the simulated agents to make desicisions based on stimuli.
 Stimuli in these models comes from three sources, examining the current state of various networks, the attributes a node has, and receiving interaction messages from other agents.
 Nodesets, networks, models, and output are all loaded from an input xml file.
@@ -23,48 +23,63 @@ To accomplish this, three functions are exported to a dynamic/shared library tha
 Custom models can be created that inheriet from existing models allowing users to modify a behaviour without completely rebuilding all dynamics or a unique model can be created that interacts with other existing models.
 Custom outputs allow developers to create dedicated output interface or do precalculations before exporting information to disk.
 Custom media users allows user to customize agent decision making without having to modify the Social Media model.
-These options provide a majority of the customization developers may want to use
+These options provide a majority of the customization developers may want to use.
+The remainder of the customization allowed for users would be to create an instance of Construct in another program, manually load all the disired components, and run the simulation.
+
+## Should I use the Construct API?
+The Construct API is geared towards developers that wish to make use of currently existing models.
+In addition, the modularity available from the interface system of nodesets, networks, and interaction messages can be appealing for developers wanting to create new models that interact with existing models, or a library of models to interact with each other.
+With the ability to create and run Construct simulations inside other programs without creating a new thread, the API allows for substantial increase in perfomance of any interface or launching a large number of simulation runs of existing models.
+Finally, developers may wish to take advantage of some of the data structures available in Construct such as Graph which allows developers to use a two dimensional network that can be represented as sparse or dense without requiring the information at compile time.
 
 
+## Creating a Custom Model
+Custom Model creation examples can be seen in the folder API_Fuctions, which contains the Visual Studio solution Construct_DLL.sln.
+This solution contains all the setup required to build the windows dll that the Construct exes can take as input.
+For those on a Unix operating system, a Makefile is included which serves a similar purpose as the VS solution.
+Construct will search for the dll/shared library in the directory from which the Construct exes are called.
+These exes are currently located in x64/(Debug, Quiet, or Release) with each folder holding an exe compiled with different flags based on the configuration.
+Construct looks for three functions in these files, "create_custom_model", "create_custom_output", and "create_custom_media_user".
+These functions are contained in Supp_Library.
+In the debug configuration when verbose initialization is set to true, messages will be displayed indicating that the library was loaded and if the functions were found.
 
+The "create_custom_model" function is the injection point for any custom models.
+This function returns a Model pointer.
+All custom models must inheriet (sometimes indirectly) from the Model base class.
+Custom models can inherit from already exsiting models such as the StandardInteraction Model, or the Social_Media Model.
+Inheriting from an existing model with virtual functions allows developers to replace that model's function which affects how the model interacts with itself and other entities.
+An example would be modifiying StandardInteraction's knowledge_similarity function, which uses jaccard similarity, to use a different metric.
 
-Construct hosts a plethora of models built on this framework.
-For a full review of how Construct handles the input of nodes, networks, models, and outputs, as well as a review of the behavior of each model, refer to the [Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf).
-This guide handles how to create new models to interact with prexisting models and how to call those models via the input xml file.
-In addition this guide will also go over creating custom networks, nodesets, and outputs and how to load those entities into Construct.
-For documentation of how to use the various classes and functions in Construct, refer to the [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html).
+Once a custom model has been defined, it must be included in the definition of "create_custom_model".
+The function call gives as input the model's name.
+This allows Construct to select the appropriate model.
+If the custom model's name is given (the same string given to the Model constructor), the custom model should be allocated with new and its pointer returned by the function.
+To aid in the example of how developers can create models and how interfaces between models can work, the Template files serve as an examples for how the Construct interfaces work.
 
-To get started, we have the Visual Studio solution Construct_DLL.sln that has all the intial configurations setup for the developer.
-Construct is currently only supported in Windows and is compiled using C++20.
-A set of input xml files have already been provided in Example Files folder.
-The basic_custom_model_test will call the "Template Model" which can be seen in Template.h and Template.cpp.
-Edits to the constructor and various model functions can then be seen when using this input file.
-To run construct with this file move it the same folder as the solution file and rename it "construct.xml".
-The solution by default will search for a file with this name as the command argument for execution.
-Finally, Construct can be ran by selecting Debug > Start Debugging in visual studio or by hitting F5.
-The other two example files show two examples of Construct executing one of its models.
+## Creating Custom Output
 
-When Construct successfully launches, Construct will immediatly print the current version number to the screen.
-Once it has been confirmed that Construct is running properly, developers can explore creating custom models, output, and social_media users in Supp_Library.h and Supp_Library.cpp.
-The functions contained in the dynet namespace produce the dynamiclly linked library (DLL) that the contained exectuables require.
-The DLL and exe files for Construct are contained in x64\Debug, x64\Release, and x64\Quiet.
-These folders correspond to the Debug, Release, and Quiet configurations in Construct_DLL.sln.
-It is recommended when testing to use the Debug configuration which allows Construct to raise various saftey assertions if problems arise.
-The Quiet configuration simply disables all output except error reporting.
+With custom models, custom outputs are needed to export information in methods not currently supported.
+An example would be exporting when certain conditions were met, or aggregating data before exporting.
+Custom output operates very similarly to how models are defined.
+Each output must inheriet from the Output class, each output is selected using the output_name string, and the output must be allocated with new and returned by the function.
 
-To create a new model, output, or media_user simply create and include a new class that inheriets from the desired base class.
-This class must implement any required functions such as the Model::Constructor and Output::process.
-Then using an if statement a pointer to a newly allocated class should be returned.
-Models are decided by model names, output by output names, and media_user by node attributes.
-Classes should be allocated using new to presist beyond the function scope.
-Once passed through these functions, the calling class takes ownership and will deallocate the pointers on deconstruction.
+## Custom Media Users
 
-Finally a blank instance of Construct can be created and the developer can manually add nodes, nodesets, networks, models, and outputs without creating an input xml file.
-This allows for pointers that exists outside of Construct to be included in models for full custom support.
-As before once Construct and its entities take ownership of a pointer, it will deallocate that pointer upon deconstruction.
+As with the previous two examples, custom media users must inherit from the media_user class, allocated using new, and returned by the function.
+The significant difference is a specific social media model and a nodeset iterator from the agent nodeset is used as input.
+Attributes of the agent node then can be used to determine which type of media user should be returned.
+This customization allows developers to create different types of users that can interact on a social media.
+An example would be creating a user that always reposts events from a specific account, or always creates events with the same content.
 
-Final Notes:
-Some classes are not meant to be dereferenced.
-Funding for this project has specifically requested that all source files be kept private and only the minimum amount of information be visible to allow users to use this API.
-For that reason a number of classes have had private and protected variables removed and so long as pointers to these classes are not derefrenced, no undefined behavour is expected.
-To protect developers, an assertion is raised any time a protected pointer is dereferenced.
+## Full Manual Construct
+
+For those wanting additional control and customization, an instance of Construct can be created inside another program.
+Input can be read from an xml file, or nodeset, networks, models, and outputs can be manually defined and added to Construct.
+An application for this would be for creating a gui in java.
+Information can pass through the jni interface into nodesets, networks, models, and output, and can be passed back across the interface using outputs.
+For performing a large number of runs, nodesets and networks can be exported and imported through Construct.
+This will allow for quick construction of these structures and thus faster overall computation time.
+
+## Disclaimer
+Funding for this project has specifically requested that all source and definition files be kept private.
+Contact [CASOS](http://casos.cs.cmu.edu)
