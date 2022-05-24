@@ -1,0 +1,5 @@
+Setting a link in the input xml file was not properly registering node indexes and was instead using the value in the xml document as the node name.
+A bug caused column iterators to not terminate at the end of a column when the dimension representations were both dense.
+Moved media_event and media_user into the Social_Media class.
+Created a new container for Social_Media::list_of_events. The container inheriets from std::list, but some methods have been made private. This will prevent users from adding events to the list except at the beginning of the list. In addition, events are now checked when added that their time stamp is greater than or equal the most recent event added to ensure that the most recent events are at the front of the list.
+Social_Media::list_of_events is now checked at the end of the think function and at the beginning of the clean_up function. An assertion is raised if the events are not descending in their time_stamp value.

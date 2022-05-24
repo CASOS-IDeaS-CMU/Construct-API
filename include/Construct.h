@@ -1762,7 +1762,7 @@ public:
 
 	//graph name - "knowledge network"
 	//agent x knowledge
-	Graph<bool>* _knowledge_net;
+	const Graph<bool>* _knowledge_net;
 
 	KnowledgeTrust(const dynet::ParameterMap& parameters, Construct* construct);
 
@@ -2063,110 +2063,7 @@ public:
 };
 
 
-struct CONSTRUCT_LIB media_event {
 
-    //this goes through the entire chain of events recursively and updates the last_used
-    //to the most recent time. Source call is only on the root event.
-    void update_chain(float time);
-
-    enum class event_type : char
-    {
-        post,
-        repost,
-        quote,
-        reply
-    };
-
-
-    ~media_event();
-
-    //this constructor is only for creating post events
-    media_event(
-        unsigned int        _user, 
-        unsigned int        _knowledge_index, 
-        float               _ktrust, 
-        float               _time_stamp
-    );
-
-    //this constructor will create a reply/quote to the submitted parent event
-    media_event(
-        event_type         _type, 
-        unsigned int        _user, 
-        float               _ktrust, 
-        float               _time_stamp, 
-        media_event*        _event
-    );
-
-    //this constructor will create a repost which uses the same knowledge and trust as the submitted parent event 
-    media_event(
-        unsigned int _user,
-        float        _time_stamp,
-        media_event* _event
-    );
-
-    //default constructor does no operations
-    media_event();
-
-    media_event& operator=(const media_event& other);
-
-    //gets the size of the tree of events with this event at its root (minimum size of 1)
-    unsigned int child_size(void);
-
-    //when events are saved to disk they are given this id and its incremented
-    static unsigned int id_tracker;
-
-    //the pointer of the event this event is replying to.
-    //if equal to this, the event has no parent and is a post.
-    media_event* parent_event = this;
-
-    //the pointer of the event that is at the root of the event tree that this event is apart of.
-    //if equal to this, the event is the root event for the tree.
-    media_event* root_event = this;
-
-    //set of indexes the event contains
-    std::unordered_map<dynet::item_keys, unsigned int> indexes;
-
-    //set of values the event contains
-    std::unordered_map<dynet::item_keys, float> values;
-
-    //list of reposts that have shared this event
-    std::vector<media_event*> reposts;
-
-    //list of replies to this event
-    std::vector<media_event*> replies;
-
-    //list of quotes to this event
-    std::vector<media_event*> quotes;
-
-    //list of users mentioned by this event
-    std::vector<unsigned int> mentions;
-
-    //agent index of the user that posted the event
-    unsigned int user = 0;
-
-    //the time that this event was created
-    float time_stamp = -1;
-
-    //the last time any event was added to the event tree this event is apart of
-    //all events in the same event tree have equal values for last_used
-    float last_used = -1;
-
-    //how trending an event is
-    float score = 1;
-
-    bool operator== (const media_event& a) const { return score == a.score; }
-    bool operator!= (const media_event& a) const { return score != a.score; }
-    bool operator<= (const media_event& a) const { return score <= a.score; }
-    bool operator>= (const media_event& a) const { return score >= a.score; }
-    bool operator< (const media_event& a) const { return score < a.score; }
-    bool operator> (const media_event& a) const { return score > a.score; }
-
-    //what type of event this is i.e. "post","repost", "quote", or "reply"
-    event_type type = event_type::post;
-};
-
-
-struct media_user;
 
 class CONSTRUCT_LIB Social_Media : public virtual Model
 {
@@ -2179,6 +2076,228 @@ class CONSTRUCT_LIB Social_Media : public virtual Model
     const std::string maximum_post_inactivity = "maximum post inactivity";
 public:
 	
+    struct CONSTRUCT_LIB media_event {
+
+        //this goes through the entire chain of events recursively and updates the last_used
+        //to the most recent time. Source call is only on the root event.
+        void update_chain(float time);
+
+        enum class event_type : char
+        {
+            post,
+            repost,
+            quote,
+            reply
+        };
+
+
+        ~media_event();
+
+        //this constructor is only for creating post events
+        media_event(
+            unsigned int        _user,
+            unsigned int        _knowledge_index,
+            float               _ktrust,
+            float               _time_stamp
+        );
+
+        //this constructor will create a reply/quote to the submitted parent event
+        media_event(
+            event_type         _type,
+            unsigned int        _user,
+            float               _ktrust,
+            float               _time_stamp,
+            media_event* _event
+        );
+
+        //this constructor will create a repost which uses the same knowledge and trust as the submitted parent event 
+        media_event(
+            unsigned int _user,
+            float        _time_stamp,
+            media_event* _event
+        );
+
+        //default constructor does no operations
+        media_event();
+
+        media_event& operator=(const media_event& other);
+
+        //gets the size of the tree of events with this event at its root (minimum size of 1)
+        unsigned int child_size(void);
+
+        //when events are saved to disk they are given this id and its incremented
+        static unsigned int id_tracker;
+
+        //the pointer of the event this event is replying to.
+        //if equal to this, the event has no parent and is a post.
+        media_event* parent_event = this;
+
+        //the pointer of the event that is at the root of the event tree that this event is apart of.
+        //if equal to this, the event is the root event for the tree.
+        media_event* root_event = this;
+
+        //set of indexes the event contains
+        std::unordered_map<dynet::item_keys, unsigned int> indexes;
+
+        //set of values the event contains
+        std::unordered_map<dynet::item_keys, float> values;
+
+        //list of reposts that have shared this event
+        std::vector<media_event*> reposts;
+
+        //list of replies to this event
+        std::vector<media_event*> replies;
+
+        //list of quotes to this event
+        std::vector<media_event*> quotes;
+
+        //list of users mentioned by this event
+        std::vector<unsigned int> mentions;
+
+        //agent index of the user that posted the event
+        unsigned int user = 0;
+
+        //the time that this event was created
+        float time_stamp = -1;
+
+        //the last time any event was added to the event tree this event is apart of
+        //all events in the same event tree have equal values for last_used
+        float last_used = -1;
+
+        //how trending an event is
+        float score = 1;
+
+        bool operator== (const media_event& a) const { return score == a.score; }
+        bool operator!= (const media_event& a) const { return score != a.score; }
+        bool operator<= (const media_event& a) const { return score <= a.score; }
+        bool operator>= (const media_event& a) const { return score >= a.score; }
+        bool operator< (const media_event& a) const { return score < a.score; }
+        bool operator> (const media_event& a) const { return score > a.score; }
+
+        //what type of event this is i.e. "post","repost", "quote", or "reply"
+        event_type type = event_type::post;
+    };
+
+
+    //class that contains all settings for a user as well as functions that dictates how each user interacts
+    struct CONSTRUCT_LIB media_user {
+
+        media_user(Social_Media* _media, Nodeset::iterator node);
+
+        virtual ~media_user() { ; }
+
+        //the social media that this user is interacting with
+        Social_Media* media;
+
+        //this user's agent index
+        unsigned int id;
+
+        //probability density to post (time in hours) pdtw * dt = average number of events in a time period
+        float pdp;
+
+        //probability to reply when an event or reply is read
+        float pr;
+
+        //probability to repost when an event is read
+        float prp;
+
+        //probability to quote when an event is read
+        float pqu;
+
+        //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
+        float pdread;
+
+        //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
+        float pdaf;
+
+        //scale factor to determine number of removed followees
+        float rf;
+
+        //determines how likable someone's event is going to be.
+        //people with more likable posts get more followers
+        float charisma;
+
+        //the number of events this user has read
+        unsigned int read_count = 0;
+
+        //If true, this user, when added as a followee by another user, will automatically reciprocate followings
+        bool auto_follow;
+
+        //this reads the post given and performs any actions before the post is potentially responded to
+        virtual void read(media_event* _event);
+
+        //this adds a reply to the post with probability equal to media_user::pr
+        //if an event is created media_user::add_mentions is called on that event
+        virtual void reply(media_event* _event);
+
+        //this adds a quote to the post with probability equal to media_user::prp
+        //if an event is created media_user::add_mentions is called on that event
+        virtual void quote(media_event* _event);
+
+        //this adds a repost to the post with probability equal to media_user::pqu
+        //if an event is created media_user::add_mentions is called on that event
+        virtual void repost(media_event* _event);
+
+        //user adds a number of post events based on media_user::pdp
+        virtual void generate_post_events(void);
+
+        //mentions are added to the event if the event is a post by randomly selecting a followee
+        virtual void add_mentions(media_event* post);
+
+        //gets the trust of the knowledge index
+        //if the "Knowledge Trust %Model" is not active, -1 is returned.
+        virtual float get_trust(unsigned int knowledge_index);
+
+        //returns true if this user decides to follow an agent when called
+        virtual bool follow_user(unsigned int alter_agent_index);
+
+        //Returns true if this user decides to unfollow an agent when called
+        virtual bool unfollow_user(unsigned int alter_agent_index);
+
+
+    };
+
+
+    class CONSTRUCT_LIB event_container : public std::list<media_event> {
+        using std::list<media_event>::insert;
+        using std::list<media_event>::push_back;
+        using std::list<media_event>::emplace_back;
+        using std::list<media_event>::emplace;
+        using std::list<media_event>::swap;
+        using std::list<media_event>::sort;
+        using std::list<media_event>::reverse;
+        using std::list<media_event>::merge;
+    public:
+        template<class... Args>
+        void emplace_front(Args&&... args) {
+            float prev_event_time = front().time_stamp;
+            std::list<media_event>::emplace_front(args...);
+            check_new_event(prev_event_time, front().time_stamp);
+        }
+
+        void push_front(const value_type& val);
+
+        void check_new_event(float previous_time_stamp, float new_time_stamp);
+    };
+
+
+    void check_list_order() const {
+#ifdef DEBUG
+        auto it = list_of_events.begin();
+        auto next_it = list_of_events.begin();
+        next_it++;
+        while (next_it != list_of_events.end()) {
+            if (it->time_stamp < next_it->time_stamp) out_of_order();
+
+            it++;
+            next_it++;
+        }
+#endif
+    }
+
+
+    void out_of_order() const;
+
     std::vector < std::vector<unsigned int> > responses;
 
     //pointer to the "agent" nodeset
@@ -2195,8 +2314,9 @@ public:
     //this key is added to messages created by this model for items that contain the feed index
     dynet::item_keys event_key = dynet::item_keys::twitter_event;
 
-    //list of all current active events, all users can access this list
-    std::list<media_event> list_of_events;
+    // list of all current active events, all users can access this list
+    // new events should be added to the front of this list
+    event_container list_of_events;
 
     //keeps track of event ids that mention users to speed up search algorithms
     std::vector<std::unordered_set<media_event*> > mention_graph;
@@ -2211,7 +2331,7 @@ public:
     float dt;
 
     //current time period
-    unsigned int time = 0;
+    unsigned int& time;
 
     //prefix for some of the node attributes names parsed by the media_user class
     std::string media_name;
@@ -2243,6 +2363,7 @@ public:
     //delete all pointers in stored in the Social_Media::users data structure
     virtual ~Social_Media();
 
+    
     virtual void load_users();
 
     //agents read events in their feeds starting with the first event
@@ -2292,83 +2413,6 @@ struct CONSTRUCT_LIB Twitter : public virtual Social_Media {
 };
 
 
-//class that contains all settings for a user as well as functions that dictates how each user interacts
-struct CONSTRUCT_LIB media_user {
-
-    media_user(Social_Media* _media, Nodeset::iterator node);
-
-    virtual ~media_user() { ; }
-
-    //the social media that this user is interacting with
-    Social_Media* media;
-
-    //this user's agent index
-    unsigned int id;
-
-    //probability density to post (time in hours) pdtw * dt = average number of events in a time period
-    float pdp;
-
-    //probability to reply when an event or reply is read
-    float pr;
-
-    //probability to repost when an event is read
-    float prp;
-
-    //probability to quote when an event is read
-    float pqu;
-
-    //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
-    float pdread;
-
-    //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
-    float pdaf;
-
-    //scale factor to determine number of removed followees
-    float rf;
-
-    //determines how likable someone's event is going to be.
-    //people with more likable posts get more followers
-    float charisma;
-
-    //the number of events this user has read
-    unsigned int read_count = 0;
-
-    //If true, this user, when added as a followee by another user, will automatically reciprocate followings
-    bool auto_follow;
-
-    //this reads the post given and performs any actions before the post is potentially responded to
-    virtual void read(media_event* _event);
-
-    //this adds a reply to the post with probability equal to media_user::pr
-    //if an event is created media_user::add_mentions is called on that event
-    virtual void reply(media_event* _event);
-
-    //this adds a quote to the post with probability equal to media_user::prp
-    //if an event is created media_user::add_mentions is called on that event
-    virtual void quote(media_event* _event);
-
-    //this adds a repost to the post with probability equal to media_user::pqu
-    //if an event is created media_user::add_mentions is called on that event
-    virtual void repost(media_event* _event);
-
-    //user adds a number of post events based on media_user::pdp
-    virtual void generate_post_events(void);
-
-    //mentions are added to the event if the event is a post by randomly selecting a followee
-    virtual void add_mentions(media_event* post);
-
-    //gets the trust of the knowledge index
-    //if the "Knowledge Trust %Model" is not active, -1 is returned.
-    virtual float get_trust(unsigned int knowledge_index);
-
-    //returns true if this user decides to follow an agent when called
-    virtual bool follow_user(unsigned int alter_agent_index);
-
-    //Returns true if this user decides to unfollow an agent when called
-    virtual bool unfollow_user(unsigned int alter_agent_index);
-
-
-};
 
 
 struct CONSTRUCT_LIB Forget : public Model

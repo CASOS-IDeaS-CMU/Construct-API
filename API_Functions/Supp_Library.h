@@ -20,5 +20,5 @@ namespace dynet {
 	//If the output_name is not reconginized by this function a NULL pointer should be returned
 	extern "C" CONSTRUCT_API Output* create_custom_output(const std::string& output_name, const ParameterMap& parameters, Construct* construct);
 
-	extern "C" CONSTRUCT_API media_user* create_custom_media_user(Social_Media* _media, Nodeset::iterator node);
+	extern "C" CONSTRUCT_API Social_Media::media_user* create_custom_media_user(Social_Media* _media, Nodeset::iterator node);
 }

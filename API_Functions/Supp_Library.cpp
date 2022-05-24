@@ -34,8 +34,8 @@ namespace dynet {
 	//for example including an attribute with name "user type" and value "spammer".
 	//Social_Media is the parent class for Twitter and Facebook. Social_Media::media_name is used to differential them
 
-	media_user* create_custom_media_user(Social_Media* _media, Nodeset::iterator node) {
+	Social_Media::media_user* create_custom_media_user(Social_Media* _media, Nodeset::iterator node) {
 
-		return new media_user(_media, node);
+		return new Social_Media::media_user(_media, node);
 	}
 }
