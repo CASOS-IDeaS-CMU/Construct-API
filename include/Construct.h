@@ -2285,11 +2285,11 @@ public:
         unsigned int get_read_count(void);
 
         //mentions are added to the event if the event is a post by randomly selecting a followee
-        void add_mentions(media_event* post);
+        virtual void add_mentions(media_event* post);
 
         //gets the trust of the knowledge index
         //if the "Knowledge Trust %Model" is not active, -1 is returned.
-        float get_trust(unsigned int knowledge_index);
+        virtual float get_trust(unsigned int knowledge_index);
 
         //returns true if this user decides to follow an agent when called
         bool follow_user(unsigned int alter_agent_index);
