@@ -36,6 +36,6 @@ namespace dynet {
 
 	Social_Media::media_user* create_custom_media_user(Social_Media* _media, Nodeset::iterator node) {
 
-		return new Social_Media::media_user(_media, node);
+		return new Social_Media::default_media_user(_media, node);
 	}
 }

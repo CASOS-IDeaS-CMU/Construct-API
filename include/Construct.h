@@ -2181,10 +2181,53 @@ public:
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct CONSTRUCT_LIB media_user {
-
-        media_user(Social_Media* _media, Nodeset::iterator node);
-
         virtual ~media_user() { ; }
+
+        // called before reply, quote, or repost, allows the user to parse an event before responding to it
+        virtual void read(media_event* read_event) = 0;
+
+        // when called, allows the user to reply to the submitted event
+        virtual void reply(media_event* read_event) = 0;
+
+        // when called, allows the user to quote the submitted event
+        virtual void quote(media_event* read_event) = 0;
+
+        // when called, allows the user to repost the submitted event
+        virtual void repost(media_event* read_event) = 0;
+
+        //generate post events for the time step, called during the think function
+        virtual void generate_post_events(void) = 0;
+
+        //number of events read each time step
+        virtual unsigned int get_read_count(void) = 0;
+
+        // defines how a user adds mentions to an event they created
+        virtual void add_mentions(media_event* post) = 0;
+
+        //gets the trust the user decides to attach based on the knowledge index
+        //if the "Knowledge Trust %Model" is not active, output is not used.
+        virtual float get_trust(unsigned int knowledge_index) = 0;
+
+        //returns true if this user decides to follow an agent when called
+        virtual bool follow_user(unsigned int alter_agent_index) = 0;
+
+        //Returns true if this user decides to unfollow an agent when called
+        virtual bool unfollow_user(unsigned int alter_agent_index) = 0;
+
+        // An alter has decided to follow this user and can decide to reciprocate that following
+        virtual bool respond_to_follow(unsigned int alter_agent_index) = 0;
+
+        // How many alters should be considered each time step for recommendations
+        virtual unsigned int consider_recommendations(void) = 0;
+
+        // gets how charismatic a user is
+        virtual float get_charisma() = 0;
+    };
+
+
+    struct CONSTRUCT_LIB default_media_user : public media_user {
+
+        default_media_user(Social_Media* _media, Nodeset::iterator node);
 
         //the social media that this user is interacting with
         Social_Media* media;
@@ -2217,44 +2260,50 @@ public:
         //people with more likable posts get more followers
         float charisma;
 
-        //the number of events this user has read
-        unsigned int read_count = 0;
-
         //If true, this user, when added as a followee by another user, will automatically reciprocate followings
         bool auto_follow;
 
         //this reads the post given and performs any actions before the post is potentially responded to
-        virtual void read(media_event* _event);
+        void read(media_event* _event);
 
         //this adds a reply to the post with probability equal to media_user::pr
-        //if an event is created media_user::add_mentions is called on that event
-        virtual void reply(media_event* _event);
+        //if an event is created default_media_user::add_mentions is called on that event
+        void reply(media_event* _event);
 
         //this adds a quote to the post with probability equal to media_user::prp
         //if an event is created media_user::add_mentions is called on that event
-        virtual void quote(media_event* _event);
+        void quote(media_event* _event);
 
-        //this adds a repost to the post with probability equal to media_user::pqu
-        //if an event is created media_user::add_mentions is called on that event
-        virtual void repost(media_event* _event);
+        //this adds a repost to the post with probability equal to default_media_user::pqu
+        //if an event is created default_media_user::add_mentions is called on that event
+        void repost(media_event* _event);
 
-        //user adds a number of post events based on media_user::pdp
-        virtual void generate_post_events(void);
+        //user adds a number of post events based on default_media_user::pdp
+        void generate_post_events(void);
+
+        //number of events read each time step
+        unsigned int get_read_count(void);
 
         //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post);
+        void add_mentions(media_event* post);
 
         //gets the trust of the knowledge index
         //if the "Knowledge Trust %Model" is not active, -1 is returned.
-        virtual float get_trust(unsigned int knowledge_index);
+        float get_trust(unsigned int knowledge_index);
 
         //returns true if this user decides to follow an agent when called
-        virtual bool follow_user(unsigned int alter_agent_index);
+        bool follow_user(unsigned int alter_agent_index);
 
         //Returns true if this user decides to unfollow an agent when called
-        virtual bool unfollow_user(unsigned int alter_agent_index);
+        bool unfollow_user(unsigned int alter_agent_index);
 
+        // An alter has decided to follow this user and can decide to reciprocate that following
+        bool respond_to_follow(unsigned int alter_agent_index);
 
+        // How many alters should be considered each time step for recommendations
+        unsigned int consider_recommendations(void);
+
+        float get_charisma();
     };
 
 
@@ -2270,12 +2319,17 @@ public:
     public:
         template<class... Args>
         void emplace_front(Args&&... args) {
-            float prev_event_time = front().time_stamp;
+
+            float prev_event_time = 0;
+            if (size()) prev_event_time = front().time_stamp;
             std::list<media_event>::emplace_front(args...);
-            check_new_event(prev_event_time, front().time_stamp);
+            if (size()) check_new_event(prev_event_time, front().time_stamp);
         }
 
-        void push_front(const value_type& val);
+        void push_front(const value_type& val) {
+            check_new_event(front().time_stamp, val.time_stamp);
+            std::list<media_event>::push_front(val);
+        }
 
         void check_new_event(float previous_time_stamp, float new_time_stamp);
     };
@@ -2295,7 +2349,7 @@ public:
 #endif
     }
 
-
+    // raises an assertion indicating an event is out of order
     void out_of_order() const;
 
     std::vector < std::vector<unsigned int> > responses;
@@ -2323,6 +2377,9 @@ public:
 
     //contains each user's feed of events pseudo-sorted by priority, also contains user-centric event info like whether a event has been read
     std::vector<std::vector<media_event*> > users_feed;
+
+    // how many posts each agent reads each time step
+    std::vector<unsigned int> read_count;
 
     //the maximum time a post can exist without its tree being added to
     float age;
@@ -2363,7 +2420,6 @@ public:
     //delete all pointers in stored in the Social_Media::users data structure
     virtual ~Social_Media();
 
-    
     virtual void load_users();
 
     //agents read events in their feeds starting with the first event
