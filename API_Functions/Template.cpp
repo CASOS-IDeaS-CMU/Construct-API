@@ -1,9 +1,11 @@
-#include "pch.h"
+
 #include "Template.h"
 
-Template::Template(const dynet::ParameterMap& parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
+
+
+Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
 {
-#ifdef DO_NOT_FLAG
+#ifndef DO_NOT_FLAG
 	//this section goes over a few examples
 	//none of the following examples will be compiled or affect runtime
 
@@ -22,40 +24,46 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	const Node* phil = agents->get_node_by_name("phil");
 	std::string phil_gender = phil->get_attribute("gender");
 
-	//graphs are the primary data storage in construct
-	//each model requires the associated nodesets and data type match exactly
-	//if a graph is already loaded, but does not match an exception will be thrown
-	//if there is no graph in a hard load an exception will also be thrown.
-	// 
-	//all string exceptions are handled by main.cpp giving detailed information as to the error
-	//std::exception type exceptions are also handled by main.cpp, but indicate an unforseen error
-	//finally all other possible types of exceptions are caught to ensure the user always knows what happened
-	//
-	//all graph/network names are stored in the "graph" namespace
-	//confirming the data type is handled automatically, but take as arguments the required nodesets
-	//all non-const graph loading takes the name of the model using the function
-	//in debug mode this allows users to track which models have accessed and possible modified which graphs/networks
+	/*
+	graphs are the primary data storage in construct
+	each model requires the associated nodesets and data type match exactly
+	if a graph is already loaded, but does not match an exception will be thrown
+	if there is no graph in a hard load an exception will also be thrown.
+	 
+	all string exceptions are handled by main.cpp giving detailed information as to the error
+	std::exception type exceptions are also handled by main.cpp, but indicate an unforseen error
+	finally all other possible types of exceptions are caught to ensure the user always knows what happened
+	
+	all graph/network names are stored in the "graph_names" namespace
+	confirming the data type is handled automatically, but take as arguments the required nodesets
+	the object returned by the graph_manager is automatically converted to a Graph of the appropriate data type
+	in addition the object can be assigned to either a Graph pointer or a reference
+	*/
 
-	Graph<bool>* interaction_network;
-	graph_manager->hard_load(graph_names::interact, agents, agents, interaction_network, name);
+	Graph<bool>* interaction_network_ptr = graph_manager->load_required(graph_names::interact, agents, agents);
+	Graph<bool>& interaction_network_ref = graph_manager->load_required(graph_names::interact, agents, agents);
 
-	//if you want to create a graph you can add a default network below
-	//this will only create a graph if the graph does not already exist.
-	//all relevant information for a graph is required such as nodesets, dimension representation, and default values
+	/*
+	If the network is not found, an exception is thrown
+	the following will search for an appropriate network and if it is not found, a network is created
+	in addition to network name and dimensions, a default value and dimension representation is required to create a network
+	the function will create a Graph with a data type based on the submitted default value
+	ensure that the value type entered match the data type of the graph you wish to create
+	*/
 
-	interaction_network = graph_manager->add_network(graph_names::interact, agents, true, agents, false, true, name);
+	Graph<float>& my_network = graph_manager->load_optional("my network", 1.0f, agents, true, agents, false);
 
 	//to access an element without creating a link you can directly examine an entry
 	//when examining an element it can not be modified
 
 	unsigned int row = 4;
 	unsigned int col = 3;
-	const bool& result1 = interaction_network->examine(row, col);
+	const bool& result1 = interaction_network_ptr->examine(row, col);
 
 	//to access an element you intend to change use the at function
 	//if no link exists at this entry a link is created using the default value
 
-	bool& result2 = interaction_network->at(row, col);
+	bool& result2 = interaction_network_ptr->at(row, col);
 	result2 = !result2;
 
 	//the clear function can remove a specific link to which the default value takes over
@@ -63,8 +71,8 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//to avoid needing to check the default value, submitting the new value to the at function
 	//will remove the link if the submitted value is equal to the default value
 
-	interaction_network->at(row, col, !result2);
-	interaction_network->clear(0);
+	interaction_network_ptr->at(row, col, !result2);
+	interaction_network_ptr->clear(0);
 	//all values now set to zero
 
 	//depending on dimension representation it can be costly to look up each individual link in a network
@@ -73,7 +81,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//the element an iterator is pointing to can be found with the row() and col() functions
 
 	std::cout << "Row " << row << ": ";
-	for (auto it = interaction_network->full_row_begin(row); it != interaction_network->row_end(row); ++it) {
+	for (auto it = interaction_network_ptr->full_row_begin(row); it != interaction_network_ptr->row_end(row); ++it) {
 		std::cout << "(" << it.col() << "," << *it << ") ";
 	}
 	std::cout << std::endl;
@@ -81,9 +89,9 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//to modify an element submit the iterator to the graph's at function which returns a reference to that element
 	//as with the base case of the at function you can also submit the changed value to check if it equals the default value
 
-	for (auto it = interaction_network->full_col_begin(col); it != interaction_network->col_end(col); ++it) {
-		bool& temp = interaction_network->at(it);
-		interaction_network->at(it, !temp);
+	for (auto it = interaction_network_ptr->full_col_begin(col); it != interaction_network_ptr->col_end(col); ++it) {
+		bool& temp = interaction_network_ptr->at(it);
+		interaction_network_ptr->at(it, !temp);
 	}
 
 	//the full row iterators go over each index in that dimension
@@ -92,7 +100,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//sparse iterators can be used to allow you to skip over elements of your choice
 
 	std::cout << "True values in row " << row << ": ";
-	for (auto it = interaction_network->sparse_row_begin(row, false); it != interaction_network->row_end(row); ++it) {
+	for (auto it = interaction_network_ptr->sparse_row_begin(row, false); it != interaction_network_ptr->row_end(row); ++it) {
 		std::cout << "(" << it.col() << "," << *it << ") ";
 	}
 
@@ -104,7 +112,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//When one wants to iterator over the entire data structute, another set of iterators and const_iterators can be used
 	//these iterators point to the beginning of a row or column and skips the potential binary search for this beginning iterator
 
-	for (auto row_begin = interaction_network->begin_rows(); row_begin != interaction_network->end_rows(); ++row_begin) {
+	for (auto row_begin = interaction_network_ptr->begin_rows(); row_begin != interaction_network_ptr->end_rows(); ++row_begin) {
 		for (auto it = row_begin.full_begin(); it != row_begin.end(); ++it) {
 			std::cout << *it << " ";
 		}
@@ -114,8 +122,8 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//to do operations such as the overlap between two rows or a column and a row of the same or different graphs
 	//iterators can be aligned using the graph_utils namespace
 
-	auto rit = interaction_network->full_row_begin(row);
-	auto cit = interaction_network->sparse_col_begin(col, false);
+	auto rit = interaction_network_ptr->full_row_begin(row);
+	auto cit = interaction_network_ptr->sparse_col_begin(col, false);
 	std::vector<typeless_graph_iterator*> it_list = { &rit, &cit };
 
 	//to align the iterators without first incrementing them use init_align
@@ -126,7 +134,7 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	unsigned int count = 0;
 	unsigned int count2 = 0;
 
-	for (graph_utils::init_align(it_list); rit != interaction_network->row_end(row); graph_utils::it_align(it_list)) {
+	for (graph_utils::init_align(it_list); rit != interaction_network_ptr->row_end(row); graph_utils::it_align(it_list)) {
 		count++;
 		if (*rit) count2++;
 	}
@@ -135,39 +143,38 @@ Template::Template(const dynet::ParameterMap& parameters, Construct* _construct)
 	//with alignment, order in the vector of iterators is irrelevant
 	//in these functions iterators are advanced such that the first iterator is always ahead of all other iterators in the list
 
-	auto it1 = interaction_network->sparse_row_begin(row, false);
-	auto it2 = interaction_network->sparse_row_begin(row + 1, false);
+	auto it1 = interaction_network_ptr->sparse_row_begin(row, false);
+	auto it2 = interaction_network_ptr->sparse_row_begin(row + 1, false);
 	std::vector<typeless_graph_iterator*> it_list2 = { &it1, &it2 };
 
 	count = 0;
 
-	for (graph_utils::init_align_before_first(it_list2); it1 != interaction_network->row_end(row); graph_utils::it_align_before_first(it_list2)) {
+	for (graph_utils::init_align_before_first(it_list2); it1 != interaction_network_ptr->row_end(row); graph_utils::it_align_before_first(it_list2)) {
 		count++;
 	}
 
 	//now count will represent the number of true elements that row + 1 has, but row does not
 
 	//finally you can queue changes to a graph using the add delta function
-	interaction_network->add_delta(row, col, true);
+	interaction_network_ptr->add_delta(row, col, true);
 
 	//the deltas are automatically applied to each graph between the communicate and clean up functions
 	//one can trigger a manual application by pushing deltas
-	interaction_network->push_deltas();
+	interaction_network_ptr->push_deltas();
 
 	//many models via the exchange of messages
 	//Construct will automatically disperse messages to be parsed in the communicate function of models
 	//These messages are dispersed from the private message queue and they are erased after the clean up function
 	auto interaction_queue = &construct->interaction_message_queue;
-	auto public_queue = &construct->public_message_queue;
 
 	//When distributing messages for parsing, construct will distribute from the private messages
 	//To add messages one must add items into a message.
 	//items have three data storage members; attributes, indexes, and values.
 
 	InteractionItem item;
-	item.attributes.insert(dynet::item_keys::knowledge);
-	item.indexes[dynet::item_keys::knowledge] = 2;
-	item.values[dynet::item_keys::ktrust] = 0.5;
+	item.attributes.insert(InteractionItem::item_keys::knowledge);
+	item.indexes[InteractionItem::item_keys::knowledge] = 2;
+	item.values[InteractionItem::item_keys::ktrust] = 0.5;
 
 	//messages require a vector of items
 

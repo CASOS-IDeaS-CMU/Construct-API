@@ -61,124 +61,14 @@
 	#define CONSTRUCT_LIB
 #endif
 
-/*
-\defgroup Managers Managers
-Managers hold class pointers that should not be deallocated by any other entity.
-\defgroup Models Models
-All the Models in Construct's Model Library.
-\defgroup minterface Model Interfaces
-All the classes that allow Models to pass information without direct interaction.
-\defgroup util Utilities
-All the classes and functions that facilitate model functions.
-*/
-
-
 namespace dynet
 {
-	enum class edge_types : char {
-		dbool,
-		dint,
-		duint,
-		dfloat,
-		dstring,
-		vbool,
-		vint,
-		vuint,
-		vfloat,
-		vstring,
-		mbool,
-		mint,
-		muint,
-		mfloat,
-		mstring
+
+
+	struct CONSTRUCT_LIB ParameterMap : public std::unordered_map<std::string, std::string> {
+		const std::string& get_parameter(const std::string& parameter_key) const;
 	};
 
-
-	enum class item_keys : char {
-		knowledge,
-		alter,
-		belief,
-		ktm,
-		btm,
-		ktrust,
-		twitter_event,
-		facebook_event,
-		feed_position
-		//ordering of the above items shall not be modified
-		//new items can be added after the above list
-	};
-
-
-	constexpr const char* get_type_name(edge_types edge_type) noexcept {
-		switch (edge_type)
-		{
-		case edge_types::dbool:
-			return "bool";
-		case edge_types::dint:
-			return "int";
-		case edge_types::duint:
-			return "unsigned int";
-		case edge_types::dfloat:
-			return "float";
-		case edge_types::dstring:
-			return "string";
-		case edge_types::vbool:
-			return "vector<bool>";
-		case edge_types::vint:
-			return "vector<int>";
-		case edge_types::vuint:
-			return "vector<unsigned int>";
-		case edge_types::vfloat:
-			return "vector<float>";
-		case edge_types::vstring:
-			return "vector<string>";
-		case edge_types::mbool:
-			return "map<bool>";
-		case edge_types::mint:
-			return "map<int>";
-		case edge_types::muint:
-			return "map<unsigned int>";
-		case edge_types::mfloat:
-			return "map<float>";
-		case edge_types::mstring:
-			return "map<string>";
-		default:
-			return "unknown";
-		}
-	}
-
-	template<typename T> CONSTRUCT_LIB std::string get_type_name(void) noexcept;
-
-	template<typename T> CONSTRUCT_LIB edge_types get_edge_type(void) noexcept;
-
-	constexpr const char* get_item_name(item_keys key) noexcept {
-		switch (key)
-		{
-		case item_keys::knowledge:
-			return "knowledge";
-		case item_keys::alter:
-			return "alter";
-		case item_keys::belief:
-			return "belief";
-		case item_keys::ktm:
-			return "knowledgeTM";
-		case item_keys::btm:
-			return "beliefTM";
-		case item_keys::ktrust:
-			return "knowledge trust";
-		case item_keys::twitter_event:
-			return "twitter event";
-		case item_keys::facebook_event:
-			return "facebook event";
-		case item_keys::feed_position:
-			return "feed position";
-		default:
-			assert(false);
-			return NULL;
-		}
-	}
-
-	using ParameterMap = std::unordered_map<std::string, std::string>;
 
 	struct construct_exception : public std::runtime_error {
 		construct_exception(const std::string& message) : std::runtime_error(message) {}
@@ -340,6 +230,8 @@ namespace dynet
 	template<>
 	class CONSTRUCT_LIB Type_Interface<bool> {
 		bool _data;
+		static constexpr std::array<char, 2> boolean_outputs{ { '0', '1' } };
+
 	public:
 		Type_Interface(bool data) { _data = data; }
 		operator bool() const noexcept { return _data; }
@@ -403,6 +295,60 @@ namespace dynet
 	template<typename T> 
 	Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
 
+	// sends output to std::cout
+	struct console_output {
+		virtual void out(const std::string& data) {
+			std::cout << data << std::endl;
+		}
+		virtual ~console_output() {}
+	};
+
+
+	// sends strings to an output, typically the console
+	// does no operations if QUIET is defined except the output_stream::error function
+	struct output_stream {
+
+		std::stringstream ss;
+		
+		void error(const std::string& data) {
+			output_hook->out(data);
+		}
+
+		console_output* output_hook = nullptr;
+
+		output_stream& operator<< (output_stream& (*pf)(output_stream&)) {
+#ifndef QUIET
+			pf(*this);
+#endif
+			return *this;
+		}
+
+		output_stream& operator<< (const char* data) {
+#ifndef QUIET
+			ss << data;
+#endif
+			return *this;
+		}
+
+		template<typename T>
+		output_stream& operator<<(const T& data) {
+#ifndef QUIET
+			ss << data;
+#endif
+			return *this;
+		}
+	};
+
+	//similar behaviour to std::endl
+	inline output_stream& endl(output_stream& out) {
+#ifndef QUIET
+		out.output_hook->out(out.ss.str());
+		out.ss.str(std::string());
+#endif
+		return out;
+	}
+	// similar behaviour to std::cout except defining QUIET will supress all text output.
+	extern output_stream cout;
 }
 #include <random>
 
@@ -639,14 +585,33 @@ struct CONSTRUCT_LIB CommunicationMedium
 
 struct CONSTRUCT_LIB InteractionItem
 {
-	using attribute_iterator = std::unordered_set<dynet::item_keys>::iterator;
-	using attribute_const_iterator = std::unordered_set<dynet::item_keys>::const_iterator;
+	enum class item_keys : char {
+		knowledge,
+		alter,
+		belief,
+		ktm,
+		btm,
+		ktrust,
+		twitter_event,
+		facebook_event,
+		feed_position
+		//ordering of the above items shall not be modified
+		//new items can be added after the above list
+	};
 
-	using index_iterator = std::unordered_map<dynet::item_keys, unsigned int>::iterator;
-	using index_const_iterator = std::unordered_map<dynet::item_keys, unsigned int>::const_iterator;
 
-	using value_iterator = std::unordered_map<dynet::item_keys, float>::iterator;
-	using value_const_iterator = std::unordered_map<dynet::item_keys, float>::const_iterator;
+	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
+
+	static const std::string& get_item_name(InteractionItem::item_keys key);
+
+	using attribute_iterator = std::unordered_set<item_keys>::iterator;
+	using attribute_const_iterator = std::unordered_set<item_keys>::const_iterator;
+
+	using index_iterator = std::unordered_map<item_keys, unsigned int>::iterator;
+	using index_const_iterator = std::unordered_map<item_keys, unsigned int>::const_iterator;
+
+	using value_iterator = std::unordered_map<item_keys, float>::iterator;
+	using value_const_iterator = std::unordered_map<item_keys, float>::const_iterator;
 	
 	InteractionItem& set_knowledge_item(unsigned int knowledge_index) noexcept;
 
@@ -682,13 +647,13 @@ struct CONSTRUCT_LIB InteractionItem
 
 	//store any relevant indexes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_map<dynet::item_keys, unsigned int> indexes;
+	std::unordered_map<item_keys, unsigned int> indexes;
 	//store any relevant float values in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_map<dynet::item_keys, float> values;
+	std::unordered_map<item_keys, float> values;
 	//store any relevant attributes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
-	std::unordered_set<dynet::item_keys> attributes;
+	std::unordered_set<item_keys> attributes;
 
 	
 };
@@ -796,14 +761,43 @@ public:
 #undef max
 #endif // max
 
-class CONSTRUCT_LIB Graph_Interface {
+namespace dynet {
+	
+}
+
+class CONSTRUCT_LIB Typeless_Graph {
 	friend class GraphManager;
-protected:
-	Graph_Interface(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, dynet::edge_types edge);
 public:
-	virtual ~Graph_Interface() { ; }
+	enum class edge_types : char {
+		dbool,
+		dint,
+		duint,
+		dfloat,
+		dstring,
+		vbool,
+		vint,
+		vuint,
+		vfloat,
+		vstring,
+		mbool,
+		mint,
+		muint,
+		mfloat,
+		mstring
+	};
+
+
+protected:
+	Typeless_Graph(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, edge_types edge);
+public:
+
+
+
+	virtual ~Typeless_Graph() { ; }
 
 	virtual void push_deltas(void) noexcept = 0;
+
+	virtual void get_data_state(std::ostream& out) const = 0;
 
 	const Nodeset* const source_nodeset;
 
@@ -817,8 +811,50 @@ public:
 
 	const unsigned int col_size;
 
-	const dynet::edge_types edge_type;
+	const edge_types edge_type;
 };
+
+
+//constexpr const char* get_type_name(Typeless_Graph::edge_types edge_type) noexcept {
+//	switch (edge_type)
+//	{
+//	case Typeless_Graph::edge_types::dbool:
+//		return "bool";
+//	case Typeless_Graph::edge_types::dint:
+//		return "int";
+//	case Typeless_Graph::edge_types::duint:
+//		return "unsigned int";
+//	case Typeless_Graph::edge_types::dfloat:
+//		return "float";
+//	case Typeless_Graph::edge_types::dstring:
+//		return "string";
+//	case Typeless_Graph::edge_types::vbool:
+//		return "vector<bool>";
+//	case Typeless_Graph::edge_types::vint:
+//		return "vector<int>";
+//	case Typeless_Graph::edge_types::vuint:
+//		return "vector<unsigned int>";
+//	case Typeless_Graph::edge_types::vfloat:
+//		return "vector<float>";
+//	case Typeless_Graph::edge_types::vstring:
+//		return "vector<string>";
+//	case Typeless_Graph::edge_types::mbool:
+//		return "map<bool>";
+//	case Typeless_Graph::edge_types::mint:
+//		return "map<int>";
+//	case Typeless_Graph::edge_types::muint:
+//		return "map<unsigned int>";
+//	case Typeless_Graph::edge_types::mfloat:
+//		return "map<float>";
+//	case Typeless_Graph::edge_types::mstring:
+//		return "map<string>";
+//	default:
+//		return "unknown";
+//	}
+//}
+
+
+
 
 
 struct CONSTRUCT_LIB typeless_graph_iterator {
@@ -853,7 +889,7 @@ struct CONSTRUCT_LIB typeless_graph_iterator {
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph
 
 template<typename T>
-class CONSTRUCT_LIB Graph : public Graph_Interface {
+class CONSTRUCT_LIB Graph : public Typeless_Graph {
 
 
 	
@@ -872,10 +908,16 @@ class CONSTRUCT_LIB Graph : public Graph_Interface {
 
 
 	std::vector<delta> _deltas;
+
+	
 protected:
 	Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const T& def, const std::string& name);
 public:
 	virtual ~Graph() { ; }
+
+	static Typeless_Graph::edge_types get_edge_type(void) noexcept;
+
+	static std::string get_type_name(void) noexcept;
 
 	//all elements are intiailized with this value
 	//if an element is not held in memory, it is assumed that element equals this value
@@ -886,9 +928,6 @@ public:
 
 	//whether the data for each row is stored in an array or tree
 	const bool row_dense;
-
-	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
-
 
 
 	// ------------ iterator parents -----------------------------
@@ -1089,6 +1128,8 @@ public:
 	//updates all elements based on queued deltas
 	void push_deltas(void) noexcept;
 
+	void get_data_state(std::ostream& out) const;
+
 	//returns a reference to the element
 	virtual T& at(row_graph_iterator& it) = 0;
 
@@ -1192,6 +1233,44 @@ public:
 	virtual const_sparse_col_iterator sparse_begin(const const_col_begin_iterator& it, const T& skip_data) const = 0;
 };
 
+
+class CONSTRUCT_LIB Graph_Intermediary {
+	Typeless_Graph* ptr;
+public:
+
+	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
+	void check_ptr() const;
+
+	template<typename T>
+	operator Graph<T>& () {
+		check_ptr();
+		return *(Graph<T>*)(ptr);
+	}
+
+	template<typename T>
+	operator Graph<T>* () {
+		if (!ptr) return nullptr;
+		if (ptr->edge_type != Graph<T>::get_edge_type())
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Graph<T>::get_type_name());
+		return dynamic_cast<Graph<T>*>(ptr);
+	}
+
+	template<typename T>
+	operator const Graph<T>& () const {
+		check_ptr();
+		return *(const Graph<T>*)(ptr);
+	}
+
+	template<typename T>
+	operator const Graph<T>* () const {
+		if (!ptr) return nullptr;
+		if (ptr->edge_type != Graph<T>::get_edge_type())
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Graph<T>::get_type_name());
+		return dynamic_cast<const Graph<T>*>(ptr);
+	}
+
+	operator bool() const { return (bool)ptr; }
+};
 
 
 
@@ -1304,70 +1383,77 @@ namespace generator_names {
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
 
 
-
 class CONSTRUCT_LIB GraphManager 
 {
-	GraphManager(Random* random);
+	GraphManager(Construct* _construct);
 	~GraphManager();
 
 	friend class Construct;
 
-	std::unordered_map<std::string, Graph_Interface*> _graphs;
+	Construct* construct;
 
-#ifdef DEBUG
-	//for each graph a set of entity names (usually models but a couple non-models make requests) are recorded
-	//any time a graph pointer is requested their name is entered here
-	//use this to find what parts of construct might be impacting a specific graph
-	std::unordered_map<std::string, std::set<std::string> > _requests;
-#endif // DEBUG
+	std::unordered_map<std::string, Typeless_Graph*> _graphs;
 
 	//push all the deltas of all graphs
 	void push_deltas(void);
 
 public:
 
-	template<typename T>
-	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, const std::string& model_name="unknown model");
+	std::set<Typeless_Graph*> imported_graphs;
 
-	template<typename T>
-	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, const std::string& model_name = "unknown model");
+	bool is_imported(Typeless_Graph* graph);
 
-	template<typename T>
-	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g) const;
+	// gets a graph
+	// graph is required to already be loaded
+	Graph_Intermediary load_required(
+		const std::string& name, 
+		const Nodeset* src, 
+		const Nodeset* trg, 
+		const Nodeset* slc = nullptr) const;
 
-	template<typename T>
-	void hard_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g) const;
+	// gets a graph
+	// graph is required to already be loaded
+	Graph_Intermediary load_required(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "") const;
 
-	template<typename T>
-	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, Graph<T>*& g, const std::string& model_name = "unknown model");
+	// gets a graph
+	// returns a null pointer if the graph can't be found
+	Graph_Intermediary load_optional(
+		const std::string& name, 
+		const Nodeset* src, 
+		const Nodeset* trg, 
+		const Nodeset* slc = nullptr) const;
 
-	template<typename T>
-	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Graph<T>*& g) const;
+	// gets a graph
+	// returns a null pointer if the graph can't be found
+	Graph_Intermediary load_optional(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "") const;
 
+	// gets a graph
+	// if the graph can't be found, one is created
 	template<typename T>
-	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, Graph<T>*& g, const std::string& model_name = "unknown model");
-
-	template<typename T>
-	void soft_load(const std::string& name, const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const Graph<T>*& g) const;
-
-	//creates a new graph data structure if a graph by the same name does not yet exists.
-	//An allocated Graph pointer is guarenteed to be returned if no exceptions are thrown and no assertions raised.
-	template<typename T>
-	Graph<T>* add_network(const std::string& name,
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
 		const Nodeset* src, bool row_dense,
 		const Nodeset* trg, bool col_dense,
-		const T& vals, const std::string& model_name = "unknown model", bool verbose = true);
+		const Nodeset* slc = nullptr);
 
-	//creates a new graph data structure if a graph by the same name does not yet exists.
-	//An allocated Graph pointer is guarenteed to be returned if no exceptions are thrown and no assertions raised.
+	// gets a graph
+	// if the graph can't be found, one is created
 	template<typename T>
-	Graph<T>* add_3dnetwork(const std::string& name,
-		const Nodeset* src, bool row_dense,
-		const Nodeset* trg, bool col_dense,
-		const Nodeset* slc,
-		const T& vals, const std::string& model_name = "unknown model", bool verbose = true);
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const std::string& source_nodeset, bool row_dense,
+		const std::string& target_nodeset, bool col_dense,
+		const std::string& slice_nodeset = "");
 
-	Graph_Interface* get_network(const std::string& name) noexcept;
+	// gets a typeless graph
+	// if the graph can't be found, a null pointer is returned
+	Typeless_Graph* get_network(const std::string& name) noexcept;
 	
 	struct set_of_generators {
 		GraphManager* const graph_manager;
@@ -1417,9 +1503,9 @@ public:
 	const std::set<std::string>& get_accesses(std::string name) const;
 #endif // DEBUG
 
-	void import_network(Graph_Interface* graph);
+	void import_network(Typeless_Graph* graph);
 
-	void export_network(Graph_Interface* graph) noexcept;
+	void export_network(Typeless_Graph* graph) noexcept;
 
 };
 
@@ -1578,7 +1664,7 @@ class CONSTRUCT_LIB Output_Graph : public Output {
 	static const std::string network_name; //"network name"
 	static const std::string output_file; //"output file"
 
-	const Graph_Interface* _graph;
+	const Typeless_Graph* _graph;
 	std::ofstream _output_file;
 
 	unsigned int _tmax;
@@ -1595,17 +1681,6 @@ class CONSTRUCT_LIB Output_Graph : public Output {
 	
 	~Output_Graph(void);
 
-	void process(void);
-
-	template<typename T>
-	void process_2d(const Graph<T>* g);
-
-	template<typename T>
-	void process_3d(const Graph<std::vector<T> >* g);
-
-	template<typename T>
-	void process_3d(const Graph<std::map<unsigned int, T> >* g);
-
 	friend class OutputManager;
 	void process(unsigned int t);
 public:
@@ -1620,7 +1695,7 @@ class CONSTRUCT_LIB Output_dynetml : public Output {
 	static const std::string output_file; //"output file"
 	static const std::string timeperiods; //"timeperiods"
 
-	std::vector<const Graph_Interface*> _graphs;
+	std::vector<const Typeless_Graph*> _graphs;
 	std::ofstream _output_file;
 
 	enum class output_types : char {
@@ -1654,6 +1729,8 @@ public:
 
 
 class CONSTRUCT_LIB Output_Messages : public Output {
+
+	
 
 	static const std::string output_file; //"output file"
 
@@ -1706,8 +1783,6 @@ public:
 	// central message queue for messages waiting to be dispersed.
 	InteractionMessageQueue interaction_message_queue;
 
-	InteractionMessageQueue public_message_queue;
-
 	//directory where all output gets sent.
 	std::string working_directory = "";
 	
@@ -1731,15 +1806,15 @@ private:
 
 
 
-class CONSTRUCT_LIB KnowledgeParsing : public Model
+struct CONSTRUCT_LIB KnowledgeParsing : public Model
 {
 public:
 
 	//graph name - "knowledge network"
 	//agent x knowledge
-	Graph<bool>* _knowledge_net;
+	Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, nodeset_names::agents, nodeset_names::knowledge);
 
-	KnowledgeParsing(Construct* construct);
+	KnowledgeParsing(Construct* _construct) : Model(_construct, model_names::KPARSE) {}
 
 	void communicate(InteractionMessageQueue::iterator msg);
 };
@@ -1752,17 +1827,21 @@ public:
 
 	float rr;
 
+	//graph name - "knowledge network"
+	//agent x knowledge
+	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, nodeset_names::agents, nodeset_names::knowledge);
+
 	//graph name - "knowledge trust network"
 	//agent x knowledge
-	Graph<float>* _knowledge_trust_net;
+	Graph<float>& knowledge_trust_net = graph_manager->load_optional(graph_names::k_trust, 0.5f, 
+		nodeset_names::agents, knowledge_net.row_dense, nodeset_names::knowledge, knowledge_net.col_dense);
 
 	//graph name - "knowledge trust transactive memory network"
 	//agent x agent x knowledge
-	Graph<std::map<unsigned int, float> >* _kttm;
+	Graph<std::map<unsigned int, float> >& kttm = graph_manager->load_optional(graph_names::kttm, std::map<unsigned int, float>(),
+		nodeset_names::agents, true, nodeset_names::agents, false, nodeset_names::knowledge);
 
-	//graph name - "knowledge network"
-	//agent x knowledge
-	const Graph<bool>* _knowledge_net;
+	
 
 	KnowledgeTrust(const dynet::ParameterMap& parameters, Construct* construct);
 
@@ -1802,9 +1881,9 @@ public:
 	//sets the corresponding element where agent_i corresponds to source index
 	virtual void set_interaction_probability(unsigned int agent_i, unsigned int agent_j);
 
-	// Grabs the _send_msg_queue and decrements all of their time_to_live values
+	// Grabs the send_msg_queue and decrements all of their time_to_live values
 	// any msg that has gotten to zero gets added to the private message queue
-	// this should be called before populating the _send_msg_queue during interactions
+	// this should be called before populating the send_msg_queue during interactions
 	virtual void update_send_msg_queue();
 	
 	// generates a vector of paired values with first being the agent index
@@ -1833,36 +1912,44 @@ public:
 	//given a sender, receiver, and medium, returns the vector of InteractionItems to be attached to an InteractionMessage
 	virtual std::vector<InteractionItem> get_interaction_items(unsigned int sender, unsigned int receiver, const CommunicationMedium* comm);
 
+	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
+	const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
+	const Nodeset* comm = ns_manager->get_nodeset(nodeset_names::comm);
+	const Nodeset* time = ns_manager->get_nodeset(nodeset_names::time);
+
+	//The only required network
+
 	//graph name - "knowledge network"
 	//agent x knowledge
-	Graph<bool>* _knowledge_net;
+	Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
 
-	//these graphs are for internal use, not expected as input and are only used for output
-	//if they are inputted, the networks get cleared at the beginning of each time step
- 
-
-	//graph name - "interaction probability network"
-	//agent x agent
-	Graph<float>* _interaction_prob;
-	//graph name - "interaction network"
-	//agent x agent
-	Graph<bool>* _interactions;
 
 	//These graphs are used to control which agents can interact with which other agents.
 
 	//graph name - "sphere of influence network"
 	//agent x agent
-	Graph<bool>* _soi;
+	Graph<bool>& soi = graph_manager->load_optional(graph_names::soi, true, agents, false, agents, false);
 	//graph name - "agent active timeperiod network"
 	//agent x timeperiod
-	const Graph<bool>* _agent_active;
+	const Graph<bool>& agent_active = graph_manager->load_optional(graph_names::active, true, agents, false, time, false);
 	//graph name - "agent initiation count network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _agent_initiation_count;
+	const Graph<unsigned int>& agent_initiation_count = graph_manager->load_optional(graph_names::init_count, 1u, agents, false, time, false);
 	//graph name - "agent reception count network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _agent_reception_count;
+	const Graph<unsigned int>& agent_reception_count = graph_manager->load_optional(graph_names::recep_count, 1u, agents, false, time, false);
 
+
+	//these graphs are for internal use, not expected as input and are only used for output
+	//if they are inputted, the networks get cleared at the beginning of each time step
+
+
+	//graph name - "interaction probability network"
+	//agent x agent
+	Graph<float>& interaction_prob = graph_manager->load_optional(graph_names::interact_prob, 0.0f, agents, true, agents, true);
+	//graph name - "interaction network"
+	//agent x agent
+	Graph<bool>& interactions = graph_manager->load_optional(graph_names::interact, false, agents, false, agents, false);
 
 	//These graphs are used to determine how messages are constructed given an interaction pair
 
@@ -1870,22 +1957,22 @@ public:
 
 	//graph name - "knowledge message complexity network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _knowledge_message_complexity;
+	const Graph<unsigned int>& knowledge_message_complexity = graph_manager->load_optional(graph_names::k_msg_complex, 1u, agents, false, time, false);
 	//graph name - "knowledge priority network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_priority_network;
+	const Graph<float>& knowledge_priority_network = graph_manager->load_optional(graph_names::k_priority, 1.0f, agents, false, knowledge, false);
 	//graph name - "learnable knowledge network"
 	//agent x knowledge
-	const Graph<bool>* _learnable_knowledge_net;
+	const Graph<bool>& learnable_knowledge_net = graph_manager->load_optional(graph_names::learnable_k, true, agents, false, knowledge, false);
 	//graph name - "communication medium preferences network"
 	//agent x medium
-	const Graph<float>* _comm_medium_pref;
+	const Graph<float>& comm_medium_pref = graph_manager->load_optional(graph_names::comm_pref, 1.0f, agents, false, comm, false);
 	//graph name - "medium knowledge network"
 	//medium x knowledge
-	const Graph<bool>* _medium_knowledge_access;
+	const Graph<bool>& medium_knowledge_access = graph_manager->load_optional(graph_names::medium_k_access, true, comm, false, knowledge, false);
 	//graph name - "communication medium access network"
 	//agent x CommunicationMedium
-	const Graph<bool>* _comm_access;
+	const Graph<bool>& comm_access = graph_manager->load_optional(graph_names::comm_access, true, agents, false, comm, false);
 
 	//These graphs determine proximity which is assumed to be static.
 
@@ -1893,22 +1980,22 @@ public:
 
 	//graph name - "physical proximity network"
 	//agent x agent
-	const Graph<float>* _physical_prox;
+	const Graph<float>& physical_prox = graph_manager->load_optional(graph_names::phys_prox, 1.0f, agents, false, agents, false);
 	//graph name - "physical proximity weight network"
 	//agent x timeperiod
-	const Graph<float>* _physical_prox_weight;
+	const Graph<float>& physical_prox_weight = graph_manager->load_optional(graph_names::phys_prox_wgt, 1.0f, agents, false, time, false);
 	//graph name - "social proximity network"
 	//agent x agent
-	const Graph<float>* _social_prox;
+	const Graph<float>& social_prox = graph_manager->load_optional(graph_names::soc_prox, 1.0f, agents, false, agents, false);
 	//graph name - "social proximity weight network"
 	//agent x timeperiod
-	const Graph<float>* _social_prox_weight;
+	const Graph<float>& social_prox_weight = graph_manager->load_optional(graph_names::soc_prox_wgt, 1.0f, agents, false, time, false);
 	//graph name - "sociodemographic proximity network"
 	//agent x agent
-	const Graph<float>* _socdem_prox;
+	const Graph<float>& socdem_prox = graph_manager->load_optional(graph_names::dem_prox, 1.0f, agents, false, agents, false);
 	//graph name - "sociodemographic proximity weight network"
 	//agent x timeperiod
-	const Graph<float>* _socdem_prox_weight;
+	const Graph<float>& socdem_prox_weight = graph_manager->load_optional(graph_names::dem_prox_wgt, 1.0f, agents, false, time, false);
 
 	//These graphs indicate how important various pieces are for determining interaction probability
 
@@ -1916,21 +2003,21 @@ public:
 
 	//graph name - "interaction knowledge weight network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_importance;
+	const Graph<float>& knowledge_importance = graph_manager->load_optional(graph_names::interact_k_wgt, 1.0f, agents, false, knowledge, false);
 	//graph name - "knowledge similarity weight network"
 	//agent x timeperiod
-	const Graph<float>* _knowledge_sim_weight;
+	const Graph<float>& knowledge_sim_weight = graph_manager->load_optional(graph_names::k_sim_wgt, 1.0f, agents, false, time, false);
 	//graph name - "knowledge expertise weight network"
 	//agent x timeperiod
-	const Graph<float>* _knowledge_exp_weight;
+	const Graph<float>& knowledge_exp_weight = graph_manager->load_optional(graph_names::k_exp_wgt, 1.0f, agents, false, time, false);
 
 
 	//delayed messages waiting to be sent are here
-	InteractionMessageQueue _send_msg_queue; 
+	InteractionMessageQueue send_msg_queue; 
 
-	const Nodeset* agents;
+	
 	//The communication mediums derived from the medium nodeset
-	std::vector<CommunicationMedium> _communication_mediums;
+	std::vector<CommunicationMedium> communication_mediums;
 	//size of the agent nodeset
 	unsigned int agent_count;
 	//size of the knowledge nodeset
@@ -1938,7 +2025,7 @@ public:
 	//number of times a try for an interaction pair can happen before interaction pairing prematurely ends
 	unsigned int interaction_rejection_limit;
 
-	unsigned int& t;
+	const unsigned int& t;
 
 	//used to prevent multiple instances of rejection limit being printed
 	static bool needs_printing;
@@ -1951,19 +2038,17 @@ public:
 
 	Beliefs(const dynet::ParameterMap& parameters, Construct* construct);
 
-	unsigned int belief_count;
-
 	//graph name - "belief network"
 	//agent x belief
-	Graph<float>* _beliefs;
+	Graph<float>& beliefs = graph_manager->load_required(graph_names::beliefs, nodeset_names::agents, nodeset_names::belief);
 
 	//graph name - "belief knowledge weight network"
 	//belief x knowledge
-	const Graph<float>* _belief_weights;
+	const Graph<float>& belief_weights = graph_manager->load_optional(graph_names::b_k_wgt, 1.0f, nodeset_names::belief, false, nodeset_names::knowledge, false);
 
 	//graph name - "belief similarity weight network"
 	//agent - timeperiod
-	const Graph<float>* _belief_sim_weight;
+	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, false, time, false);
 
 	void initialize(void);
 	void cleanup(void);
@@ -1975,37 +2060,33 @@ public:
 };
 
 
-class CONSTRUCT_LIB Tasks: public StandardInteraction
+struct CONSTRUCT_LIB Tasks: public StandardInteraction
 {
-	public:
-
-		unsigned int task_count;
-		unsigned int agent_count;
-		unsigned int knowledge_count;
+		const Nodeset* tasks = ns_manager->get_nodeset(nodeset_names::task);
 
 		// graph name - "task assignment network"
 		// agent x task
-		const Graph<bool>* _task_assignment;
+		const Graph<bool>& task_assignment = graph_manager->load_optional(graph_names::task_assignment, true, agents, false, tasks, false);
 
 		// graph name - "task knowledge requirement network"
 		// task x knowledge
-		const Graph<bool>* _tk_req;
+		const Graph<bool>& tk_req = graph_manager->load_required(graph_names::task_k_req, tasks, knowledge);
 
 		// graph name - "knowledge importance network"
 		// task x knowledge
-		const Graph<float>* _tk_import;
+		const Graph<float>& tk_import = graph_manager->load_optional(graph_names::task_k_importance, 1.0f, tasks, false, knowledge, false);
 
 		// graph name - "task guess probability network"
 		// task x knowledge
-		const Graph<float>* _tk_prob;
+		const Graph<float>& tk_prob = graph_manager->load_optional(graph_names::task_guess_prob, 0.0f, tasks, false, knowledge, false);
 
 		// graph name - "completed tasks network"
 		// agent x task
-		Graph<unsigned int>* _task_completion;
+		Graph<unsigned int>& task_completion = graph_manager->load_optional(graph_names::task_completion, 0u, agents, false, tasks, false);
 
 		// graph name - "task availability network"
 		// task x timeperiod
-		const Graph<bool>* _availablity;
+		const Graph<bool>& availablity = graph_manager->load_optional(graph_names::task_availability, true, tasks, false, time, false);
 
 
 		Tasks(const dynet::ParameterMap& parameters, Construct* construct);
@@ -2025,22 +2106,20 @@ public:
 
 	//graph name - "transactive knowledge message complexity network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _tmk_message_complexity;
+	const Graph<unsigned int>& tmk_message_complexity = graph_manager->load_optional(graph_names::ktm_msg_complex, 1u, agents, false, time, false);
 
 	//graph name - "agent group membership network"
 	//agent x agentgroup
-	const Graph<bool>* _group_membership;
+	const Graph<bool>* group_membership;
 
 	//graph name "agent group knowledge network"
 	//agentgroup x knowledge
-	Graph<float>* _group_knowledge;
+	Graph<float>* group_knowledge;
 
 	//graph name "knowledge transactive memory network"
 	//agent x agent x knowledge
-	Graph<std::vector<bool> >* _tmk;
+	Graph<std::vector<bool> >& tmk = graph_manager->load_optional(graph_names::ktm, std::vector<bool>(agents->size(), false), agents, true, knowledge, false);
 
-	unsigned int agent_count;
-	unsigned int knowledge_count;
 	unsigned int group_count;
 
 	const Nodeset* agents;
@@ -2063,19 +2142,17 @@ public:
 };
 
 
-
-
-class CONSTRUCT_LIB Social_Media : public virtual Model
+class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
 {
-    
 
-    //model parameter name who's value gets entered into Social_Media::dt
+
+    //model parameter name who's value gets entered into Social_Media_with_followers::dt
     const std::string interval_time_duration = "interval time duration";
 
-    //model parameter name who's value gets entered into Social_Media::age
+    //model parameter name who's value gets entered into Social_Media_with_followers::age
     const std::string maximum_post_inactivity = "maximum post inactivity";
 public:
-	
+
     struct CONSTRUCT_LIB media_event {
 
         //this goes through the entire chain of events recursively and updates the last_used
@@ -2125,9 +2202,6 @@ public:
         //gets the size of the tree of events with this event at its root (minimum size of 1)
         unsigned int child_size(void);
 
-        //when events are saved to disk they are given this id and its incremented
-        static unsigned int id_tracker;
-
         //the pointer of the event this event is replying to.
         //if equal to this, the event has no parent and is a post.
         media_event* parent_event = this;
@@ -2137,10 +2211,10 @@ public:
         media_event* root_event = this;
 
         //set of indexes the event contains
-        std::unordered_map<dynet::item_keys, unsigned int> indexes;
+        std::unordered_map<InteractionItem::item_keys, unsigned int> indexes;
 
         //set of values the event contains
-        std::unordered_map<dynet::item_keys, float> values;
+        std::unordered_map<InteractionItem::item_keys, float> values;
 
         //list of reposts that have shared this event
         std::vector<media_event*> reposts;
@@ -2181,6 +2255,7 @@ public:
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct CONSTRUCT_LIB media_user {
+
         virtual ~media_user() { ; }
 
         // called before reply, quote, or repost, allows the user to parse an event before responding to it
@@ -2200,42 +2275,20 @@ public:
 
         //number of events read each time step
         virtual unsigned int get_read_count(void) = 0;
-
-        // defines how a user adds mentions to an event they created
-        virtual void add_mentions(media_event* post) = 0;
-
-        //gets the trust the user decides to attach based on the knowledge index
-        //if the "Knowledge Trust %Model" is not active, output is not used.
-        virtual float get_trust(unsigned int knowledge_index) = 0;
-
-        //returns true if this user decides to follow an agent when called
-        virtual bool follow_user(unsigned int alter_agent_index) = 0;
-
-        //Returns true if this user decides to unfollow an agent when called
-        virtual bool unfollow_user(unsigned int alter_agent_index) = 0;
-
-        // An alter has decided to follow this user and can decide to reciprocate that following
-        virtual bool respond_to_follow(unsigned int alter_agent_index) = 0;
-
-        // How many alters should be considered each time step for recommendations
-        virtual unsigned int consider_recommendations(void) = 0;
-
-        // gets how charismatic a user is
-        virtual float get_charisma() = 0;
     };
 
 
-    struct CONSTRUCT_LIB default_media_user : public media_user {
+    struct CONSTRUCT_LIB default_media_user : public virtual media_user {
 
-        default_media_user(Social_Media* _media, Nodeset::iterator node);
+        default_media_user(Social_Media_no_followers* _media, Nodeset::iterator node);
 
         //the social media that this user is interacting with
-        Social_Media* media;
+        Social_Media_no_followers* media;
 
         //this user's agent index
         unsigned int id;
 
-        //probability density to post (time in hours) pdtw * dt = average number of events in a time period
+        //probability density to post pdtw * dt = average number of events in a time period
         float pdp;
 
         //probability to reply when an event or reply is read
@@ -2249,19 +2302,6 @@ public:
 
         //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
         float pdread;
-
-        //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
-        float pdaf;
-
-        //scale factor to determine number of removed followees
-        float rf;
-
-        //determines how likable someone's event is going to be.
-        //people with more likable posts get more followers
-        float charisma;
-
-        //If true, this user, when added as a followee by another user, will automatically reciprocate followings
-        bool auto_follow;
 
         //this reads the post given and performs any actions before the post is potentially responded to
         void read(media_event* _event);
@@ -2290,20 +2330,6 @@ public:
         //gets the trust of the knowledge index
         //if the "Knowledge Trust %Model" is not active, -1 is returned.
         virtual float get_trust(unsigned int knowledge_index);
-
-        //returns true if this user decides to follow an agent when called
-        bool follow_user(unsigned int alter_agent_index);
-
-        //Returns true if this user decides to unfollow an agent when called
-        bool unfollow_user(unsigned int alter_agent_index);
-
-        // An alter has decided to follow this user and can decide to reciprocate that following
-        bool respond_to_follow(unsigned int alter_agent_index);
-
-        // How many alters should be considered each time step for recommendations
-        unsigned int consider_recommendations(void);
-
-        float get_charisma();
     };
 
 
@@ -2317,6 +2343,26 @@ public:
         using std::list<media_event>::reverse;
         using std::list<media_event>::merge;
     public:
+        
+        std::vector<media_event> removed_events;
+
+        iterator erase(const const_iterator _Where) noexcept {
+            removed_events.push_back(*_Where);
+            return list::erase(_Where);
+        }
+
+        iterator erase(const const_iterator _First, const const_iterator _Last) noexcept {
+            for (auto temp = _First; temp != _Last; temp++) removed_events.push_back(*temp);
+            return list::erase(_First, _Last);
+        }
+
+        void clear() noexcept {
+            for (auto it = begin(); it != end(); ++it) {
+                removed_events.push_back(*it);
+            }
+            list::clear();
+        }
+
         template<class... Args>
         void emplace_front(Args&&... args) {
 
@@ -2335,45 +2381,25 @@ public:
     };
 
 
-    void check_list_order() const {
-#ifdef DEBUG
-        auto it = list_of_events.begin();
-        auto next_it = list_of_events.begin();
-        next_it++;
-        while (next_it != list_of_events.end()) {
-            if (it->time_stamp < next_it->time_stamp) out_of_order();
-
-            it++;
-            next_it++;
-        }
-#endif
-    }
-
-    // raises an assertion indicating an event is out of order
-    void out_of_order() const;
-
-    std::vector < std::vector<unsigned int> > responses;
+    void check_list_order() const;
 
     //pointer to the "agent" nodeset
-    const Nodeset* agents;
+    const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
 
     //pointer to the Knowledge Trust %Model if it has been created
     //otherwise the pointer remains a null pointer
-    KnowledgeTrust* TRUST = NULL;
+    KnowledgeTrust* TRUST = nullptr;
 
     //this is the medium used for all messages created by this model
     //it is intended to have unlimited complexity and avoid models that interact based on medium
     CommunicationMedium medium;
 
     //this key is added to messages created by this model for items that contain the feed index
-    dynet::item_keys event_key = dynet::item_keys::twitter_event;
+    InteractionItem::item_keys event_key = InteractionItem::item_keys::twitter_event;
 
     // list of all current active events, all users can access this list
     // new events should be added to the front of this list
     event_container list_of_events;
-
-    //keeps track of event ids that mention users to speed up search algorithms
-    std::vector<std::unordered_set<media_event*> > mention_graph;
 
     //contains each user's feed of events pseudo-sorted by priority, also contains user-centric event info like whether a event has been read
     std::vector<std::vector<media_event*> > users_feed;
@@ -2397,42 +2423,135 @@ public:
 
     //graph name - "knowledge network"
     //agent x knowledge
-    Graph<bool>* _knowledge_net;
+    const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, ns_manager->get_nodeset(nodeset_names::knowledge));
 
     //graph name - "agent active time network"
     //agent x timeperiod
-    const Graph<bool>* _active;
-
-    //twittersim specific graphs
-
-    //graph name - TBD
-    //agent x agent
-    Graph<bool>* _follower_net = NULL;
+    const Graph<bool>& active = graph_manager->load_optional(graph_names::active, true, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
 
     //list of users
     std::vector<media_user*> users;
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
-    //Uses the API function create_social_media_user to populate Social_Media::users
-	Social_Media(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
+    //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
+    Social_Media_no_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
 
-    //delete all pointers in stored in the Social_Media::users data structure
-    virtual ~Social_Media();
+    //delete all pointers in stored in the Social_Media_with_followers::users data structure
+    virtual ~Social_Media_no_followers();
 
     virtual void load_users();
 
     //agents read events in their feeds starting with the first event
     //reading an event will create a message with all relavant knowledge and trust information in items along with the event's feed index
     //messages are sent from the read event's author to the reading user and uses a CommunicationMedium with maximum complexity
-	void think(void);
+    void think(void);
 
     //adds the Knowledge Parsing %Model, and attempts to find and save the pointer for the Knowledge Trust %Model if it has been added to the model list
-	void initialize(void);
+    void initialize(void);
 
-    //only parses messages that have an attribute equal to Social_Media::event_key for the feed position index corresponding to a media_event pointer
+    //only parses messages that have an attribute equal to Social_Media_with_followers::event_key for the feed position index corresponding to a media_event pointer
     //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
     //the reading user will then decide whether to follow based on the event author's charisma and similarity based on the trust transactive memory
+    void communicate(InteractionMessageQueue::iterator msg);
+
+    //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
+    void cleanup(void);
+
+    //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
+    virtual void append_message(media_event* _event, InteractionMessage& msg);
+
+    //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
+    //events are ordered by direct replies or mentions, events of followers, and all other events
+    //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
+    //after the events have been organized stochastic shuffling is done on 10% of the feed to avoid a fully deterministic feed
+    virtual void update_feeds(void);
+};
+
+
+
+struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_no_followers
+{
+public:
+
+    //class that contains all settings for a user as well as functions that dictates how each user interacts
+    struct CONSTRUCT_LIB media_user : virtual public Social_Media_no_followers::media_user {
+
+        //returns true if this user decides to follow an agent when called
+        virtual bool follow_user(unsigned int alter_agent_index) = 0;
+
+        //Returns true if this user decides to unfollow an agent when called
+        virtual bool unfollow_user(unsigned int alter_agent_index) = 0;
+
+        // An alter has decided to follow this user and can decide to reciprocate that following
+        virtual bool respond_to_follow(unsigned int alter_agent_index) = 0;
+
+        // How many alters should be considered each time step for recommendations
+        virtual unsigned int consider_recommendations(void) = 0;
+
+        // gets how charismatic a user is
+        virtual float get_charisma() = 0;
+    };
+
+
+    struct CONSTRUCT_LIB default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
+
+        default_media_user(Social_Media_with_followers* _media, Nodeset::iterator node);
+
+        //the social media that this user is interacting with
+        Social_Media_with_followers* media;
+
+        //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
+        float pdaf;
+
+        //scale factor to determine number of removed followees
+        float rf;
+
+        //determines how likable someone's event is going to be.
+        //people with more likable posts get more followers
+        float charisma;
+
+        //If true, this user, when added as a followee by another user, will automatically reciprocate followings
+        bool auto_follow;
+
+        //mentions are added to the event if the event is a post by randomly selecting a followee
+        virtual void add_mentions(media_event* post);
+
+        //returns true if this user decides to follow an agent when called
+        bool follow_user(unsigned int alter_agent_index);
+
+        //Returns true if this user decides to unfollow an agent when called
+        bool unfollow_user(unsigned int alter_agent_index);
+
+        // An alter has decided to follow this user and can decide to reciprocate that following
+        bool respond_to_follow(unsigned int alter_agent_index);
+
+        // How many alters should be considered each time step for recommendations
+        unsigned int consider_recommendations(void);
+
+        float get_charisma();
+    };
+
+
+    std::vector < std::vector<unsigned int> > responses;
+
+    //twittersim specific graphs
+
+    //graph name - TBD
+    //agent x agent
+    // if (follower_net->examine(i,j)) // agent i is following agent j
+    Graph<bool>* follower_net = nullptr;
+
+    //list of users
+    std::vector<media_user*> users;
+
+    //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
+    //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
+    //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
+	Social_Media_with_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
+
+    virtual void load_users();
+
     void communicate(InteractionMessageQueue::iterator msg);
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
@@ -2447,9 +2566,6 @@ public:
     //each users decides whether to unfollow any other user
     virtual void remove_followees(void);
 
-    //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
-    virtual void append_message(media_event* _event, InteractionMessage& msg);
-
     //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
     //events are ordered by direct replies or mentions, events of followers, and all other events
     //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
@@ -2458,13 +2574,13 @@ public:
 };
 
 
-struct CONSTRUCT_LIB Facebook : public virtual Social_Media {
+struct CONSTRUCT_LIB Facebook : public virtual Social_Media_with_followers {
     Facebook(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
 
 
-struct CONSTRUCT_LIB Twitter : public virtual Social_Media {
+struct CONSTRUCT_LIB Twitter : public virtual Social_Media_with_followers {
     Twitter(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
@@ -2474,34 +2590,31 @@ struct CONSTRUCT_LIB Twitter : public virtual Social_Media {
 struct CONSTRUCT_LIB Forget : public Model
 {
 	const Nodeset* agents;
-	unsigned int agent_count;
-	unsigned int knowledge_count = 0;
-
 
 	//graph name - "knowledge network"
 	//agent x knowledge
-	Graph<bool>* _knowledge_net = 0;
+	Graph<bool>* knowledge_net = 0;
 
 	//graph name - "knowledge strength network"
 	//agent x knowledge
-	Graph<float>* _knowledge_strength = 0;
+	Graph<float>* knowledge_strength = 0;
 
 	//graph name - "knowledge forgetting rate network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_forget_rate = 0;
+	const Graph<float>* knowledge_forget_rate = 0;
 
 	//graph name - "knowledge forgetting prob network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_forget_prob = 0;
+	const Graph<float>* knowledge_forget_prob = 0;
 
 	//graph name - "knowledge trust network"
 	//agent x knowledge
-	Graph<float>* _ktrust_net = 0;
+	Graph<float>* ktrust_net = 0;
 
 	//sparse matrix of users who used a piece of knowledge
 	//gets reset each time step
 	//not intended to get input any input will be cleared at the beginning of each time step
-	Graph<bool>* _unused_knowledge = 0;
+	Graph<bool>* unused_knowledge = 0;
 
 	Forget(Construct* construct);
 	void think(void);
@@ -2542,15 +2655,15 @@ public:
 
 	//graph name - "belief message complexity network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _belief_message_complexity = 0;
+	const Graph<unsigned int>* belief_message_complexity = 0;
 
 	//graph name - "transactive belief message complexity network"
 	//agent x timeperiod
-	const Graph<unsigned int>* _btm_message_complexity = 0;
+	const Graph<unsigned int>* btm_message_complexity = 0;
 
 	//graph name - "belief transactive memory network"
 	//agent x agent x belief
-	Graph<std::map<unsigned int, float> >* _btm = 0;
+	Graph<std::map<unsigned int, float> >* btm = 0;
 
 	//graph name - "group belief network"
 	//agentgroup x belief
@@ -2570,7 +2683,7 @@ public:
 
 	//graph name - "agent group membership network"
 	//agent x agentgroup
-	Graph<bool>* _group_membership = 0;
+	Graph<bool>* group_membership = 0;
 
 
 
@@ -2603,14 +2716,11 @@ public:
 	//if a message loses all of items, it is removed from the queue
 	void update(void);
 
-	KnowledgeLearningDifficulty(Construct* construct);
-
-	// pointer from Construct->interaction_message_queue
-	InteractionMessageQueue* queue;
+	KnowledgeLearningDifficulty(Construct* _construct) : Model(_construct, model_names::KDIFF) {}
 
 	//graph name - "knowledge learning difficulty network"
 	//agent x knowledge
-	const Graph<float> *_knowledge_leanrning_difficulty_net;
+	const Graph<float>& k_leanrning_difficulty_net = graph_manager->load_required(graph_names::k_diff, nodeset_names::agents, nodeset_names::knowledge);
 
 };
 
@@ -2619,67 +2729,71 @@ class CONSTRUCT_LIB Location : public Model
 {
 public:
 
+	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
+	const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
+	const Nodeset* locations = ns_manager->get_nodeset(nodeset_names::loc);
+
 	// graph name - "location network"
 	// location x location 
-	const Graph<bool>* _loc_net;
+	const Graph<bool>& loc_adj = graph_manager->load_optional(graph_names::location_network, true, locations, false, locations, false);
 
 	// graph name - "agent current location network"
 	// agent x location
-	Graph<bool>* _location;
+	Graph<bool>& current_loc = graph_manager->load_required(graph_names::current_loc, agents, locations);
 
 	// graph name - "location knowledge network"
 	// location x knowledge
-	const Graph<bool>* _location_knowledge_net;
+	const Graph<bool>& location_knowledge_net = graph_manager->load_optional(graph_names::loc_knowledge, true, locations, false, knowledge, false);
 
 	// graph name - "agent location learning rate network"
 	// agent x location
-	const Graph<float>* _agent_location_learning_rate_net;
+	const Graph<float>& agent_location_learning_rate_net = graph_manager->load_optional(graph_names::loc_learning_rate, 1.0f, agents, false, locations, false);
 
 	// graph name - "knowledge expertise weight network"
 	// agent x timperiod
-	const Graph<float>* _knowledge_expertise;
+	const Graph<float>& knowledge_expertise = graph_manager->load_optional(graph_names::k_exp_wgt, 1.0f, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
 
 	// graph name - "location preference network"
 	// agent x location
-	const Graph<float>* _location_preference;
+	const Graph<float>& location_preference = graph_manager->load_optional(graph_names::loc_preference, 1.0f, agents, false, locations, false);
 
 	// graph name - "location medium access network"
 	// location x CommunicationMedium
-	const Graph<bool>* _location_medium_access;
+	const Graph<bool>& location_medium_access = graph_manager->load_optional(graph_names::loc_medium_access, true, locations, false, ns_manager->get_nodeset(nodeset_names::comm), false);
 
 	// graph name - "knowledge network"
 	// agent x knowledge
-	Graph<bool>* _knowledge_net;
+	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
 
 	//graph name - "interaction knowledge weight network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_importance;
+	const Graph<float>& knowledge_importance = graph_manager->load_optional(graph_names::interact_k_wgt, 1.0f, agents, false, knowledge, false);
 
 	//graph name - "agent location learning limit network"
 	//agent x location
-	const Graph<unsigned int>* _loc_limit;
+	const Graph<unsigned int>& loc_limit = graph_manager->load_optional(graph_names::loc_learning_limit, 1u, agents, false, locations, false);
 
 	//graph name - "agent active timperiod network"
 	//agent x timeperiod
-	const Graph<bool>* _active;
+	const Graph<bool>& active = graph_manager->load_optional(graph_names::active, true, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
 
 	//graph name - "knowledge priority network"
 	//agent x knowledge
-	const Graph<float>* _knowledge_priority_network;
+	const Graph<float>& knowledge_priority_network = graph_manager->load_optional(graph_names::k_priority, 1.0f, agents, false, knowledge, false);
 
 	//graph name - "communication medium access network"
 	//agent x CommunicationMedium
-	const Graph<bool>* _comm_access;
+	const Graph<bool>& comm_access = graph_manager->load_optional(graph_names::comm_access, true, agents, false, ns_manager->get_nodeset(nodeset_names::comm), false);
 
 	//graph name - "communication medium preferences network"
 	//agent x CommunicationMedium
-	const Graph<float>* _comm_medium_prefs;
+	const Graph<float>& comm_medium_prefs = graph_manager->load_optional(graph_names::comm_pref, 1.0f, agents, false, ns_manager->get_nodeset(nodeset_names::comm), false);
 
-	unsigned int agent_count;
-	unsigned int location_count;
-	unsigned int knowledge_count;
+	//unsigned int agent_count;
+	//unsigned int location_count;
+	//unsigned int knowledge_count;
 	std::vector<unsigned int> _current_agent_locations;
-	std::vector<CommunicationMedium> _communication_mediums;
+	std::vector<CommunicationMedium> communication_mediums;
 
 	Tasks* tasks = 0;
 
@@ -2688,8 +2802,8 @@ public:
 	void think(void);
 	void cleanup(void);
 
-	float get_expertise(unsigned int agent, unsigned int location);
-	const CommunicationMedium* get_medium(unsigned int agent);
+	virtual float get_expertise(unsigned int agent, unsigned int location);
+	virtual const CommunicationMedium* get_medium(unsigned int agent);
 };
 
 
@@ -2699,47 +2813,43 @@ public:
 
 	//graph name - "agent mail usage by medium"
 	//agent x CommunicationMedium
-	Graph<float>* _mail_pref;
+	Graph<float>& mail_pref = graph_manager->load_optional(graph_names::mail_usage, 1.0f, nodeset_names::agents, false, nodeset_names::comm, false);
 
 	//graph name - "mail check probability"
 	//agent x timeperiod
-	Graph<float>* _mail_check_prob;
+	Graph<float>& mail_check_prob = graph_manager->load_optional(graph_names::mail_check_prob, 0.5f, nodeset_names::agents, false, nodeset_names::time, false);
 
-	std::vector<InteractionMessageQueue> mailboxes;
+	std::vector<InteractionMessageQueue> mailboxes = std::vector<InteractionMessageQueue>(mail_pref.source_nodeset->size());
 
-	unsigned int agent_count;
-	unsigned int medium_count;
+	Mail(Construct* _construct) : Model(_construct, model_names::MAIL) {};
 
-	Mail(Construct* construct);
 	void update(void);
 };
 
 
-class CONSTRUCT_LIB Subscription : public Model
+struct CONSTRUCT_LIB Subscription : public Model
 {
+	Subscription(Construct* _construct) : Model(_construct, model_names::SUB) {};
 
-public:
-	Subscription(Construct* construct);
 
 	void think();
 	void communicate(InteractionMessageQueue::iterator msg);
 	void cleanup();
 
-	InteractionMessageQueue* public_queue;
-
 	//graph name - "public propensity"
 	//agent x CommunicationMedium
-	const Graph<float>* _public_propensity;
+	const Graph<float>& public_propensity = graph_manager->load_optional(graph_names::propensity, 
+		0.01f, nodeset_names::agents, false, nodeset_names::comm, false);
 	//graph name - "subscription network"
 	//agent x agent
 	//if row,column element is true row is subscribed to column
-	Graph<bool>* _subscriptions;
+	Graph<bool>& subscriptions = graph_manager->load_optional(graph_names::subs, 
+		false, nodeset_names::agents, false, nodeset_names::agents, false);
 	//graph name - "subscription probability"
 	//agent x agent
-	const Graph<float>* _sub_prob;
+	const Graph<float>& sub_prob = graph_manager->load_optional(graph_names::sub_probability, 
+		0.01f, nodeset_names::agents, false, nodeset_names::agents, false);
 
-	unsigned int agent_count;
-	unsigned int communication_count;
-
+	InteractionMessageQueue public_queue;
 };
 
