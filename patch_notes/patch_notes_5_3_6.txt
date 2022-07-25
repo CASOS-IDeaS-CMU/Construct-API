@@ -1,0 +1,8 @@
+dynet::cout and dynet::endl have been exposed. All output from construct except error reporting uses dynet::cout and dynet::endl in a similar way as std::cout and std::endl. With dynet::cout wrapping std::cout, the QUIET flag will allow all output to be suppressed. Additionally the buffer for std::cout and std::cerr can be replaced to reroute the text to a different output. To ensure this, dynet::endl explicitly calls std::cout.rd_buf()->sync().
+
+When events are deleted from Social_Media_no_followers::list_of_events, they are copied into Social_Media_no_followers::list_of_events::removed_events. This list is cleared at the beginning of each clean_up step before old events are removed from the main list. This will allow developers to access the erased events before they are permantley deleted.
+
+Additional checks have been added to the deletion of media_events. The events can also be manually checked at any time using media_events::check_consistency. This function in debug mode will check to make sure the event is correctly linked with the parent event, root event, and all children as well as ensure time synronicity for media_event::last_used for all events in that tree.
+
+If the lambda value submitted to Random::poisson_number is equal to exactly zero, no random number generation is performed and 0 is instead returned.
+

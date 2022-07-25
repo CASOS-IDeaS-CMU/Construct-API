@@ -1,0 +1,8 @@
+The default value for the communication access network created in the Location model was false instead of true.
+Getting pointers from the GraphManager is more streamlined.
+Graph pointers and references can now be initialized in header files.
+Social_Media has been broken up into Social_Media_no_followers and Social_Media_with_followers. This allows for a social media operating without a follower network. An additional API function has been added to load users for these models.
+Typeless_Graph now has a purely virtual function get_data_state which is implemented by Graph. This function allows for output of the state of the Graph without converting the Typeless_Graph pointer to the Typed version. This can also be used by developers to examine the state of the Graph in the middle of the simulation.
+dynet::edge_types and associated functions have been moved into Typeless_Graph.
+dynet::item_keys and associated functions have been moved into InteractionItem.
+Output_Graph has been simplified using Typeless_Graph::get_data_state.

@@ -202,6 +202,10 @@ namespace dynet
 	};
 
 
+	struct end_early {
+	};
+
+
 	constexpr inline char seperator() noexcept {
 #ifdef _WIN32
 		return '\\';
@@ -295,60 +299,31 @@ namespace dynet
 	template<typename T> 
 	Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
 
-	// sends output to std::cout
-	struct console_output {
-		virtual void out(const std::string& data) {
-			std::cout << data << std::endl;
+	struct CONSTRUCT_LIB ostream_wrapper {
+
+		template <typename T>
+		ostream_wrapper& operator<<(const T& data) {
+#ifndef QUIET
+			std::cout << data;
+#endif
+			return *this;
 		}
-		virtual ~console_output() {}
+
+		ostream_wrapper& operator<<(ostream_wrapper& (*end_line)(ostream_wrapper&)) {
+			return end_line(*this);
+		}
+
 	};
 
 
-	// sends strings to an output, typically the console
-	// does no operations if QUIET is defined except the output_stream::error function
-	struct output_stream {
+	
+	CONSTRUCT_LIB ostream_wrapper& endl(ostream_wrapper& out);
 
-		std::stringstream ss;
-		
-		void error(const std::string& data) {
-			output_hook->out(data);
-		}
-
-		console_output* output_hook = nullptr;
-
-		output_stream& operator<< (output_stream& (*pf)(output_stream&)) {
-#ifndef QUIET
-			pf(*this);
-#endif
-			return *this;
-		}
-
-		output_stream& operator<< (const char* data) {
-#ifndef QUIET
-			ss << data;
-#endif
-			return *this;
-		}
-
-		template<typename T>
-		output_stream& operator<<(const T& data) {
-#ifndef QUIET
-			ss << data;
-#endif
-			return *this;
-		}
-	};
-
-	//similar behaviour to std::endl
-	inline output_stream& endl(output_stream& out) {
-#ifndef QUIET
-		out.output_hook->out(out.ss.str());
-		out.ss.str(std::string());
-#endif
-		return out;
-	}
 	// similar behaviour to std::cout except defining QUIET will supress all text output.
-	extern output_stream cout;
+	extern ostream_wrapper cout;
+
+	
+	//extern bool end_early;
 }
 #include <random>
 
@@ -1752,8 +1727,11 @@ public:
 };
 
 
+#include <ctime>
+
 class CONSTRUCT_LIB Construct {
-	void _run(void);
+	time_t begTim;
+
 public:
 
 	Construct();
@@ -2157,7 +2135,7 @@ public:
 
         //this goes through the entire chain of events recursively and updates the last_used
         //to the most recent time. Source call is only on the root event.
-        void update_chain(float time);
+        void update_last_used(float time);
 
         enum class event_type : char
         {
@@ -2196,6 +2174,8 @@ public:
 
         //default constructor does no operations
         media_event();
+
+        media_event(const media_event& other);
 
         media_event& operator=(const media_event& other);
 
@@ -2250,6 +2230,10 @@ public:
 
         //what type of event this is i.e. "post","repost", "quote", or "reply"
         event_type type = event_type::post;
+
+        void update_root(media_event* new_root);
+
+        void check_consistency(void) const;
     };
 
 
@@ -2344,10 +2328,13 @@ public:
         using std::list<media_event>::merge;
     public:
         
-        std::vector<media_event> removed_events;
+        // by default removed_events at the beginning of the container have larger values of timestamp
+        // thus the root event of a reply tree should be at the highest index of any other event in the reply tree
+        std::list<media_event> removed_events;
 
         iterator erase(const const_iterator _Where) noexcept {
             removed_events.push_back(*_Where);
+            removed_events.back().check_consistency();
             return list::erase(_Where);
         }
 
@@ -2362,22 +2349,6 @@ public:
             }
             list::clear();
         }
-
-        template<class... Args>
-        void emplace_front(Args&&... args) {
-
-            float prev_event_time = 0;
-            if (size()) prev_event_time = front().time_stamp;
-            std::list<media_event>::emplace_front(args...);
-            if (size()) check_new_event(prev_event_time, front().time_stamp);
-        }
-
-        void push_front(const value_type& val) {
-            check_new_event(front().time_stamp, val.time_stamp);
-            std::list<media_event>::push_front(val);
-        }
-
-        void check_new_event(float previous_time_stamp, float new_time_stamp);
     };
 
 
@@ -2450,9 +2421,8 @@ public:
     //adds the Knowledge Parsing %Model, and attempts to find and save the pointer for the Knowledge Trust %Model if it has been added to the model list
     void initialize(void);
 
-    //only parses messages that have an attribute equal to Social_Media_with_followers::event_key for the feed position index corresponding to a media_event pointer
+    //only parses messages that have an attribute equal to Social_Media_no_followers::event_key for the feed position index corresponding to a media_event pointer
     //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
-    //the reading user will then decide whether to follow based on the event author's charisma and similarity based on the trust transactive memory
     void communicate(InteractionMessageQueue::iterator msg);
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
@@ -2535,15 +2505,15 @@ public:
 
     std::vector < std::vector<unsigned int> > responses;
 
-    //twittersim specific graphs
-
-    //graph name - TBD
+    //graph name - deteremined by the media
     //agent x agent
     // if (follower_net->examine(i,j)) // agent i is following agent j
     Graph<bool>* follower_net = nullptr;
 
     //list of users
     std::vector<media_user*> users;
+
+    bool disable_follower_recommendations = false;
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
