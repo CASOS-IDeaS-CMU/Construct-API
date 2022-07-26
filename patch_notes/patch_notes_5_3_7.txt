@@ -1,0 +1,1 @@
+A bug was causing the sparse_column_iterator to not skip over some elements that should have been skipped over.
