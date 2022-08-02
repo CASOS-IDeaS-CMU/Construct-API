@@ -26,7 +26,7 @@ Using this API, developers have the ability to include dynamic changes in proxim
 To accomplish this, three functions are exported to a dynamic/shared library that allow developers to inject custom models, outputs, and media users.
 Custom models can be created that inheriet from existing models allowing users to modify a behaviour without completely rebuilding all dynamics or a unique model can be created that interacts with other existing models.
 Custom outputs allow developers to create dedicated output interface or do precalculations before exporting information to disk.
-Custom media users allows user to customize agent decision making without having to modify the Social Media model.
+Custom media users allows user to customize agent decision making without having to modify the Social Media model they belong to.
 These options provide a majority of the customization developers may want to use.
 The remainder of the customization allowed for users would be to create an instance of Construct in another program, manually load all the disired components, and run the simulation.
 
@@ -43,7 +43,7 @@ This solution contains all the setup required to build the windows dll that the 
 For those on a Unix operating system, a Makefile is included which serves a similar purpose as the VS solution.
 Construct will search for the dll/shared library in the directory from which the Construct exes are called.
 These exes are currently located in x64/(Debug, Quiet, or Release) with each folder holding an exe compiled with different flags based on the configuration.
-Construct looks for three functions in these files, "create_custom_model", "create_custom_output", and "create_custom_media_user".
+Construct looks for three functions in these files, "create_custom_model", "create_custom_output", "create_custom_media_user_no_followers", and "create_custom_media_user_with_followers".
 These functions are contained in Supp_Library.
 In the debug configuration when verbose initialization is set to true, messages will be displayed indicating that the library was loaded and if the functions were found.
 
@@ -69,7 +69,7 @@ Each output must inheriet from the Output class, each output is selected using t
 
 ## Custom Media Users
 
-As with the previous two examples, custom media users must inherit from the media_user class, allocated using new, and returned by the function.
+As with the previous two examples, custom media users must inherit from the media_user sub-class of a Social Media model, allocated using new, and returned by the function.
 The significant difference is a specific social media model and a nodeset iterator from the agent nodeset is used as input.
 Attributes of the agent node then can be used to determine which type of media user should be returned.
 This customization allows developers to create different types of users that can interact on a social media.

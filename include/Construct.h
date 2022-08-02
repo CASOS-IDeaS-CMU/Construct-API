@@ -2314,6 +2314,9 @@ public:
         //gets the trust of the knowledge index
         //if the "Knowledge Trust %Model" is not active, -1 is returned.
         virtual float get_trust(unsigned int knowledge_index);
+
+        // chooses which knowledge index to add to an event
+        virtual unsigned int get_knowledge_selection(void);
     };
 
 

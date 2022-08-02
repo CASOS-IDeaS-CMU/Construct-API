@@ -1,0 +1,4 @@
+Fixed a bug that was causing an infinite while loop in Graph::get_data_state.
+Fixed a bug with Graph when either dimensions were sparse where a sequence of at calls would raise an unintended assertion.
+Updated various documentation and functions that were not up to date in the previous version.
+Added a virtual function for Social_Media_no_followers::default_media_user named get_knowledge_selection. This function will allow users the ability to modify how agents choose which piece of knowledge to add to a media_event.

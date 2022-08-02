@@ -1,4 +1,4 @@
-
+#include "pch.h"
 #include "Template.h"
 
 
@@ -26,11 +26,11 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 
 	/*
 	graphs are the primary data storage in construct
-	each model requires the associated nodesets and data type match exactly
-	if a graph is already loaded, but does not match an exception will be thrown
-	if there is no graph in a hard load an exception will also be thrown.
+	each model requires the associated nodesets and data type to match exactly
+	if a graph is already loaded, but does not match the requested properites, an exception will be thrown
+	if no graph exists, load_required throws an exception.
 	 
-	all string exceptions are handled by main.cpp giving detailed information as to the error
+	all dynet::construct_exceptions are handled by main.cpp giving detailed information as to the error
 	std::exception type exceptions are also handled by main.cpp, but indicate an unforseen error
 	finally all other possible types of exceptions are caught to ensure the user always knows what happened
 	
@@ -66,14 +66,21 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	bool& result2 = interaction_network_ptr->at(row, col);
 	result2 = !result2;
 
-	//the clear function can remove a specific link to which the default value takes over
-	//without any arguments the clear function will reset the entire data structure
-	//to avoid needing to check the default value, submitting the new value to the at function
-	//will remove the link if the submitted value is equal to the default value
+	//developers should avoid setting a reference returned from at to the Graph's default value
+	//this would waste space as for sparse representations, 
+	//links with value equal to the default value shouldn't be held in memory
+	//one can compare with the default value before assignment, but an overload of at already does this
+	//the link value will be set and the function will determine what will be held in memory
 
 	interaction_network_ptr->at(row, col, !result2);
+
+	//the clear function will reset the entire data structure to the submitted value
+	
 	interaction_network_ptr->clear(0);
 	//all values now set to zero
+
+	
+	
 
 	//depending on dimension representation it can be costly to look up each individual link in a network
 	//if you wish to iterate through a row or column in the graph the various set of iterators can be used
@@ -86,7 +93,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	}
 	std::cout << std::endl;
 
-	//to modify an element submit the iterator to the graph's at function which returns a reference to that element
+	//to modify an element, submit the iterator to the graph's at function which returns a reference to that element
 	//as with the base case of the at function you can also submit the changed value to check if it equals the default value
 
 	for (auto it = interaction_network_ptr->full_col_begin(col); it != interaction_network_ptr->col_end(col); ++it) {
@@ -119,6 +126,11 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 		std::cout << std::endl;
 	}
 
+	//because the Graph datastructure is obscured in inherieted data structures, link values can't directly be observed during runtime
+	//to examine or output the links of a graph, get_data_state can be used
+
+	interaction_network_ref.get_data_state(std::cout);
+
 	//to do operations such as the overlap between two rows or a column and a row of the same or different graphs
 	//iterators can be aligned using the graph_utils namespace
 
@@ -128,7 +140,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 
 	//to align the iterators without first incrementing them use init_align
 	//to advance to the next alignment of iterators use it_align
-	//these functions rely on the index() function of the Graph_iterators
+	//these functions rely on the index() function of the typless_graph_iterators
 	//they are also prevented from incrementing beyond the bounds of a graph by the max() function
 	
 	unsigned int count = 0;

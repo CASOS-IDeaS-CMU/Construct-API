@@ -4,6 +4,7 @@
 
 /API_Functions/.vs/*
 /Custom_Construct/.vs/*
+/Custom_Construct/x64/*
 *.exp
 *.ilk
 *.pch

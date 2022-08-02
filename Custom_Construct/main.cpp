@@ -57,7 +57,7 @@ int main() {
 
 	// adding the knowledge network
 	// Here I'm choosing for the graph to be dense in both dimensions with a default value of false.
-	auto knowledge_net = construct.graph_manager.add_network(graph_names::knowledge, agents, true, knowledge, true, false, "custom construct", true);
+	Graph<bool>* knowledge_net = construct.graph_manager.load_optional(graph_names::knowledge, false, agents, true, knowledge, true);
 
 	// links can be added one by one or with a generator
 	dynet::ParameterMap generator_params;
