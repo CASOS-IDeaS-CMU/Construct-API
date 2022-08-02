@@ -2,6 +2,7 @@
 #include "pch.h" 
 #include "Supp_Library.h"
 #include "Template.h"
+#include "Interventions.h"
 
 
 //only edit the contents of each function and include any extra files needed
@@ -36,10 +37,28 @@ namespace dynet {
 
 	Social_Media_no_followers::media_user* create_custom_media_user_no_followers(Social_Media_no_followers* _media, Nodeset::iterator node) {
 
+		if (node->attributes->find("censored") != node->attributes->end())
+			return new Intervention1_nf(_media, node);
+
+		else if (node->attributes->find("one time compell") != node->attributes->end())
+			return new Intervention2_nf(_media, node);
+
+		else if (node->attributes->find("compell") != node->attributes->end())
+			return new Intervention3_nf(_media, node);
+
 		return new Social_Media_no_followers::default_media_user(_media, node);
 	}
 
 	Social_Media_with_followers::media_user* create_custom_media_user_with_followers(Social_Media_with_followers* _media, Nodeset::iterator node) {
+
+		if (node->attributes->find("censored") != node->attributes->end())
+			return new Intervention1(_media, node);
+
+		else if (node->attributes->find("one time compell") != node->attributes->end())
+			return new Intervention2(_media, node);
+
+		else if (node->attributes->find("compell") != node->attributes->end())
+			return new Intervention3(_media, node);
 
 		return new Social_Media_with_followers::default_media_user(_media, node);
 	}

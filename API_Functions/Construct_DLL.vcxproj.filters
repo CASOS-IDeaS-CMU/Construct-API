@@ -33,6 +33,9 @@
     <ClInclude Include="..\include\Construct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Interventions.h">
+      <Filter>Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Template.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Interventions.cpp">
       <Filter>Models</Filter>
     </ClCompile>
   </ItemGroup>

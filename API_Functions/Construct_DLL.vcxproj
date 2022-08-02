@@ -246,12 +246,14 @@
   <ItemGroup>
     <ClInclude Include="..\include\Construct.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Interventions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Supp_Library.h" />
     <ClInclude Include="Template.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Interventions.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
