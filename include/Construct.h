@@ -61,6 +61,7 @@
 	#define CONSTRUCT_LIB
 #endif
 
+
 namespace dynet
 {
 
@@ -321,9 +322,6 @@ namespace dynet
 
 	// similar behaviour to std::cout except defining QUIET will supress all text output.
 	extern ostream_wrapper cout;
-
-	
-	//extern bool end_early;
 }
 #include <random>
 
@@ -393,6 +391,7 @@ namespace nodeset_names {
 	const std::string loc			= "location";		//"location"
 	const std::string task			= "task";			//"task"
 	const std::string agent_group	= "agent group";	//"agent group"
+	const std::string emotions		= "emotion";		//"emotions"
 }
 
 //names of node attributes used in Construct
@@ -569,7 +568,8 @@ struct CONSTRUCT_LIB InteractionItem
 		ktrust,
 		twitter_event,
 		facebook_event,
-		feed_position
+		feed_position,
+		emotion
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
 	};
@@ -736,9 +736,6 @@ public:
 #undef max
 #endif // max
 
-namespace dynet {
-	
-}
 
 class CONSTRUCT_LIB Typeless_Graph {
 	friend class GraphManager;
@@ -766,7 +763,11 @@ protected:
 	Typeless_Graph(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, edge_types edge);
 public:
 
+	template<typename T>
+	static constexpr CONSTRUCT_LIB edge_types get_edge_type(void) noexcept;
 
+	template<typename T>
+	static constexpr CONSTRUCT_LIB std::string get_type_name(void) noexcept;
 
 	virtual ~Typeless_Graph() { ; }
 
@@ -856,14 +857,360 @@ struct CONSTRUCT_LIB typeless_graph_iterator {
 	virtual unsigned int max() const noexcept;
 
 	virtual const typeless_graph_iterator& operator++(void) const;
-
-	
-
 };
+
+
+template<typename link_type>
+class Graph;
+
+template<typename link_type>
+struct CONSTRUCT_LIB Transpose {
+	Graph<link_type>* g;
+	Transpose(Graph<link_type>* _g) : g(_g) {}
+	Transpose(const Graph<link_type>* _g) : g(const_cast<Graph<link_type>*>(_g)) {}
+	Graph<link_type>& graph(void) { return *g; }
+	const Graph<link_type>& graph(void) const { return *g; }
+};
+
+
+template<typename link_type>
+class CONSTRUCT_LIB Temporary_Graph {
+	Graph<link_type>* g;
+public:
+	Temporary_Graph() : g(nullptr) {}
+
+	Temporary_Graph(const link_type& vals, const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense);
+
+	Temporary_Graph(Graph<link_type>* _g) : g(_g) {}
+	Temporary_Graph(const Temporary_Graph& _g) : g(_g.g) { const_cast<Temporary_Graph*>(&_g)->g = nullptr; }
+	Temporary_Graph& operator=(const Temporary_Graph& _g) {
+		g = _g.g;
+		const_cast<Temporary_Graph*>(&_g)->g = nullptr;
+		return *this;
+	}
+	~Temporary_Graph() {
+		if (g) delete g;
+	}
+
+	Graph<link_type>& graph(void) { return *g; }
+	const Graph<link_type>& graph(void) const { return *g; }
+
+	Transpose<link_type> T(void) { return Transpose<link_type>(g); }
+	const Transpose<link_type> T(void) const { return Transpose<link_type>(g); }
+};
+
+
+// ------------ iterator parents -----------------------------
+
+namespace graph_utils {
+
+	void CONSTRUCT_LIB it_align(std::vector<typeless_graph_iterator*>& it_list);
+
+	void CONSTRUCT_LIB init_align(std::vector<typeless_graph_iterator*>& it_list);
+
+	void CONSTRUCT_LIB it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+
+	void CONSTRUCT_LIB init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB graph_iterator : public typeless_graph_iterator {
+		Graph<link_type>* _parent = NULL;
+		graph_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr) :
+			typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<link_type>*>(parent)) {}
+
+		virtual const link_type& examine(void) const = 0;
+
+
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB sparse_graph_iterator {
+		const link_type _skip;
+		sparse_graph_iterator(const link_type& skip_data) : _skip(skip_data) {}
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB row_graph_iterator : public graph_iterator<link_type> {
+		using graph_iterator<link_type>::graph_iterator;
+
+		unsigned int index() const noexcept;
+
+		unsigned int max() const noexcept;
+
+		const link_type& operator*(void) const;
+
+		const link_type* operator->(void) const;
+
+		const link_type& examine(void) const { return this->operator*(); }
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB col_graph_iterator : public graph_iterator<link_type> {
+		using graph_iterator<link_type>::graph_iterator;
+
+		unsigned int index() const noexcept;
+
+		unsigned int max() const noexcept;
+
+		const link_type& operator*(void) const;
+
+		const link_type* operator->(void) const;
+
+		const link_type& examine(void) const { return this->operator*(); }
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_full_row_iterator : public row_graph_iterator<link_type> {
+
+		using row_graph_iterator<link_type>::row_graph_iterator;
+		using row_graph_iterator<link_type>::operator*;
+		//using graph_iterator::_parent;
+
+		const const_full_row_iterator& operator++(void) const;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB full_row_iterator : public const_full_row_iterator<link_type> {
+		using const_full_row_iterator<link_type>::const_full_row_iterator;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_sparse_row_iterator : public row_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
+		const_sparse_row_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr, const link_type& skip_data) :
+			row_graph_iterator<link_type>(row, col, parent, ptr), sparse_graph_iterator<link_type>(skip_data) {
+			if (row_graph_iterator<link_type>::operator*() == skip_data) this->operator++();
+		}
+
+		using row_graph_iterator<link_type>::operator*;
+
+		const const_sparse_row_iterator& operator++(void) const;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB sparse_row_iterator : public const_sparse_row_iterator<link_type> {
+		using const_sparse_row_iterator<link_type>::const_sparse_row_iterator;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_full_col_iterator : public col_graph_iterator<link_type> {
+		using col_graph_iterator<link_type>::col_graph_iterator;
+		using col_graph_iterator<link_type>::operator*;
+
+		const const_full_col_iterator& operator++(void) const;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB full_col_iterator : public const_full_col_iterator<link_type> {
+		using const_full_col_iterator<link_type>::const_full_col_iterator;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_sparse_col_iterator : public col_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
+		const_sparse_col_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr, const link_type& skip_data) :
+			col_graph_iterator<link_type>(row, col, parent, ptr), sparse_graph_iterator<link_type>(skip_data) {
+			if (col_graph_iterator<link_type>::operator*() == skip_data) this->operator++();
+		}
+
+		using col_graph_iterator<link_type>::operator*;
+
+		const const_sparse_col_iterator& operator++(void) const;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB sparse_col_iterator : public const_sparse_col_iterator<link_type> {
+		using const_sparse_col_iterator<link_type>::const_sparse_col_iterator;
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_row_begin_iterator : public col_graph_iterator<link_type> {
+		const_row_begin_iterator(unsigned int row, const Graph<link_type>* parent, void* ptr) : col_graph_iterator<link_type>(row, 0, parent, ptr) {}
+
+		unsigned int operator*(void) const;
+
+		const_full_row_iterator<link_type> full_begin(void) const;
+
+		const_sparse_row_iterator<link_type> sparse_begin(const link_type& data) const;
+
+		typeless_graph_iterator end(void) const;
+
+		const const_row_begin_iterator& operator++(void) const;
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::vector<output> ewise_product(const std::vector<other>& vec) const {
+			assert(vec.size() == this->_parent->col_size);
+			std::vector<output> ret = vec;
+
+			for (auto it = full_begin(); it != end(); ++it) {
+				ret[it.col()] *= *it;
+			}
+
+			return ret;
+		}
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::vector<output> ewise_division(const std::vector<other>& vec) const {
+			assert(vec.size() == this->_parent->col_size);
+			std::vector<output> ret;
+
+			for (auto it = full_begin(); it != end(); ++it) {
+				// can't divide by zero
+				assert(vec[it.col()] != 0);
+				ret[it.col()] = *it / vec[it.col()];
+			}
+
+			return ret;
+		}
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::map<unsigned int, output> ewise_product(const std::map<unsigned int, other>& vec) const {
+			std::map<unsigned int, output> ret = vec;
+
+			auto git = sparse_begin(0);
+			auto rit = ret.begin();
+			while (git != end() && rit != ret.end()) {
+				if (git.col() < rit->first) ++git;
+				else if (rit->first < git.col()) rit = ret.erase(rit);
+				else {
+					rit->second *= *git;
+					++rit;
+					++git;
+				}
+			}
+			while (rit != ret.end()) rit = ret.erase(rit);
+
+			return ret;
+		}
+
+		template<class output = decltype(link_type()* link_type())>
+		output sum() const {
+			output ret = 0;
+			for (auto it = sparse_begin(0); it != end(); ++it) ret += *it;
+			return ret;
+		}
+
+		std::vector<link_type> get_dense() const {
+			std::vector<link_type> ret;
+			for (auto it = full_begin(); it != end(); ++it) ret[it.index()] = *it;
+			return ret;
+		}
+
+		std::map<unsigned int, link_type> get_sparse(const link_type& skip) const {
+			std::map<unsigned int, link_type> ret;
+			for (auto it = sparse_begin(skip); it != end(); ++it) ret[it.index()] = *it;
+			return ret;
+		}
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB row_begin_iterator : public const_row_begin_iterator<link_type> {
+		using const_row_begin_iterator<link_type>::const_row_begin_iterator;
+		full_row_iterator<link_type> full_begin(void);
+
+		sparse_row_iterator<link_type> sparse_begin(const link_type& data);
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB const_col_begin_iterator : public row_graph_iterator<link_type> {
+		const_col_begin_iterator(unsigned int col, const Graph<link_type>* parent, void* ptr) : row_graph_iterator<link_type>(0, col, parent, ptr) {}
+
+		unsigned int operator*(void) const;
+
+		const_full_col_iterator<link_type> full_begin(void) const;
+
+		const_sparse_col_iterator<link_type> sparse_begin(const link_type& data) const;
+
+		typeless_graph_iterator end(void) const;
+
+		const const_col_begin_iterator& operator++(void) const;
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::vector<output> element_wise_product(const std::vector<other>& vec) const {
+			assert(vec.size() == this->_parent->row_size);
+			std::vector<output> ret = vec;
+
+			for (auto it = full_begin(); it != end(); ++it) {
+				ret[it.row()] *= *it;
+			}
+
+			return ret;
+		}
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::map<unsigned int, output> element_wise_product(const std::map<unsigned int, other>& vec) const {
+			std::map<unsigned int, output> ret = vec;
+
+			auto git = sparse_begin(0);
+			auto rit = ret.begin();
+			while (git != end() && rit != ret.end()) {
+				if (git.col() < rit->first) ++git;
+				else if (rit->first < git.row()) rit = ret.erase(rit);
+				else {
+					rit->second *= *git;
+					++rit;
+					++git;
+				}
+			}
+			while (rit != ret.end()) rit = ret.erase(rit);
+
+			return ret;
+		}
+
+		template<class output = decltype(link_type()* link_type())>
+		output sum() const {
+			output ret = 0;
+			for (auto it = sparse_begin(0); it != end(); ++it) ret += *it;
+			return ret;
+		}
+
+		std::vector<link_type> get_dense() const {
+			std::vector<link_type> ret;
+			for (auto it = full_begin(); it != end(); ++it) ret[it.index()] = *it;
+			return ret;
+		}
+
+		std::map<unsigned int, link_type> get_sparse(const link_type& skip) const {
+			std::map<unsigned int, link_type> ret;
+			for (auto it = sparse_begin(skip); it != end(); ++it) ret[it.index()] = *it;
+			return ret;
+		}
+	};
+
+
+	template<typename link_type>
+	struct CONSTRUCT_LIB col_begin_iterator : public const_col_begin_iterator<link_type> {
+		using const_col_begin_iterator<link_type>::const_col_begin_iterator;
+
+		full_col_iterator<link_type> full_begin(void);
+
+		sparse_col_iterator<link_type> sparse_begin(const link_type& data);
+	};
+
+}
+
+
+
+
+
+
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph
 
-template<typename T>
+
+template<typename link_type>
 class CONSTRUCT_LIB Graph : public Typeless_Graph {
 
 
@@ -874,8 +1221,8 @@ class CONSTRUCT_LIB Graph : public Typeless_Graph {
 	struct delta {
 		unsigned int _row;
 		unsigned int _col;
-		T _data;
-		delta(unsigned int row, unsigned int col, const T& data) :
+		link_type _data;
+		delta(unsigned int row, unsigned int col, const link_type& data) :
 			_row(row), _col(col), _data(data)
 		{
 		}
@@ -886,17 +1233,35 @@ class CONSTRUCT_LIB Graph : public Typeless_Graph {
 
 	
 protected:
-	Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const T& def, const std::string& name);
+	Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const link_type& def, const std::string& name);
 public:
 	virtual ~Graph() { ; }
 
-	static Typeless_Graph::edge_types get_edge_type(void) noexcept;
+	using graph_iterator			= graph_utils::graph_iterator<link_type>;
+	using sparse_graph_iterator		= graph_utils::sparse_graph_iterator<link_type>;
+	using row_graph_iterator		= graph_utils::row_graph_iterator<link_type>;
+	using col_graph_iterator		= graph_utils::col_graph_iterator<link_type>;
 
-	static std::string get_type_name(void) noexcept;
+	using const_full_row_iterator	= graph_utils::const_full_row_iterator<link_type>;
+	using full_row_iterator			= graph_utils::full_row_iterator<link_type>;
+	using const_sparse_row_iterator = graph_utils::const_sparse_row_iterator<link_type>;
+	using sparse_row_iterator		= graph_utils::sparse_row_iterator<link_type>;
+
+	using const_full_col_iterator	= graph_utils::const_full_col_iterator<link_type>;
+	using full_col_iterator			= graph_utils::full_col_iterator<link_type>;
+	using const_sparse_col_iterator = graph_utils::const_sparse_col_iterator<link_type>;
+	using sparse_col_iterator		= graph_utils::sparse_col_iterator<link_type>;
+
+	using const_row_begin_iterator	= graph_utils::const_row_begin_iterator<link_type>;
+	using row_begin_iterator		= graph_utils::row_begin_iterator<link_type>;
+	using const_col_begin_iterator	= graph_utils::const_col_begin_iterator<link_type>;
+	using col_begin_iterator		= graph_utils::col_begin_iterator<link_type>;
+
+	
 
 	//all elements are intiailized with this value
 	//if an element is not held in memory, it is assumed that element equals this value
-	const T def_val;
+	const link_type def_val;
 
 	//whether the data for each column is stored in an array or tree
 	const bool col_dense;
@@ -904,179 +1269,10 @@ public:
 	//whether the data for each row is stored in an array or tree
 	const bool row_dense;
 
+	
 
-	// ------------ iterator parents -----------------------------
 
 
-
-
-	struct CONSTRUCT_LIB graph_iterator : public typeless_graph_iterator {
-		Graph<T>* _parent = NULL;
-		graph_iterator(unsigned int row, unsigned int col, const Graph<T>* parent, void* ptr) : typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<T>*>(parent)) {}
-	};
-
-
-	struct CONSTRUCT_LIB sparse_graph_iterator {
-		const T _skip;
-		sparse_graph_iterator(const T& skip_data) : _skip(skip_data) {}
-	};
-
-
-	struct CONSTRUCT_LIB row_graph_iterator : public graph_iterator {
-		using graph_iterator::graph_iterator;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB col_graph_iterator : public graph_iterator {
-		using graph_iterator::graph_iterator;
-
-		unsigned int index() const noexcept;
-
-		unsigned int max() const noexcept;
-
-		const T& operator*(void) const;
-
-		const T* operator->(void) const;
-	};
-
-
-
-
-
-
-	// ------------ row iterators ------------------------------
-
-
-
-
-
-	struct CONSTRUCT_LIB const_full_row_iterator : public row_graph_iterator {
-		using row_graph_iterator::row_graph_iterator;
-
-		const const_full_row_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB full_row_iterator : public const_full_row_iterator {
-		using const_full_row_iterator::const_full_row_iterator;
-	};
-
-
-	struct CONSTRUCT_LIB const_sparse_row_iterator : public row_graph_iterator, public sparse_graph_iterator {
-		const_sparse_row_iterator(unsigned int row, unsigned int col, const Graph<T>* parent, void* ptr, const T& skip_data) :
-			row_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {
-			if (row_graph_iterator::operator*() == skip_data) this->operator++();
-		}
-
-		const const_sparse_row_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB sparse_row_iterator : public const_sparse_row_iterator {
-		using const_sparse_row_iterator::const_sparse_row_iterator;
-	};
-
-
-
-
-
-
-	// ------------ column iterators ---------------------------
-
-
-
-
-	struct CONSTRUCT_LIB const_full_col_iterator : public col_graph_iterator {
-		using col_graph_iterator::col_graph_iterator;
-
-		const const_full_col_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB full_col_iterator : public const_full_col_iterator {
-		using const_full_col_iterator::const_full_col_iterator;
-	};
-
-
-	struct CONSTRUCT_LIB const_sparse_col_iterator : public col_graph_iterator, public sparse_graph_iterator {
-		const_sparse_col_iterator(unsigned int row, unsigned int col, const Graph<T>* parent, void* ptr, const T& skip_data) :
-			col_graph_iterator(row, col, parent, ptr), sparse_graph_iterator(skip_data) {
-			if (col_graph_iterator::operator*() == skip_data) this->operator++();
-		}
-
-		const const_sparse_col_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB sparse_col_iterator : public const_sparse_col_iterator {
-
-		using const_sparse_col_iterator::const_sparse_col_iterator;
-	};
-
-
-
-
-
-
-	// -------------- begin iterators ---------------------------
-
-
-
-
-
-	struct CONSTRUCT_LIB const_row_begin_iterator : public col_graph_iterator {
-		const_row_begin_iterator(unsigned int row, const Graph<T>* parent, void* ptr) : col_graph_iterator(row, 0, parent, ptr) {}
-
-		unsigned int operator*(void) const;
-
-		const_full_row_iterator full_begin(void) const;
-
-		const_sparse_row_iterator sparse_begin(const T& data) const;
-
-		typeless_graph_iterator end(void) const;
-
-		const const_row_begin_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB row_begin_iterator : public const_row_begin_iterator {
-		using const_row_begin_iterator::const_row_begin_iterator;
-		full_row_iterator full_begin(void);
-
-		sparse_row_iterator sparse_begin(const T& data);
-	};
-
-
-	struct CONSTRUCT_LIB const_col_begin_iterator : public row_graph_iterator {
-		const_col_begin_iterator(unsigned int col, const Graph<T>* parent, void* ptr) : row_graph_iterator(0, col, parent, ptr) {}
-		
-		unsigned int operator*(void) const;
-
-		const_full_col_iterator full_begin(void) const;
-
-		const_sparse_col_iterator sparse_begin(const T& data) const;
-
-		typeless_graph_iterator end(void) const;
-
-		const const_col_begin_iterator& operator++(void) const;
-	};
-
-
-	struct CONSTRUCT_LIB col_begin_iterator : public const_col_begin_iterator {
-		using const_col_begin_iterator::const_col_begin_iterator;
-
-		full_col_iterator full_begin(void);
-
-		sparse_col_iterator sparse_begin(const T& data);
-	};
 
 
 
@@ -1086,19 +1282,38 @@ public:
 
 
 	//returns a reference to the element
-	virtual T& at(unsigned int row, unsigned int col) = 0;
+	virtual link_type& at(unsigned int row, unsigned int col) = 0;
 
 	//updates an element's value
-	void at(unsigned int row, unsigned int col, const T& data);
+	void at(unsigned int row, unsigned int col, const link_type& data);
 
 	//returns a constant reference to the element
-	virtual const T& examine(unsigned int row, unsigned int col) const = 0;
+	virtual const link_type& examine(unsigned int row, unsigned int col) const = 0;
 
 	//sets all elements to the submitted value
-	virtual void clear(const T& data) noexcept = 0;
+	virtual void clear(const link_type& data) noexcept = 0;
+
+	template<typename Callable>
+	void apply_operation(Callable lambda) {
+		for (auto row = begin_rows(); row != end_rows(); ++row) {
+			for (auto it = row.full_begin(); it != row.end(); ++it) {
+				at(it, lambda(it));
+			}
+		}
+	}
+
+	template<typename Callable>
+	void apply_row_operation(unsigned int row_index, Callable lambda) {
+		for (auto it = full_row_begin(row_index); it != row_end(row_index); ++it) at(it, lambda(it));
+	}
+
+	template<typename Callable>
+	void apply_col_operation(unsigned int col_index, Callable lambda) {
+		for (auto it = full_col_begin(col_index); it != col_end(col_index); ++it) at(it, lambda(it));
+	}
 
 	//records the value an element should become when deltas are pushed
-	void add_delta(unsigned int row, unsigned int col, const T& data);
+	void add_delta(unsigned int row, unsigned int col, const link_type& data);
 
 	//updates all elements based on queued deltas
 	void push_deltas(void) noexcept;
@@ -1106,16 +1321,16 @@ public:
 	void get_data_state(std::ostream& out) const;
 
 	//returns a reference to the element
-	virtual T& at(row_graph_iterator& it) = 0;
+	virtual link_type& at(row_graph_iterator& it) = 0;
 
 	//returns a reference to the element
-	virtual T& at(col_graph_iterator& it) = 0;
+	virtual link_type& at(col_graph_iterator& it) = 0;
 
 	//updates an element's value
-	void at(row_graph_iterator& it, const T& data);
+	void at(row_graph_iterator& it, const link_type& data);
 
 	//updates an element's value
-	void at(col_graph_iterator& it, const T& data);
+	void at(col_graph_iterator& it, const link_type& data);
 
 	virtual full_row_iterator full_row_begin(unsigned int row_index) = 0;
 
@@ -1124,11 +1339,11 @@ public:
 	const_full_row_iterator full_row_cbegin(unsigned int row_index) const { return full_row_begin(row_index); };
 
 
-	virtual sparse_row_iterator sparse_row_begin(unsigned int row_index, const T& skip_data) = 0;
+	virtual sparse_row_iterator sparse_row_begin(unsigned int row_index, const link_type& skip_data) = 0;
 
-	virtual const_sparse_row_iterator sparse_row_begin(unsigned int row_index, const T& skip_data) const = 0;
+	virtual const_sparse_row_iterator sparse_row_begin(unsigned int row_index, const link_type& skip_data) const = 0;
 
-	const_sparse_row_iterator sparse_row_cbegin(unsigned int row_index, const T& skip_data) const { return sparse_row_begin(row_index, skip_data); };
+	const_sparse_row_iterator sparse_row_cbegin(unsigned int row_index, const link_type& skip_data) const { return sparse_row_begin(row_index, skip_data); };
 
 
 	virtual row_begin_iterator begin_rows(void) noexcept = 0;
@@ -1138,11 +1353,11 @@ public:
 	const_row_begin_iterator cbegin_rows(void) const noexcept { return begin_rows(); };
 
 
-	virtual row_begin_iterator begin_rows(unsigned int row_index) = 0;
+	virtual row_begin_iterator get_row(unsigned int row_index) = 0;
 
-	virtual const_row_begin_iterator begin_rows(unsigned int row_index) const = 0;
+	virtual const_row_begin_iterator get_row(unsigned int row_index) const = 0;
 
-	const_row_begin_iterator cbegin_rows(unsigned int row_index) const { return begin_rows(row_index); };
+	const_row_begin_iterator cget_row(unsigned int row_index) const { return get_row(row_index); };
 
 
 	const typeless_graph_iterator row_end(unsigned int row_index) const;
@@ -1156,11 +1371,11 @@ public:
 	const_full_col_iterator full_col_cbegin(unsigned int col_index) const { return full_col_begin(col_index); };
 
 
-	virtual sparse_col_iterator sparse_col_begin(unsigned int col_index, const T& skip_data) = 0;
+	virtual sparse_col_iterator sparse_col_begin(unsigned int col_index, const link_type& skip_data) = 0;
 
-	virtual const_sparse_col_iterator sparse_col_begin(unsigned int col_index, const T& skip_data) const = 0;
+	virtual const_sparse_col_iterator sparse_col_begin(unsigned int col_index, const link_type& skip_data) const = 0;
 
-	const_sparse_col_iterator sparse_col_cbegin(unsigned int col_index, const T& skip_data) const { return sparse_col_begin(col_index, skip_data); };
+	const_sparse_col_iterator sparse_col_cbegin(unsigned int col_index, const link_type& skip_data) const { return sparse_col_begin(col_index, skip_data); };
 
 
 	virtual col_begin_iterator begin_cols(void) noexcept = 0;
@@ -1170,25 +1385,61 @@ public:
 	const_col_begin_iterator cbegin_cols(void) const noexcept { return begin_cols(); };
 
 
-	virtual col_begin_iterator begin_cols(unsigned int col_index) = 0;
+	virtual col_begin_iterator get_col(unsigned int col_index) = 0;
 
-	virtual const_col_begin_iterator begin_cols(unsigned int col_index) const = 0;
+	virtual const_col_begin_iterator get_col(unsigned int col_index) const = 0;
 
-	const_col_begin_iterator cbegin_cols(unsigned int col_index) const { return begin_cols(col_index); };
+	const_col_begin_iterator cget_col(unsigned int col_index) const { return get_col(col_index); };
 
 
 	const typeless_graph_iterator col_end(unsigned int col_index) const;
 
 	const typeless_graph_iterator end_cols(void) const noexcept;
-	
+
+	std::vector<link_type> get_dense_row(unsigned int row_index) const {
+		std::vector<link_type> ret(col_size);
+		for (auto it = full_row_begin(row_index); it != row_end(row_index); ++it) {
+			ret[it.col()] = *it;
+		}
+		return ret;
+	}
+
+	std::vector<link_type> get_dense_col(unsigned int col_index) const {
+		std::vector<link_type> ret(row_size);
+		for (auto it = full_col_begin(col_index); it != col_end(col_index); ++it) {
+			ret[it.row()] = *it;
+		}
+		return ret;
+	}
+
+	std::map<unsigned int, link_type> get_sparse_row(unsigned int row_index, const link_type& skip_value) const {
+		std::map<unsigned int, link_type> ret;
+		for (auto it = sparse_row_begin(row_index, skip_value); it != row_end(row_index); ++it) {
+			ret[it.col()] = *it;
+		}
+		return ret;
+	}
+
+	std::map<unsigned int, link_type> get_sparse_col(unsigned int col_index, const link_type& skip_value) const {
+		std::map<unsigned int, link_type> ret;
+		for (auto it = sparse_col_begin(col_index, skip_value); it != col_end(col_index); ++it) {
+			ret[it.row()] = *it;
+		}
+		return ret;
+	}
+
+	Transpose<link_type> T(void) { return Transpose<link_type>(this); }
+
+	const Transpose<link_type> T(void) const { return Transpose<link_type>(this); }
+
 
 	//These functions are helper functions for the iterators
 	virtual void clear(row_graph_iterator& it) = 0;
 	virtual void clear(col_graph_iterator& it) = 0;
 	virtual void clear(unsigned int row, unsigned int col) = 0;
 	
-	virtual const T& examine(const row_graph_iterator& it) const = 0;
-	virtual const T& examine(const col_graph_iterator& it) const = 0;
+	virtual const link_type& examine(const row_graph_iterator& it) const = 0;
+	virtual const link_type& examine(const col_graph_iterator& it) const = 0;
 
 	virtual void advance(const const_full_row_iterator& it) const = 0;
 	virtual void advance(const const_sparse_row_iterator& it) const = 0;
@@ -1199,14 +1450,87 @@ public:
 
 	virtual full_row_iterator full_begin(const row_begin_iterator& it) = 0;
 	virtual const_full_row_iterator full_begin(const const_row_begin_iterator& it) const = 0;
-	virtual sparse_row_iterator sparse_begin(const row_begin_iterator& it, const T& skip_data) = 0;
-	virtual const_sparse_row_iterator sparse_begin(const const_row_begin_iterator& it, const T& skip_data) const = 0;
+	virtual sparse_row_iterator sparse_begin(const row_begin_iterator& it, const link_type& skip_data) = 0;
+	virtual const_sparse_row_iterator sparse_begin(const const_row_begin_iterator& it, const link_type& skip_data) const = 0;
 
 	virtual full_col_iterator full_begin(const col_begin_iterator& it) = 0;
 	virtual const_full_col_iterator full_begin(const const_col_begin_iterator& it) const = 0;
-	virtual sparse_col_iterator sparse_begin(const col_begin_iterator& it, const T& skip_data) = 0;
-	virtual const_sparse_col_iterator sparse_begin(const const_col_begin_iterator& it, const T& skip_data) const = 0;
+	virtual sparse_col_iterator sparse_begin(const col_begin_iterator& it, const link_type& skip_data) = 0;
+	virtual const_sparse_col_iterator sparse_begin(const const_col_begin_iterator& it, const link_type& skip_data) const = 0;
+	
+	template<typename input>
+	Graph<link_type>& operator=(const Temporary_Graph<input>& other) {
+		assert(source_nodeset == other.graph().source_nodeset);
+		assert(target_nodeset == other.graph().target_nodeset);
+
+		auto row = begin_rows();
+		auto orow = other.graph().begin_rows();
+		while (row != end_rows() && orow != other.graph().end_rows()) {
+			auto tit = row.full_begin();
+			auto oit = orow.full_begin();
+			while (tit != row.end() && oit != orow.end()) {
+				at(tit, *oit);
+				++tit;
+				++oit;
+			}
+			++row;
+			++orow;
+		}
+
+		return *this;
+	}
+
+	template<typename other>
+	Graph<link_type>& operator+=(const other& val) {
+		if (val != 0)
+			apply_operation(
+				[&](Graph<link_type>::full_row_iterator& it) { return *it + val; }
+			);
+
+		return *this;
+	}
+
+	template<typename other>
+	Graph<link_type>& operator-=(const other& val) {
+		if (val != 0)
+			apply_operation(
+				[&](Graph<link_type>::full_row_iterator& it) { return *it - val; }
+			);
+
+		return *this;
+	}
+
+	template<typename other>
+	Graph<link_type>& operator*=(const other& val) { 
+		if (val != 1)
+			apply_operation(
+				[&](Graph<link_type>::full_row_iterator& it) { return *it * val; }
+			);
+
+		return *this;
+	}
+
+	template<typename other>
+	Graph<link_type>& operator/=(const other& val) {
+		assert(val != 0);
+		if (val != 1)
+			apply_operation(
+				[&](Graph<link_type>::full_row_iterator& it) {return *it / val; }
+			);
+		return *this;
+	}
+
+	template<class output = decltype(link_type() * link_type())>
+	output row_sum(unsigned int row_index) const {
+		return get_row(row_index).sum();
+	}
+
+	template<class output = decltype(link_type()* link_type())>
+	output col_sum(unsigned int col_index) const {
+		return get_col(col_index).sum();
+	}
 };
+
 
 
 class CONSTRUCT_LIB Graph_Intermediary {
@@ -1217,48 +1541,1773 @@ public:
 	void check_ptr() const;
 
 	template<typename T>
-	operator Graph<T>& () {
-		check_ptr();
-		return *(Graph<T>*)(ptr);
-	}
-
-	template<typename T>
 	operator Graph<T>* () {
 		if (!ptr) return nullptr;
-		if (ptr->edge_type != Graph<T>::get_edge_type())
-			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Graph<T>::get_type_name());
+		if (ptr->edge_type != Typeless_Graph::get_edge_type<T>())
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Typeless_Graph::get_type_name<T>());
 		return dynamic_cast<Graph<T>*>(ptr);
 	}
 
 	template<typename T>
-	operator const Graph<T>& () const {
+	operator Graph<T>& () {
 		check_ptr();
-		return *(const Graph<T>*)(ptr);
+		return *(Graph<T>*)(*this);
 	}
 
 	template<typename T>
 	operator const Graph<T>* () const {
 		if (!ptr) return nullptr;
-		if (ptr->edge_type != Graph<T>::get_edge_type())
-			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Graph<T>::get_type_name());
+		if (ptr->edge_type != Typeless_Graph::get_edge_type<T>())
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Typeless_Graph::get_type_name<T>());
 		return dynamic_cast<const Graph<T>*>(ptr);
+	}
+
+	template<typename T>
+	operator const Graph<T>& () const {
+		check_ptr();
+		return *(const Graph<T>*)(*this);
 	}
 
 	operator bool() const { return (bool)ptr; }
 };
 
 
+namespace graph_utils {
+	
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.source_nodeset);
+		assert(lhs.target_nodeset == rhs.target_nodeset);
+
+		Temporary_Graph<output> ret(lhs.def_val * rhs.def_val, lhs.source_nodeset, row_dense, lhs.target_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+		auto right_row = rhs.begin_rows();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it * (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs) {
+		return ewise_product(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
+	}
+
+	template<typename left, typename right>
+	auto ewise_product(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs); }
+
+	template<typename left, typename right>
+	auto ewise_product(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs, rhs.graph()); }
+
+	template<typename left, typename right>
+	auto ewise_product(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs.graph()); }
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.target_nodeset);
+		assert(lhs.target_nodeset == rhs.source_nodeset);
+
+		Temporary_Graph<output> ret(lhs.def_val * rhs.graph().def_val, lhs.source_nodeset, row_dense, lhs.target_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+		auto right_row = rhs.graph().begin_cols();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it * (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs) {
+		return ewise_product(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
+	}
+
+	template<typename left, typename right>
+	auto ewise_product(const Transpose<left>& lhs, const Graph<right>& rhs) { return ewise_product(rhs, lhs.graph()); }
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.source_nodeset);
+		assert(lhs.target_nodeset == rhs.target_nodeset);
+
+		Temporary_Graph<output> ret(lhs.graph().def_val * rhs.graph().def_val, lhs.graph().target_nodeset, row_dense, lhs.graph().source_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.graph().begin_cols();
+		auto right_row = rhs.graph().begin_cols();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it * (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+	
+	template<typename left, typename right>
+	auto ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs) { 
+		return ewise_product(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense); 
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.source_nodeset);
+		assert(lhs.target_nodeset == rhs.target_nodeset);
+		assert(rhs.def_val != 0);
+
+		Temporary_Graph<output> ret(lhs.def_val / rhs.def_val, lhs.source_nodeset, row_dense, lhs.target_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+		auto right_row = rhs.begin_rows();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it / (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs) {
+		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
+	}
+
+	template<typename left, typename right>
+	auto ewise_divide(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs); }
+
+	template<typename left, typename right>
+	auto ewise_divide(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs, rhs.graph()); }
+
+	template<typename left, typename right>
+	auto ewise_divide(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs.graph()); }
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.graph().target_nodeset);
+		assert(lhs.target_nodeset == rhs.graph().source_nodeset);
+		assert(rhs.graph().def_val != 0);
+
+		Temporary_Graph<output> ret(lhs.def_val / rhs.graph().def_val, lhs.source_nodeset, row_dense, lhs.target_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+		auto right_row = rhs.graph().begin_cols();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it / (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs) {
+		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.graph().source_nodeset == rhs.target_nodeset);
+		assert(lhs.graph().target_nodeset == rhs.source_nodeset);
+		assert(rhs.def_val != 0);
+
+		Temporary_Graph<output> ret(lhs.graph().def_val / rhs.def_val, lhs.source_nodeset, row_dense, lhs.target_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.graph().begin_cols();
+		auto right_row = rhs.begin_rows();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it / (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right>
+	auto ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs) { 
+		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.row_dense, lhs.graph().row_dense || rhs.col_dense); 
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
+		assert(lhs.source_nodeset == rhs.source_nodeset);
+		assert(lhs.target_nodeset == rhs.target_nodeset);
+
+		Temporary_Graph<output> ret(lhs.graph().def_val * rhs.graph().def_val, lhs.graph().target_nodeset, row_dense, lhs.graph().source_nodeset, col_dense);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.graph().begin_cols();
+		auto right_row = rhs.graph().begin_cols();
+		while (out_row != out_matrix.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto left_it = left_row.full_begin();
+			auto right_it = right_row.full_begin();
+			while (out_it != out_row.end()) {
+				out_matrix.at(out_it, *left_it / (*right_it));
+
+				++out_it;
+				++left_it;
+				++right_it;
+			}
+
+			++out_row;
+			++left_row;
+			++right_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right>
+	auto ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs) {
+		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense);
+	}
+}
+
+
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Graph<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs.source_nodeset);
+	assert(lhs._col == 0);
+
+	std::vector<output> ret(rhs.target_nodeset->size(), 0);
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
+		auto temp = lhs;
+		for (auto it = col.full_begin(); it != col.end(); ++it) {
+			ret[*col] += (*it) * (*temp);
+			++temp;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Transpose<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
+	assert(lhs._col == 0);
+
+	std::vector<output> ret(rhs.graph().source_nodeset->size(), 0);
+
+	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
+		auto temp = lhs;
+		for (auto it = row.full_begin(); it != row.end(); ++it) {
+			ret[*row] += (*it) * (*temp);
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs; }
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.T(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Graph<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs.source_nodeset);
+	assert(lhs._skip == 0);
+
+	std::map<unsigned int, output> ret;
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
+		auto temp = lhs;
+		auto it = col.sparse_begin(0);
+		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+
+		output val = 0;
+
+		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+			val += (*it) * (*temp);
+		}
+
+		if (val) ret[*col] = val;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Transpose<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
+	assert(lhs._skip == 0);
+
+	std::map<unsigned int, output> ret;
+
+	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
+		auto temp = lhs;
+		auto it = row.sparse_begin(0);
+		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+
+		output val = 0;
+
+		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+			val += (*it) * (*temp);
+		}
+
+		if (val) ret[*row] = val;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.T(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
+
+
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Graph<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs.source_nodeset);
+	assert(lhs._col == 0);
+
+	std::vector<output> ret(rhs.target_nodeset->size(), 0);
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
+		auto temp = lhs;
+		for (auto it = col.full_begin(); it != col.end(); ++it) {
+			ret[*col] += (*it) * (*temp);
+			++temp;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Transpose<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
+	assert(lhs._col == 0);
+
+	std::vector<output> ret(rhs.graph().source_nodeset->size(), 0);
+
+	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
+		auto temp = lhs;
+		for (auto it = row.full_begin(); it != row.end(); ++it) {
+			ret[*row] += (*it) * (*temp);
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.T(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Graph<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs.source_nodeset);
+	assert(lhs._skip == 0);
+
+	std::map<unsigned int, output> ret;
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
+		auto temp = lhs;
+		auto it = col.sparse_begin(0);
+		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+
+		output val = 0;
+
+		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+			val += (*it) * (*temp);
+		}
+
+		if (val) ret[*col] = val;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Transpose<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
+	assert(lhs._skip == 0);
+
+	std::map<unsigned int, output> ret;
+
+	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
+		auto temp = lhs;
+		auto it = row.sparse_begin(0);
+		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+
+		output val = 0;
+
+		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+			val += (*it) * (*temp);
+		}
+
+		if (val) ret[*row] = val;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.T(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
+
+
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->col_size);
+
+	// return type will be the what the compiler decide right * left should convert to
+	// i.e. int * float => float
+	// fairly straightforward except for bool * bool => int
+	decltype(right() * left()) ret = 0;
+	auto it = lhs.full_begin();
+	for (auto val : rhs) {
+		ret += *it * val;
+		++it;
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+
+	// return type will be the what the compiler decide right * left should convert to
+	// i.e. int * float => float
+	// fairly straightforward except for bool * bool => int
+	decltype(right() * left()) ret = 0;
+	auto git = lhs.sparse_begin(0);
+	auto mit = rhs.begin();
+	while (git != lhs.end() && mit != rhs.end()) {
+		if (git.index() < mit->first) ++git;
+		else if (git.index() > mit->first) ++mit;
+		else {
+			ret += *git * mit->second;
+			++git;
+			++mit;
+		}
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->row_size);
+
+	// return type will be the what the compiler decide right * left should convert to
+	// i.e. int * float => float
+	// fairly straightforward except for bool * bool => int
+	decltype(right() * left()) ret = 0;
+	auto it = lhs.full_begin();
+	for (auto val : rhs) {
+		ret += *it * val;
+		++it;
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	assert(rhs.size() == lhs._parent->row_size);
+
+	// return type will be the what the compiler decide right * left should convert to
+	// i.e. int * float => float
+	// fairly straightforward except for bool * bool => int
+	decltype(right() * left()) ret = 0;
+	auto git = lhs.sparse_begin(0);
+	auto mit = rhs.begin();
+	while (git != lhs.end() && mit != rhs.end()) {
+		if (git.index() < mit->first) ++git;
+		else if (git.index() > mit->first) ++mit;
+		else {
+			ret += *git * mit->second;
+			++git;
+			++mit;
+		}
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
+	decltype(left() * right()) ret = 0;
+
+	auto lit = lhs.sparse_begin(0);
+	auto rit = rhs.sparse_begin(0);
+	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+
+
+	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+		ret += (*lit) * (*rit);
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
+	decltype(left() * right()) ret = 0;
+
+	auto lit = lhs.sparse_begin(0);
+	auto rit = rhs.sparse_begin(0);
+	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+
+
+	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+		ret += (*lit) * (*rit);
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
+	decltype(left() * right()) ret = 0;
+
+	auto lit = lhs.sparse_begin(0);
+	auto rit = rhs.sparse_begin(0);
+	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+
+
+	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+		ret += (*lit) * (*rit);
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
+
+
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator+(const Graph<left>& lhs, const Graph<right>& rhs) {
+	assert(rhs.source_nodeset == lhs.source_nodeset);
+	assert(rhs.target_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, lhs.source_nodeset, lhs.row_dense || rhs.row_dense, lhs.target_nodeset, lhs.col_dense || rhs.col_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_rows();
+	auto right_row = rhs.begin_rows();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_row.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it + *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_row;
+		++out_row;
+	}
+	return ret;
+
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator+(const Graph<left>& lhs, const Transpose<right>& rhsT) {
+	const Graph<right>& rhs = rhsT.graph();
+
+	assert(rhs.target_nodeset == lhs.source_nodeset);
+	assert(rhs.source_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, lhs.source_nodeset, lhs.row_dense || rhs.col_dense, lhs.target_nodeset, lhs.col_dense || rhs.row_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_rows();
+	auto right_col = rhs.begin_cols();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it + *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Graph<right>& rhs) {
+	const Graph<left>& lhs = lhsT.graph();
+
+	assert(rhs.target_nodeset == lhs.source_nodeset);
+	assert(rhs.source_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, rhs.source_nodeset, lhs.col_dense || rhs.row_dense, rhs.target_nodeset, lhs.row_dense || rhs.col_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_cols();
+	auto right_col = rhs.begin_rows();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it + *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
+	const Graph<left>& lhs = lhsT.graph();
+	const Graph<right>& rhs = rhsT.graph();
+
+	assert(rhs.source_nodeset == lhs.source_nodeset);
+	assert(rhs.target_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, rhs.target_nodeset, lhs.col_dense || rhs.col_dense, rhs.source_nodeset, lhs.row_dense || rhs.row_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_cols();
+	auto right_col = rhs.begin_cols();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it + *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs + rhs.graph(); }
+
+template<typename left, typename right>
+auto operator+(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() + rhs; }
+
+template<typename left, typename right>
+auto operator+(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() + rhs.graph(); }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->col_size);
+
+	std::vector<output> ret;
+	for (auto it = lhs.full_begin(); it != lhs.end(); ++it) ret[it.col()] = *it + rhs[it.col()];
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	std::map<unsigned int, output> ret = rhs;
+
+	auto git = lhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != lhs.end() && rit != ret.end()) {
+		if (rit->first < git.col()) ++rit;
+		else if (git.col() < rit->first) {
+			rit = ret.insert(std::pair(git.col(), *git), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second += *git;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->row_size);
+
+	std::vector<output> ret;
+	for (auto it = lhs.full_begin(); it != lhs.end(); ++it) ret[it.row()] = *it + rhs[it.row()];
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	std::map<unsigned int, output> ret = rhs;
+
+	auto git = lhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != lhs.end() && rit != ret.end()) {
+		if (rit->first < git.row()) ++rit;
+		else if (git.row() < rit->first) {
+			rit = ret.insert(std::pair(git.row(), *git), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second += *git;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+
+}
+
+template<typename left, typename right>
+auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit + *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit + *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit + *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = *rit;
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit + *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = *rit;
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit + *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs + lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = *rit;
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit + *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->col_size);
+
+	std::vector<output> ret;
+	for (auto it = lhs.full_begin(); it != lhs.end(); ++it) ret[it.col()] = *it - rhs[it.col()];
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { 
+	assert(lhs.size() == rhs._parent->col_size);
+
+	std::vector<output> ret;
+	for (auto it = rhs.full_begin(); it != rhs.end(); ++it) ret[it.col()] = lhs[it.col()] - (*it);
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	std::map<unsigned int, output> ret = rhs;
+
+	auto git = lhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != lhs.end() && rit != ret.end()) {
+		if (rit->first < git.col()) {
+			rit->second *= -1;
+			++rit;
+		}
+		else if (git.col() < rit->first) {
+			rit = ret.insert(std::pair(git.col(), *git), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second = *git - rit->second;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+auto operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
+	std::map<unsigned int, output> ret = lhs;
+
+	auto git = rhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != rhs.end() && rit != ret.end()) {
+		if (rit->first < git.col()) ++rit;
+		else if (git.col() < rit->first) {
+			rit = ret.insert(std::pair(git.col(), (*git) * -1), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second -= *git;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs._parent->row_size);
+
+	std::vector<output> ret;
+	for (auto it = lhs.full_begin(); it != lhs.end(); ++it) ret[it.row()] = *it - rhs[it.row()];
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
+	assert(lhs.size() == rhs._parent->row_size);
+
+	std::vector<output> ret;
+	for (auto it = rhs.full_begin(); it != rhs.end(); ++it) ret[it.row()] = rhs[it.row()] - (*it);
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	std::map<unsigned int, output> ret = rhs;
+
+	auto git = lhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != lhs.end() && rit != ret.end()) {
+		if (rit->first < git.row()) {
+			rit->second *= -1;
+			++rit;
+		}
+		else if (git.row() < rit->first) {
+			rit = ret.insert(std::pair(git.row(), *git), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second = *git - rit->second;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
+	std::map<unsigned int, output> ret = lhs;
+
+	auto git = rhs.sparse_begin(0);
+	auto rit = ret.begin();
+	while (git != lhs.end() && rit != ret.end()) {
+		if (rit->first < git.row()) ++rit;
+		else if (git.row() < rit->first) {
+			rit = ret.insert(std::pair(git.row(), (*git) * -1), rit);
+			++rit;
+			++git;
+		}
+		else {
+			rit->second -= *git;
+			++rit;
+			++git;
+		}
+	}
+
+	return ret;
+
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit - *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit - *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit - *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
+	assert(lhs.index() == rhs.index());
+	assert(lhs.index() == 0);
+	std::vector<output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max()) {
+		ret[lit.index()] = *lit - *rit;
+		++lit;
+		++rit;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = -1 * (*rit);
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit - *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
+	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->col_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = -1 * (*rit);
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit - *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = -1 * *rit;
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit - *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
+	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
+	assert(lhs._skip == 0);
+	assert(rhs._skip == 0);
+	std::map<unsigned int, output> ret(lhs._parent->row_size);
+
+	auto lit = lhs;
+	auto rit = rhs;
+	while (lit.index() < lit.max() && rit.index() < rit.max()) {
+		if (lit.index() < rit.index()) {
+			ret[lit.index()] = *lit;
+			++lit;
+		}
+		else if (rit.index() < lit.index()) {
+			ret[rit.index()] = *rit;
+			++rit;
+		}
+		else {
+			ret[lit.index()] = *lit - *rit;
+			++lit;
+			++rit;
+		}
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator-(const Graph<left>& lhs, const Graph<right>& rhs) {
+	assert(rhs.source_nodeset == lhs.source_nodeset);
+	assert(rhs.target_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, lhs.source_nodeset, lhs.row_dense || rhs.row_dense, lhs.target_nodeset, lhs.col_dense || rhs.col_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_rows();
+	auto right_row = rhs.begin_rows();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_row.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it - *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_row;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator-(const Graph<left>& lhs, const Transpose<right>& rhsT) {
+	const Graph<right>& rhs = rhsT.graph();
+
+	assert(rhs.target_nodeset == lhs.source_nodeset);
+	assert(rhs.source_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, lhs.source_nodeset, lhs.row_dense || rhs.col_dense, lhs.target_nodeset, lhs.col_dense || rhs.row_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_rows();
+	auto right_col = rhs.begin_cols();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it - *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Graph<right>& rhs) {
+	const Graph<right>& lhs = lhsT.graph();
+
+	assert(rhs.target_nodeset == lhs.source_nodeset);
+	assert(rhs.source_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, rhs.source_nodeset, rhs.row_dense || lhs.col_dense, rhs.target_nodeset, rhs.col_dense || lhs.row_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_cols();
+	auto right_col = rhs.begin_rows();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it - *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
+	const Graph<right>& rhs = rhsT.graph();
+	const Graph<left>& lhs = lhsT.graph();
+
+	assert(rhs.source_nodeset == lhs.source_nodeset);
+	assert(rhs.target_nodeset == lhs.target_nodeset);
+
+	Temporary_Graph<output> ret(lhs.def_val + rhs.def_val, lhs.target_nodeset, lhs.col_dense || rhs.col_dense, lhs.source_nodeset, lhs.row_dense || rhs.row_dense);
+
+	Graph<right>& out_matrix = ret.graph();
+
+	auto left_row = lhs.begin_cols();
+	auto right_col = rhs.begin_cols();
+	auto out_row = out_matrix.begin_rows();
+
+	while (left_row != lhs.end_rows()) {
+
+		auto left_it = left_row.full_begin();
+		auto right_it = right_col.full_begin();
+		auto out_it = out_row.full_begin();
+
+		while (left_it != left_row.end()) {
+			out_matrix.at(out_it, *left_it - *right_it);
+
+			++left_it;
+			++right_it;
+			++out_it;
+		}
+
+		++left_row;
+		++right_col;
+		++out_row;
+	}
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator-(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs - rhs.graph(); }
+
+template<typename left, typename right>
+auto operator-(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() - rhs; }
+
+template<typename left, typename right>
+auto operator-(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() - rhs.graph(); }
+
 
 namespace graph_utils {
+	// output dimensions for multipling two graphs is not trivial
+	// each element in array corresponds to a specific combination of left and right matrix densities
+	// ex	left_row	left_col	right_row	right_col
+	//		dense		sparse		dense		dense
+	//		1			0			1			1			= 10 <- corresponding index for the dimensions of the output graph
+	// 
+	// 2 = transform[10] =	1			0
+	//						row_dense	col_sparse
+	// 
+	static constexpr unsigned char transform[16] = {
+		//[false, false] * [x,x]
+		0,
+		0,
+		0,
+		0,
+		//[false, true] * [x,x]
+		0,
+		1,
+		0,
+		1,
+		//[true, false] * [x,x]
+		0,
+		0,
+		2,
+		3,
+		//[true, true] * [x,x]
+		0,
+		3,
+		2,
+		3
+	};
 
-	void CONSTRUCT_LIB it_align(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB init_align(std::vector<typeless_graph_iterator*>& it_list);
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
+		// target dimension of the left_rhs and source dimension of right_rhs must match
+		assert(lhs.target_nodeset == rhs.source_nodeset);
 
-	void CONSTRUCT_LIB it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+		Temporary_Graph<output> ret(lhs.def_val * rhs.def_val * lhs.col_size,
+			lhs.source_nodeset, output_row_dense,
+			rhs.target_nodeset, output_col_dense);
 
-	void CONSTRUCT_LIB init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+		while (out_row != out_matrix.end_rows() && left_row != lhs.end_rows()) {
+			auto out_it = out_row.full_begin();
+			auto right_col = rhs.begin_cols();
+			while (out_it != out_row.end() && right_col != rhs.end_cols()) {
+				out_matrix.at(out_it, left_row * right_col);
+				++out_it;
+				++right_col;
+			}
+			++out_row;
+			++left_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Transpose<right>& rhsT, bool output_row_dense, bool output_col_dense) {
+		const Graph<right>& rhs = rhsT.graph();
+		assert(lhs.target_nodeset == rhs.target_nodeset);
+
+		Temporary_Graph<output> ret(lhs.def_val * rhs.def_val * lhs.col_size,
+			lhs.source_nodeset, output_row_dense, rhs.source_nodeset, output_col_dense);
+
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_rows();
+
+		while (out_row != out_matrix.end_rows() && left_row != lhs.end_rows()) {
+
+			auto out_it = out_row.full_begin();
+			auto right_col = rhs.begin_rows();
+			while (out_it != out_row.end() && right_col != rhs.end_rows()) {
+
+				out_matrix.at(out_it, left_row * right_col);
+
+				++out_it;
+				++right_col;
+			}
+			++out_row;
+			++left_row;
+		}
+
+		return ret;
+	}
+
+	template<typename left, typename right, class output = decltype(left()* right())>
+	Temporary_Graph<output> dot_product(const Transpose<left>& lhsT, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
+		const Graph<left>& lhs = lhsT.graph();
+		assert(lhs.source_nodeset == rhs.source_nodeset);
+
+		Temporary_Graph<output> ret(lhs.def_val * rhs.def_val * lhs.col_size,
+			lhs.target_nodeset, output_row_dense, rhs.target_nodeset, output_col_dense);
+
+		Graph<output>& out_matrix = ret.graph();
+
+		auto out_row = out_matrix.begin_rows();
+		auto left_row = lhs.begin_cols();
+
+		while (out_row != out_matrix.end_rows() && left_row != lhs.end_cols()) {
+
+			auto out_it = out_row.full_begin();
+			auto right_col = rhs.begin_cols();
+			while (out_it != out_row.end() && right_col != rhs.end_cols()) {
+
+				out_matrix.at(out_it, left_row * right_col);
+
+				++out_it;
+				++right_col;
+			}
+			++out_row;
+			++left_row;
+		}
+
+		return ret;
+	}
+
 }
+
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const Graph<right>& rhs) {
+	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
+	bool new_row_dim = t & 2;
+	bool new_col_dim = t & 1;
+	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
+}
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() * rhs; }
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const Temporary_Graph<left>& rhs) { return lhs.graph() * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Graph<left>& lhs, const Transpose<right>& rhs) {
+	const char& t = graph_utils::transform[rhs.graph().col_dense + 2 * rhs.graph().row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
+	bool new_row_dim = t & 2;
+	bool new_col_dim = t & 1;
+	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
+}
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const Graph<right>& rhs) {
+	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.graph().col_dense + 8 * lhs.graph().row_dense];
+	bool new_row_dim = t & 2;
+	bool new_col_dim = t & 1;
+	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
+}
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs.graph(); }
+
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const Graph<left>& lhs, const std::vector<right>& rhs) {
+	assert(rhs.size() == lhs.col_size);
+	std::vector<output> ret(lhs.row_size);
+
+	for (auto row = lhs.begin_rows(); row != lhs.end_rows(); ++row) 
+		ret[*row] = row * rhs;
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::vector<output> operator*(const std::vector<left>& lhs, const Graph<right>& rhs) {
+	assert(lhs.size() == rhs.row_size);
+	std::vector<output> ret(rhs.col_size);
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) 
+		ret[*col] = col * lhs;
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const std::vector<right>& rhs) { return lhs.graph() * rhs; }
+
+template<typename left, typename right>
+auto operator*(const std::vector<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const std::vector<right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const std::vector<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const Graph<left>& lhs, const std::map<unsigned int, right>& rhs) {
+	std::map<unsigned int, output> ret;
+
+	for (auto row = lhs.begin_rows(); row != lhs.end_rows(); ++row) {
+		output temp = row * rhs;
+		if (temp) ret[*row] = temp;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right, class output = decltype(left()* right())>
+std::map<unsigned int, output> operator*(const std::map<unsigned int, left>& lhs, const Graph<right>& rhs) {
+	std::map<unsigned int, output> ret;
+
+	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
+		output temp = col * lhs;
+		if (temp) ret[*col] = temp;
+	}
+
+	return ret;
+}
+
+template<typename left, typename right>
+auto operator*(const Temporary_Graph<left>& lhs, const std::map<unsigned int, right>& rhs) { return lhs.graph() * rhs; }
+
+template<typename left, typename right>
+auto operator*(const std::map<unsigned int, left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const Transpose<left>& lhs, const std::map<unsigned int, right>& rhs) { return rhs * lhs.graph(); }
+
+template<typename left, typename right>
+auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
+
+
+#define dense true
+#define sparse false
 
 namespace graph_names {
 	const std::string active               = "agent active time network";					     // "agent active time network"
@@ -1279,6 +3328,7 @@ namespace graph_names {
 	const std::string comm_access          = "communication medium access network";              // "communication medium access network"
 	const std::string comm_pref            = "communication medium preferences network";         // "communication medium preferences network"
 	const std::string fb_friend            = "facebook friend network";                          // "facebook friend network"
+	const std::string emotion_net		   = "emotion network";									 // "emotion network"
 	const std::string interact_k_wgt       = "interaction knowledge weight network";             // "interaction knowledge weight network"
 	const std::string interact             = "interaction network";                              // "interaction network"
 	const std::string interact_prob        = "interaction probability network";                  // "interaction probability network"
@@ -1356,7 +3406,7 @@ namespace generator_names {
 
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
-
+class Construct;
 
 class CONSTRUCT_LIB GraphManager 
 {
@@ -1472,12 +3522,6 @@ public:
 
 	set_of_generators generators;
 
-
-	
-#ifdef DEBUG
-	const std::set<std::string>& get_accesses(std::string name) const;
-#endif // DEBUG
-
 	void import_network(Typeless_Graph* graph);
 
 	void export_network(Typeless_Graph* graph) noexcept;
@@ -1485,7 +3529,6 @@ public:
 };
 
 
-class Construct;
 
 
 struct CONSTRUCT_LIB Model
@@ -1544,9 +3587,15 @@ namespace model_names {
 	const std::string TWIT		= "Twitter Interaction Model";
 	//"Facebook Interaction Model"
 	const std::string FB		= "Facebook Interaction Model";
+	const std::string TWIT_nf_emot = "Twitter Emotion Interaction Model no followers";
+	const std::string TWIT_wf_emot = "Twitter Emotion Interaction Model";
+	const std::string FB_nf_emot = "Facebook Emotion Interaction Model no followers";
+	const std::string FB_wf_emot = "Facebook Emotion Interaction Model";
 
 	//Modification Models
 
+	//"Emotion Model"
+	const std::string EMOT = "Emotion Model";
 	//"Forget Model"
 	const std::string FORGET	= "Forgetting Model";
 	//"Mail Model"
@@ -1633,100 +3682,6 @@ public:
 };
 
 
-class CONSTRUCT_LIB Output_Graph : public Output {
-
-	static const std::string timeperiods; //"timeperiods"
-	static const std::string network_name; //"network name"
-	static const std::string output_file; //"output file"
-
-	const Typeless_Graph* _graph;
-	std::ofstream _output_file;
-
-	unsigned int _tmax;
-
-	enum class output_types : char {
-		initial_only,
-		init_and_last,
-		all
-	};
-
-	output_types output_type = output_types::initial_only;
-
-	
-	
-	~Output_Graph(void);
-
-	friend class OutputManager;
-	void process(unsigned int t);
-public:
-
-	Output_Graph(const dynet::ParameterMap& params, Construct* construct);
-};
-
-
-class CONSTRUCT_LIB Output_dynetml : public Output {
-	
-	static const std::string network_name; //"network names"
-	static const std::string output_file; //"output file"
-	static const std::string timeperiods; //"timeperiods"
-
-	std::vector<const Typeless_Graph*> _graphs;
-	std::ofstream _output_file;
-
-	enum class output_types : char {
-		initial_only,
-		init_and_last,
-		all
-	};
-
-	unsigned int _tmax;
-	std::vector<std::string> _column_names;
-	std::string nodeset_out = "<nodes>";
-	output_types output_type = output_types::initial_only;
-
-	
-	
-	~Output_dynetml(void);
-
-	void process(void);
-
-	inline void add_output(const Graph<bool>* g);
-
-	template<typename T>
-	void add_output(const Graph<T>* g);
-
-	friend class OutputManager;
-	void process(unsigned int t);
-public:
-
-	Output_dynetml(const dynet::ParameterMap& params, Construct* construct);
-};
-
-
-class CONSTRUCT_LIB Output_Messages : public Output {
-
-	
-
-	static const std::string output_file; //"output file"
-
-	
-
-	InteractionMessageQueue* queue;
-	std::ofstream _output_file;
-	
-	~Output_Messages(void);
-
-	void item_out(InteractionMessage::iterator& item, std::string tabs);
-	void msg_out(InteractionMessageQueue::iterator& msg, std::string tabs);
-
-	friend class OutputManager;
-	void process(unsigned int t);
-public:
-
-	Output_Messages(const dynet::ParameterMap& params, Construct* construct);
-};
-
-
 #include <ctime>
 
 class CONSTRUCT_LIB Construct {
@@ -1782,1047 +3737,4 @@ private:
 	bool running = false;
 };
 
-
-
-struct CONSTRUCT_LIB KnowledgeParsing : public Model
-{
-public:
-
-	//graph name - "knowledge network"
-	//agent x knowledge
-	Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, nodeset_names::agents, nodeset_names::knowledge);
-
-	KnowledgeParsing(Construct* _construct) : Model(_construct, model_names::KPARSE) {}
-
-	void communicate(InteractionMessageQueue::iterator msg);
-};
-
-
-class CONSTRUCT_LIB KnowledgeTrust : public Model
-{
-	const std::string relax_rate = "relax rate";
-public:
-
-	float rr;
-
-	//graph name - "knowledge network"
-	//agent x knowledge
-	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, nodeset_names::agents, nodeset_names::knowledge);
-
-	//graph name - "knowledge trust network"
-	//agent x knowledge
-	Graph<float>& knowledge_trust_net = graph_manager->load_optional(graph_names::k_trust, 0.5f, 
-		nodeset_names::agents, knowledge_net.row_dense, nodeset_names::knowledge, knowledge_net.col_dense);
-
-	//graph name - "knowledge trust transactive memory network"
-	//agent x agent x knowledge
-	Graph<std::map<unsigned int, float> >& kttm = graph_manager->load_optional(graph_names::kttm, std::map<unsigned int, float>(),
-		nodeset_names::agents, true, nodeset_names::agents, false, nodeset_names::knowledge);
-
-	
-
-	KnowledgeTrust(const dynet::ParameterMap& parameters, Construct* construct);
-
-	void initialize(void);
-
-	void update(void);
-
-	void communicate(InteractionMessageQueue::iterator msg);
-
-	void cleanup(void);
-};
-
-
-
-class CONSTRUCT_LIB StandardInteraction : public virtual Model
-{
-public:
-
-	StandardInteraction(const dynet::ParameterMap& parameters, Construct* construct);
-
-	//adds the knowledge parsing model to the models list
-	virtual void initialize(void);
-
-	//sets interaction probabilities, creates messages, and adds them to construct's interaction queue
-	virtual void think(void);
-
-	//creates all the communication mediums based on the medium nodeset
-	void initialize_communication_mediums();
-
-	//sets all interaction probability network links
-	virtual void set_probabilities(void);
-
-	//forms interaction pairs based on the interaction probability network, mediums, and available knowledge.
-	virtual void add_messages(void);
-
-
-	//sets the corresponding element where agent_i corresponds to source index
-	virtual void set_interaction_probability(unsigned int agent_i, unsigned int agent_j);
-
-	// Grabs the send_msg_queue and decrements all of their time_to_live values
-	// any msg that has gotten to zero gets added to the private message queue
-	// this should be called before populating the send_msg_queue during interactions
-	virtual void update_send_msg_queue();
-	
-	// generates a vector of paired values with first being the agent index
-	// and second being the associated initiation/reception count
-	virtual void initialize_interaction_lists(std::vector<std::pair<unsigned int, unsigned int> > &initiators, std::vector<std::pair<unsigned int,unsigned int> > &receivers);
-
-	//gets the index in the initiators and receivers list of the interaction partners found
-	std::pair<unsigned int, unsigned int> get_interaction_pair_index(std::vector<std::pair<unsigned int, unsigned int> >& initiators, std::vector<std::pair<unsigned int, unsigned int> >& receivers);
-
-	// gets the communication medium based on the shared medium between sender and receiver
-	const CommunicationMedium* get_comm_medium(unsigned int sender_index, unsigned int receiver_index);
-
-	// uses the proximity networks and proximity weight networks to calculate a proximity
-	// proximity is based on the perspective of the sender
-	virtual float get_prox(unsigned int sender_index, unsigned int receiver_index);
-
-	// compares the sender and receiver for how similar their knowledge is
-	virtual float get_k_sim(unsigned int sender_index, unsigned int receiver_index);
-
-	// finds how much knowledge the sender can send to the receiver
-	virtual float get_k_exp(unsigned int sender_index, unsigned int receiver_index);
-
-	// returns zero
-	virtual float get_additions(unsigned int sender_index, unsigned int receiver_index) { return 0; }
-
-	//given a sender, receiver, and medium, returns the vector of InteractionItems to be attached to an InteractionMessage
-	virtual std::vector<InteractionItem> get_interaction_items(unsigned int sender, unsigned int receiver, const CommunicationMedium* comm);
-
-	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
-	const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
-	const Nodeset* comm = ns_manager->get_nodeset(nodeset_names::comm);
-	const Nodeset* time = ns_manager->get_nodeset(nodeset_names::time);
-
-	//The only required network
-
-	//graph name - "knowledge network"
-	//agent x knowledge
-	Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
-
-
-	//These graphs are used to control which agents can interact with which other agents.
-
-	//graph name - "sphere of influence network"
-	//agent x agent
-	Graph<bool>& soi = graph_manager->load_optional(graph_names::soi, true, agents, false, agents, false);
-	//graph name - "agent active timeperiod network"
-	//agent x timeperiod
-	const Graph<bool>& agent_active = graph_manager->load_optional(graph_names::active, true, agents, false, time, false);
-	//graph name - "agent initiation count network"
-	//agent x timeperiod
-	const Graph<unsigned int>& agent_initiation_count = graph_manager->load_optional(graph_names::init_count, 1u, agents, false, time, false);
-	//graph name - "agent reception count network"
-	//agent x timeperiod
-	const Graph<unsigned int>& agent_reception_count = graph_manager->load_optional(graph_names::recep_count, 1u, agents, false, time, false);
-
-
-	//these graphs are for internal use, not expected as input and are only used for output
-	//if they are inputted, the networks get cleared at the beginning of each time step
-
-
-	//graph name - "interaction probability network"
-	//agent x agent
-	Graph<float>& interaction_prob = graph_manager->load_optional(graph_names::interact_prob, 0.0f, agents, true, agents, true);
-	//graph name - "interaction network"
-	//agent x agent
-	Graph<bool>& interactions = graph_manager->load_optional(graph_names::interact, false, agents, false, agents, false);
-
-	//These graphs are used to determine how messages are constructed given an interaction pair
-
-
-
-	//graph name - "knowledge message complexity network"
-	//agent x timeperiod
-	const Graph<unsigned int>& knowledge_message_complexity = graph_manager->load_optional(graph_names::k_msg_complex, 1u, agents, false, time, false);
-	//graph name - "knowledge priority network"
-	//agent x knowledge
-	const Graph<float>& knowledge_priority_network = graph_manager->load_optional(graph_names::k_priority, 1.0f, agents, false, knowledge, false);
-	//graph name - "learnable knowledge network"
-	//agent x knowledge
-	const Graph<bool>& learnable_knowledge_net = graph_manager->load_optional(graph_names::learnable_k, true, agents, false, knowledge, false);
-	//graph name - "communication medium preferences network"
-	//agent x medium
-	const Graph<float>& comm_medium_pref = graph_manager->load_optional(graph_names::comm_pref, 1.0f, agents, false, comm, false);
-	//graph name - "medium knowledge network"
-	//medium x knowledge
-	const Graph<bool>& medium_knowledge_access = graph_manager->load_optional(graph_names::medium_k_access, true, comm, false, knowledge, false);
-	//graph name - "communication medium access network"
-	//agent x CommunicationMedium
-	const Graph<bool>& comm_access = graph_manager->load_optional(graph_names::comm_access, true, agents, false, comm, false);
-
-	//These graphs determine proximity which is assumed to be static.
-
-
-
-	//graph name - "physical proximity network"
-	//agent x agent
-	const Graph<float>& physical_prox = graph_manager->load_optional(graph_names::phys_prox, 1.0f, agents, false, agents, false);
-	//graph name - "physical proximity weight network"
-	//agent x timeperiod
-	const Graph<float>& physical_prox_weight = graph_manager->load_optional(graph_names::phys_prox_wgt, 1.0f, agents, false, time, false);
-	//graph name - "social proximity network"
-	//agent x agent
-	const Graph<float>& social_prox = graph_manager->load_optional(graph_names::soc_prox, 1.0f, agents, false, agents, false);
-	//graph name - "social proximity weight network"
-	//agent x timeperiod
-	const Graph<float>& social_prox_weight = graph_manager->load_optional(graph_names::soc_prox_wgt, 1.0f, agents, false, time, false);
-	//graph name - "sociodemographic proximity network"
-	//agent x agent
-	const Graph<float>& socdem_prox = graph_manager->load_optional(graph_names::dem_prox, 1.0f, agents, false, agents, false);
-	//graph name - "sociodemographic proximity weight network"
-	//agent x timeperiod
-	const Graph<float>& socdem_prox_weight = graph_manager->load_optional(graph_names::dem_prox_wgt, 1.0f, agents, false, time, false);
-
-	//These graphs indicate how important various pieces are for determining interaction probability
-
-
-
-	//graph name - "interaction knowledge weight network"
-	//agent x knowledge
-	const Graph<float>& knowledge_importance = graph_manager->load_optional(graph_names::interact_k_wgt, 1.0f, agents, false, knowledge, false);
-	//graph name - "knowledge similarity weight network"
-	//agent x timeperiod
-	const Graph<float>& knowledge_sim_weight = graph_manager->load_optional(graph_names::k_sim_wgt, 1.0f, agents, false, time, false);
-	//graph name - "knowledge expertise weight network"
-	//agent x timeperiod
-	const Graph<float>& knowledge_exp_weight = graph_manager->load_optional(graph_names::k_exp_wgt, 1.0f, agents, false, time, false);
-
-
-	//delayed messages waiting to be sent are here
-	InteractionMessageQueue send_msg_queue; 
-
-	
-	//The communication mediums derived from the medium nodeset
-	std::vector<CommunicationMedium> communication_mediums;
-	//size of the agent nodeset
-	unsigned int agent_count;
-	//size of the knowledge nodeset
-	unsigned int knowledge_count;
-	//number of times a try for an interaction pair can happen before interaction pairing prematurely ends
-	unsigned int interaction_rejection_limit;
-
-	const unsigned int& t;
-
-	//used to prevent multiple instances of rejection limit being printed
-	static bool needs_printing;
-};
-
-
-
-class CONSTRUCT_LIB Beliefs : public StandardInteraction {
-public:
-
-	Beliefs(const dynet::ParameterMap& parameters, Construct* construct);
-
-	//graph name - "belief network"
-	//agent x belief
-	Graph<float>& beliefs = graph_manager->load_required(graph_names::beliefs, nodeset_names::agents, nodeset_names::belief);
-
-	//graph name - "belief knowledge weight network"
-	//belief x knowledge
-	const Graph<float>& belief_weights = graph_manager->load_optional(graph_names::b_k_wgt, 1.0f, nodeset_names::belief, false, nodeset_names::knowledge, false);
-
-	//graph name - "belief similarity weight network"
-	//agent - timeperiod
-	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, false, time, false);
-
-	void initialize(void);
-	void cleanup(void);
-
-	float get_additions(unsigned int agent_i, unsigned int agent_j);
-	float get_belief_sim(unsigned int agent_i, unsigned int agent_j);
-
-	float get_belief_value(unsigned int agent_i, unsigned int belief);
-};
-
-
-struct CONSTRUCT_LIB Tasks: public StandardInteraction
-{
-		const Nodeset* tasks = ns_manager->get_nodeset(nodeset_names::task);
-
-		// graph name - "task assignment network"
-		// agent x task
-		const Graph<bool>& task_assignment = graph_manager->load_optional(graph_names::task_assignment, true, agents, false, tasks, false);
-
-		// graph name - "task knowledge requirement network"
-		// task x knowledge
-		const Graph<bool>& tk_req = graph_manager->load_required(graph_names::task_k_req, tasks, knowledge);
-
-		// graph name - "knowledge importance network"
-		// task x knowledge
-		const Graph<float>& tk_import = graph_manager->load_optional(graph_names::task_k_importance, 1.0f, tasks, false, knowledge, false);
-
-		// graph name - "task guess probability network"
-		// task x knowledge
-		const Graph<float>& tk_prob = graph_manager->load_optional(graph_names::task_guess_prob, 0.0f, tasks, false, knowledge, false);
-
-		// graph name - "completed tasks network"
-		// agent x task
-		Graph<unsigned int>& task_completion = graph_manager->load_optional(graph_names::task_completion, 0u, agents, false, tasks, false);
-
-		// graph name - "task availability network"
-		// task x timeperiod
-		const Graph<bool>& availablity = graph_manager->load_optional(graph_names::task_availability, true, tasks, false, time, false);
-
-
-		Tasks(const dynet::ParameterMap& parameters, Construct* construct);
-
-		void initialize(void);
-		void cleanup(void);
-
-		float get_k_exp(unsigned int agent_i, unsigned int agent_j);
-};
-
-
-class CONSTRUCT_LIB KnowledgeTransactiveMemory : public StandardInteraction
-{
-	const std::string send_ktm = "can send knowledgeTM";
-	const std::string recv_ktm = "can receive knowledgeTM";
-public:
-
-	//graph name - "transactive knowledge message complexity network"
-	//agent x timeperiod
-	const Graph<unsigned int>& tmk_message_complexity = graph_manager->load_optional(graph_names::ktm_msg_complex, 1u, agents, false, time, false);
-
-	//graph name - "agent group membership network"
-	//agent x agentgroup
-	const Graph<bool>* group_membership;
-
-	//graph name "agent group knowledge network"
-	//agentgroup x knowledge
-	Graph<float>* group_knowledge;
-
-	//graph name "knowledge transactive memory network"
-	//agent x agent x knowledge
-	Graph<std::vector<bool> >& tmk = graph_manager->load_optional(graph_names::ktm, std::vector<bool>(agents->size(), false), agents, true, knowledge, false);
-
-	unsigned int group_count;
-
-	const Nodeset* agents;
-
-	std::vector<unsigned int> group_size;
-	std::vector<float> generalized_other;
-	
-
-	KnowledgeTransactiveMemory(const dynet::ParameterMap& parameters, Construct* construct);
-	
-	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup();
-
-	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm);
-	float get_k_sim(unsigned int agent_i,unsigned int agent_j);
-	float get_k_exp(unsigned int agent_i, unsigned int agent_j);
-	void update_group_knowledge(void);
-
-};
-
-
-class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
-{
-
-
-    //model parameter name who's value gets entered into Social_Media_with_followers::dt
-    const std::string interval_time_duration = "interval time duration";
-
-    //model parameter name who's value gets entered into Social_Media_with_followers::age
-    const std::string maximum_post_inactivity = "maximum post inactivity";
-public:
-
-    struct CONSTRUCT_LIB media_event {
-
-        //this goes through the entire chain of events recursively and updates the last_used
-        //to the most recent time. Source call is only on the root event.
-        void update_last_used(float time);
-
-        enum class event_type : char
-        {
-            post,
-            repost,
-            quote,
-            reply
-        };
-
-
-        ~media_event();
-
-        //this constructor is only for creating post events
-        media_event(
-            unsigned int        _user,
-            unsigned int        _knowledge_index,
-            float               _ktrust,
-            float               _time_stamp
-        );
-
-        //this constructor will create a reply/quote to the submitted parent event
-        media_event(
-            event_type         _type,
-            unsigned int        _user,
-            float               _ktrust,
-            float               _time_stamp,
-            media_event* _event
-        );
-
-        //this constructor will create a repost which uses the same knowledge and trust as the submitted parent event 
-        media_event(
-            unsigned int _user,
-            float        _time_stamp,
-            media_event* _event
-        );
-
-        //default constructor does no operations
-        media_event();
-
-        media_event(const media_event& other);
-
-        media_event& operator=(const media_event& other);
-
-        //gets the size of the tree of events with this event at its root (minimum size of 1)
-        unsigned int child_size(void);
-
-        //the pointer of the event this event is replying to.
-        //if equal to this, the event has no parent and is a post.
-        media_event* parent_event = this;
-
-        //the pointer of the event that is at the root of the event tree that this event is apart of.
-        //if equal to this, the event is the root event for the tree.
-        media_event* root_event = this;
-
-        //set of indexes the event contains
-        std::unordered_map<InteractionItem::item_keys, unsigned int> indexes;
-
-        //set of values the event contains
-        std::unordered_map<InteractionItem::item_keys, float> values;
-
-        //list of reposts that have shared this event
-        std::vector<media_event*> reposts;
-
-        //list of replies to this event
-        std::vector<media_event*> replies;
-
-        //list of quotes to this event
-        std::vector<media_event*> quotes;
-
-        //list of users mentioned by this event
-        std::vector<unsigned int> mentions;
-
-        //agent index of the user that posted the event
-        unsigned int user = 0;
-
-        //the time that this event was created
-        float time_stamp = -1;
-
-        //the last time any event was added to the event tree this event is apart of
-        //all events in the same event tree have equal values for last_used
-        float last_used = -1;
-
-        //how trending an event is
-        float score = 1;
-
-        bool operator== (const media_event& a) const { return score == a.score; }
-        bool operator!= (const media_event& a) const { return score != a.score; }
-        bool operator<= (const media_event& a) const { return score <= a.score; }
-        bool operator>= (const media_event& a) const { return score >= a.score; }
-        bool operator< (const media_event& a) const { return score < a.score; }
-        bool operator> (const media_event& a) const { return score > a.score; }
-
-        //what type of event this is i.e. "post","repost", "quote", or "reply"
-        event_type type = event_type::post;
-
-        void update_root(media_event* new_root);
-
-        void check_consistency(void) const;
-    };
-
-
-    //class that contains all settings for a user as well as functions that dictates how each user interacts
-    struct CONSTRUCT_LIB media_user {
-
-        virtual ~media_user() { ; }
-
-        // called before reply, quote, or repost, allows the user to parse an event before responding to it
-        virtual void read(media_event* read_event) = 0;
-
-        // when called, allows the user to reply to the submitted event
-        virtual void reply(media_event* read_event) = 0;
-
-        // when called, allows the user to quote the submitted event
-        virtual void quote(media_event* read_event) = 0;
-
-        // when called, allows the user to repost the submitted event
-        virtual void repost(media_event* read_event) = 0;
-
-        //generate post events for the time step, called during the think function
-        virtual void generate_post_events(void) = 0;
-
-        //number of events read each time step
-        virtual unsigned int get_read_count(void) = 0;
-    };
-
-
-    struct CONSTRUCT_LIB default_media_user : public virtual media_user {
-
-        default_media_user(Social_Media_no_followers* _media, Nodeset::iterator node);
-
-        //the social media that this user is interacting with
-        Social_Media_no_followers* media;
-
-        //this user's agent index
-        unsigned int id;
-
-        //probability density to post pdtw * dt = average number of events in a time period
-        float pdp;
-
-        //probability to reply when an event or reply is read
-        float pr;
-
-        //probability to repost when an event is read
-        float prp;
-
-        //probability to quote when an event is read
-        float pqu;
-
-        //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
-        float pdread;
-
-        //this reads the post given and performs any actions before the post is potentially responded to
-        void read(media_event* _event);
-
-        //this adds a reply to the post with probability equal to media_user::pr
-        //if an event is created default_media_user::add_mentions is called on that event
-        void reply(media_event* _event);
-
-        //this adds a quote to the post with probability equal to media_user::prp
-        //if an event is created media_user::add_mentions is called on that event
-        void quote(media_event* _event);
-
-        //this adds a repost to the post with probability equal to default_media_user::pqu
-        //if an event is created default_media_user::add_mentions is called on that event
-        void repost(media_event* _event);
-
-        //user adds a number of post events based on default_media_user::pdp
-        void generate_post_events(void);
-
-        //number of events read each time step
-        unsigned int get_read_count(void);
-
-        //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post);
-
-        //gets the trust of the knowledge index
-        //if the "Knowledge Trust %Model" is not active, -1 is returned.
-        virtual float get_trust(unsigned int knowledge_index);
-
-        // chooses which knowledge index to add to an event
-        virtual unsigned int get_knowledge_selection(void);
-    };
-
-
-    class CONSTRUCT_LIB event_container : public std::list<media_event> {
-        using std::list<media_event>::insert;
-        using std::list<media_event>::push_back;
-        using std::list<media_event>::emplace_back;
-        using std::list<media_event>::emplace;
-        using std::list<media_event>::swap;
-        using std::list<media_event>::sort;
-        using std::list<media_event>::reverse;
-        using std::list<media_event>::merge;
-    public:
-        
-        // by default removed_events at the beginning of the container have larger values of timestamp
-        // thus the root event of a reply tree should be at the highest index of any other event in the reply tree
-        std::list<media_event> removed_events;
-
-        iterator erase(const const_iterator _Where) noexcept {
-            removed_events.push_back(*_Where);
-            removed_events.back().check_consistency();
-            return list::erase(_Where);
-        }
-
-        iterator erase(const const_iterator _First, const const_iterator _Last) noexcept {
-            for (auto temp = _First; temp != _Last; temp++) removed_events.push_back(*temp);
-            return list::erase(_First, _Last);
-        }
-
-        void clear() noexcept {
-            for (auto it = begin(); it != end(); ++it) {
-                removed_events.push_back(*it);
-            }
-            list::clear();
-        }
-    };
-
-
-    void check_list_order() const;
-
-    //pointer to the "agent" nodeset
-    const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
-
-    //pointer to the Knowledge Trust %Model if it has been created
-    //otherwise the pointer remains a null pointer
-    KnowledgeTrust* TRUST = nullptr;
-
-    //this is the medium used for all messages created by this model
-    //it is intended to have unlimited complexity and avoid models that interact based on medium
-    CommunicationMedium medium;
-
-    //this key is added to messages created by this model for items that contain the feed index
-    InteractionItem::item_keys event_key = InteractionItem::item_keys::twitter_event;
-
-    // list of all current active events, all users can access this list
-    // new events should be added to the front of this list
-    event_container list_of_events;
-
-    //contains each user's feed of events pseudo-sorted by priority, also contains user-centric event info like whether a event has been read
-    std::vector<std::vector<media_event*> > users_feed;
-
-    // how many posts each agent reads each time step
-    std::vector<unsigned int> read_count;
-
-    //the maximum time a post can exist without its tree being added to
-    float age;
-
-    //the time duration between time steps
-    float dt;
-
-    //current time period
-    unsigned int& time;
-
-    //prefix for some of the node attributes names parsed by the media_user class
-    std::string media_name;
-
-    //graphs already used by other models in construct
-
-    //graph name - "knowledge network"
-    //agent x knowledge
-    const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, ns_manager->get_nodeset(nodeset_names::knowledge));
-
-    //graph name - "agent active time network"
-    //agent x timeperiod
-    const Graph<bool>& active = graph_manager->load_optional(graph_names::active, true, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
-
-    //list of users
-    std::vector<media_user*> users;
-
-    //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
-    //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
-    //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-    Social_Media_no_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
-
-    //delete all pointers in stored in the Social_Media_with_followers::users data structure
-    virtual ~Social_Media_no_followers();
-
-    virtual void load_users();
-
-    //agents read events in their feeds starting with the first event
-    //reading an event will create a message with all relavant knowledge and trust information in items along with the event's feed index
-    //messages are sent from the read event's author to the reading user and uses a CommunicationMedium with maximum complexity
-    void think(void);
-
-    //adds the Knowledge Parsing %Model, and attempts to find and save the pointer for the Knowledge Trust %Model if it has been added to the model list
-    void initialize(void);
-
-    //only parses messages that have an attribute equal to Social_Media_no_followers::event_key for the feed position index corresponding to a media_event pointer
-    //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
-    void communicate(InteractionMessageQueue::iterator msg);
-
-    //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
-    void cleanup(void);
-
-    //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
-    virtual void append_message(media_event* _event, InteractionMessage& msg);
-
-    //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
-    //events are ordered by direct replies or mentions, events of followers, and all other events
-    //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
-    //after the events have been organized stochastic shuffling is done on 10% of the feed to avoid a fully deterministic feed
-    virtual void update_feeds(void);
-};
-
-
-
-struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_no_followers
-{
-public:
-
-    //class that contains all settings for a user as well as functions that dictates how each user interacts
-    struct CONSTRUCT_LIB media_user : virtual public Social_Media_no_followers::media_user {
-
-        //returns true if this user decides to follow an agent when called
-        virtual bool follow_user(unsigned int alter_agent_index) = 0;
-
-        //Returns true if this user decides to unfollow an agent when called
-        virtual bool unfollow_user(unsigned int alter_agent_index) = 0;
-
-        // An alter has decided to follow this user and can decide to reciprocate that following
-        virtual bool respond_to_follow(unsigned int alter_agent_index) = 0;
-
-        // How many alters should be considered each time step for recommendations
-        virtual unsigned int consider_recommendations(void) = 0;
-
-        // gets how charismatic a user is
-        virtual float get_charisma() = 0;
-    };
-
-
-    struct CONSTRUCT_LIB default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
-
-        default_media_user(Social_Media_with_followers* _media, Nodeset::iterator node);
-
-        //the social media that this user is interacting with
-        Social_Media_with_followers* media;
-
-        //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
-        float pdaf;
-
-        //scale factor to determine number of removed followees
-        float rf;
-
-        //determines how likable someone's event is going to be.
-        //people with more likable posts get more followers
-        float charisma;
-
-        //If true, this user, when added as a followee by another user, will automatically reciprocate followings
-        bool auto_follow;
-
-        //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post);
-
-        //returns true if this user decides to follow an agent when called
-        bool follow_user(unsigned int alter_agent_index);
-
-        //Returns true if this user decides to unfollow an agent when called
-        bool unfollow_user(unsigned int alter_agent_index);
-
-        // An alter has decided to follow this user and can decide to reciprocate that following
-        bool respond_to_follow(unsigned int alter_agent_index);
-
-        // How many alters should be considered each time step for recommendations
-        unsigned int consider_recommendations(void);
-
-        float get_charisma();
-    };
-
-
-    std::vector < std::vector<unsigned int> > responses;
-
-    //graph name - deteremined by the media
-    //agent x agent
-    // if (follower_net->examine(i,j)) // agent i is following agent j
-    Graph<bool>* follower_net = nullptr;
-
-    //list of users
-    std::vector<media_user*> users;
-
-    bool disable_follower_recommendations = false;
-
-    //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
-    //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
-    //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-	Social_Media_with_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
-
-    virtual void load_users();
-
-    void communicate(InteractionMessageQueue::iterator msg);
-
-    //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
-    void cleanup(void);
-
-    //computes the Jaccard Similarity in the follower network between the two agent indexes
-    float follower_jaccard_similarity(unsigned int agent_i, unsigned int agent_j) const;
-
-    //function gives each user recommended users to follow
-    virtual void add_followees(void);
-
-    //each users decides whether to unfollow any other user
-    virtual void remove_followees(void);
-
-    //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
-    //events are ordered by direct replies or mentions, events of followers, and all other events
-    //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
-    //after the events have been organized stochastic shuffling is done on 10% of the feed to avoid a fully deterministic feed
-    virtual void update_feeds(void);
-};
-
-
-struct CONSTRUCT_LIB Facebook : public virtual Social_Media_with_followers {
-    Facebook(const dynet::ParameterMap& parameters, Construct* construct);
-};
-
-
-
-struct CONSTRUCT_LIB Twitter : public virtual Social_Media_with_followers {
-    Twitter(const dynet::ParameterMap& parameters, Construct* construct);
-};
-
-
-
-
-struct CONSTRUCT_LIB Forget : public Model
-{
-	const Nodeset* agents;
-
-	//graph name - "knowledge network"
-	//agent x knowledge
-	Graph<bool>* knowledge_net = 0;
-
-	//graph name - "knowledge strength network"
-	//agent x knowledge
-	Graph<float>* knowledge_strength = 0;
-
-	//graph name - "knowledge forgetting rate network"
-	//agent x knowledge
-	const Graph<float>* knowledge_forget_rate = 0;
-
-	//graph name - "knowledge forgetting prob network"
-	//agent x knowledge
-	const Graph<float>* knowledge_forget_prob = 0;
-
-	//graph name - "knowledge trust network"
-	//agent x knowledge
-	Graph<float>* ktrust_net = 0;
-
-	//sparse matrix of users who used a piece of knowledge
-	//gets reset each time step
-	//not intended to get input any input will be cleared at the beginning of each time step
-	Graph<bool>* unused_knowledge = 0;
-
-	Forget(Construct* construct);
-	void think(void);
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup(void);
-
-};
-
-
-class CONSTRUCT_LIB GrandInteraction : public StandardInteraction
-{
-	//model paramters - not all are required
-
-	const std::string beliefs_enabled = "beliefs enabled"; //"beliefs enabled"
-	const std::string beliefTM_enabled = "belief transactive memory enabled"; //"belief transactive memory enabled"
-	const std::string tasks_enabled = "tasks enabled"; //"tasks enabled"
-	const std::string ktm_enabled = "knowledge transactive memory enabled"; //"knowledge transactive memory enabled"
-	const std::string belief_roc = "belief rate of change"; //"belief rate of change"
-
-	struct triplet {
-		triplet(unsigned int _alter, unsigned int _index, float _belief) : alter(_alter), index(_index), belief(_belief) { ; }
-		unsigned int alter = 0;
-		unsigned int index = 0;
-		float belief = 0;
-	};
-
-
-public:
-
-	KnowledgeTransactiveMemory* TMK = 0;
-
-	Beliefs* BM = 0;
-
-	//the following is for belief transactive memory
-	//for more information on btm see DOI : 10.1109 / TSMCC.2012.2230255
-
-	bool _btm_enabled = false;
-
-	//graph name - "belief message complexity network"
-	//agent x timeperiod
-	const Graph<unsigned int>* belief_message_complexity = 0;
-
-	//graph name - "transactive belief message complexity network"
-	//agent x timeperiod
-	const Graph<unsigned int>* btm_message_complexity = 0;
-
-	//graph name - "belief transactive memory network"
-	//agent x agent x belief
-	Graph<std::map<unsigned int, float> >* btm = 0;
-
-	//graph name - "group belief network"
-	//agentgroup x belief
-	Graph<float>* _group_beliefs = 0;
-
-	float alpha = 0;
-
-	Tasks* TASK = 0;
-
-
-
-	std::vector<float> generalized_other_beliefs;
-	std::vector<float> generalized_other_tasks;
-	std::vector<unsigned int> group_sizes;
-
-
-
-	//graph name - "agent group membership network"
-	//agent x agentgroup
-	Graph<bool>* group_membership = 0;
-
-
-
-	GrandInteraction(const dynet::ParameterMap& parameters, Construct* construct);
-	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup(void);
-
-	//see Beliefs::think for why these functions are here
-	float get_k_sim(unsigned int initiator, unsigned int receiver);
-	float get_k_exp(unsigned int initiator, unsigned int receiver);
-	float get_belief_sim(unsigned int initiator, unsigned int receiver);
-	float get_additions(unsigned int agent_i, unsigned int agent_j);
-	std::vector<InteractionItem> get_interaction_items(unsigned int initiator, unsigned int receiver, const CommunicationMedium* comm);
-
-	void update_group_belief(void);
-	unsigned int get_k_intersect(unsigned int initiator, unsigned int receiver);
-
-
-
-	
-};
-
-
-class CONSTRUCT_LIB KnowledgeLearningDifficulty : public Model
-{
-public:
-
-	//sifts through interaction queue and removes items that are too difficult to learn
-	//if a message loses all of items, it is removed from the queue
-	void update(void);
-
-	KnowledgeLearningDifficulty(Construct* _construct) : Model(_construct, model_names::KDIFF) {}
-
-	//graph name - "knowledge learning difficulty network"
-	//agent x knowledge
-	const Graph<float>& k_leanrning_difficulty_net = graph_manager->load_required(graph_names::k_diff, nodeset_names::agents, nodeset_names::knowledge);
-
-};
-
-
-class CONSTRUCT_LIB Location : public Model
-{
-public:
-
-	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
-	const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
-	const Nodeset* locations = ns_manager->get_nodeset(nodeset_names::loc);
-
-	// graph name - "location network"
-	// location x location 
-	const Graph<bool>& loc_adj = graph_manager->load_optional(graph_names::location_network, true, locations, false, locations, false);
-
-	// graph name - "agent current location network"
-	// agent x location
-	Graph<bool>& current_loc = graph_manager->load_required(graph_names::current_loc, agents, locations);
-
-	// graph name - "location knowledge network"
-	// location x knowledge
-	const Graph<bool>& location_knowledge_net = graph_manager->load_optional(graph_names::loc_knowledge, true, locations, false, knowledge, false);
-
-	// graph name - "agent location learning rate network"
-	// agent x location
-	const Graph<float>& agent_location_learning_rate_net = graph_manager->load_optional(graph_names::loc_learning_rate, 1.0f, agents, false, locations, false);
-
-	// graph name - "knowledge expertise weight network"
-	// agent x timperiod
-	const Graph<float>& knowledge_expertise = graph_manager->load_optional(graph_names::k_exp_wgt, 1.0f, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
-
-	// graph name - "location preference network"
-	// agent x location
-	const Graph<float>& location_preference = graph_manager->load_optional(graph_names::loc_preference, 1.0f, agents, false, locations, false);
-
-	// graph name - "location medium access network"
-	// location x CommunicationMedium
-	const Graph<bool>& location_medium_access = graph_manager->load_optional(graph_names::loc_medium_access, true, locations, false, ns_manager->get_nodeset(nodeset_names::comm), false);
-
-	// graph name - "knowledge network"
-	// agent x knowledge
-	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
-
-	//graph name - "interaction knowledge weight network"
-	//agent x knowledge
-	const Graph<float>& knowledge_importance = graph_manager->load_optional(graph_names::interact_k_wgt, 1.0f, agents, false, knowledge, false);
-
-	//graph name - "agent location learning limit network"
-	//agent x location
-	const Graph<unsigned int>& loc_limit = graph_manager->load_optional(graph_names::loc_learning_limit, 1u, agents, false, locations, false);
-
-	//graph name - "agent active timperiod network"
-	//agent x timeperiod
-	const Graph<bool>& active = graph_manager->load_optional(graph_names::active, true, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
-
-	//graph name - "knowledge priority network"
-	//agent x knowledge
-	const Graph<float>& knowledge_priority_network = graph_manager->load_optional(graph_names::k_priority, 1.0f, agents, false, knowledge, false);
-
-	//graph name - "communication medium access network"
-	//agent x CommunicationMedium
-	const Graph<bool>& comm_access = graph_manager->load_optional(graph_names::comm_access, true, agents, false, ns_manager->get_nodeset(nodeset_names::comm), false);
-
-	//graph name - "communication medium preferences network"
-	//agent x CommunicationMedium
-	const Graph<float>& comm_medium_prefs = graph_manager->load_optional(graph_names::comm_pref, 1.0f, agents, false, ns_manager->get_nodeset(nodeset_names::comm), false);
-
-	//unsigned int agent_count;
-	//unsigned int location_count;
-	//unsigned int knowledge_count;
-	std::vector<unsigned int> _current_agent_locations;
-	std::vector<CommunicationMedium> communication_mediums;
-
-	Tasks* tasks = 0;
-
-	Location(Construct* construct);
-	void initialize(void);
-	void think(void);
-	void cleanup(void);
-
-	virtual float get_expertise(unsigned int agent, unsigned int location);
-	virtual const CommunicationMedium* get_medium(unsigned int agent);
-};
-
-
-class CONSTRUCT_LIB Mail : public Model
-{
-public:
-
-	//graph name - "agent mail usage by medium"
-	//agent x CommunicationMedium
-	Graph<float>& mail_pref = graph_manager->load_optional(graph_names::mail_usage, 1.0f, nodeset_names::agents, false, nodeset_names::comm, false);
-
-	//graph name - "mail check probability"
-	//agent x timeperiod
-	Graph<float>& mail_check_prob = graph_manager->load_optional(graph_names::mail_check_prob, 0.5f, nodeset_names::agents, false, nodeset_names::time, false);
-
-	std::vector<InteractionMessageQueue> mailboxes = std::vector<InteractionMessageQueue>(mail_pref.source_nodeset->size());
-
-	Mail(Construct* _construct) : Model(_construct, model_names::MAIL) {};
-
-	void update(void);
-};
-
-
-struct CONSTRUCT_LIB Subscription : public Model
-{
-	Subscription(Construct* _construct) : Model(_construct, model_names::SUB) {};
-
-
-	void think();
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup();
-
-	//graph name - "public propensity"
-	//agent x CommunicationMedium
-	const Graph<float>& public_propensity = graph_manager->load_optional(graph_names::propensity, 
-		0.01f, nodeset_names::agents, false, nodeset_names::comm, false);
-	//graph name - "subscription network"
-	//agent x agent
-	//if row,column element is true row is subscribed to column
-	Graph<bool>& subscriptions = graph_manager->load_optional(graph_names::subs, 
-		false, nodeset_names::agents, false, nodeset_names::agents, false);
-	//graph name - "subscription probability"
-	//agent x agent
-	const Graph<float>& sub_prob = graph_manager->load_optional(graph_names::sub_probability, 
-		0.01f, nodeset_names::agents, false, nodeset_names::agents, false);
-
-	InteractionMessageQueue public_queue;
-};
 

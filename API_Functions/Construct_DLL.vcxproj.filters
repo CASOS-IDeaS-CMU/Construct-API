@@ -27,11 +27,56 @@
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Template.h">
-      <Filter>Models</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Construct.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Beliefs.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Forget.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\GrandInteraction.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\KnowledgeLearningDifficulty.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\KnowledgeParsing.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\KnowledgeTransactiveMemory.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\KnowledgeTrust.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Location.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Mail.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\SocialMedia.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\StandardInteraction.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Subscription.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Tasks.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Output.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Template.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Emotions.h">
+      <Filter>Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -44,7 +89,7 @@
     <ClCompile Include="Supp_Library.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Template.cpp">
+    <ClCompile Include="..\include\Construct_Models\Template.cpp">
       <Filter>Models</Filter>
     </ClCompile>
   </ItemGroup>

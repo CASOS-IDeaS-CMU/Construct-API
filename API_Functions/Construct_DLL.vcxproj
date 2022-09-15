@@ -176,12 +176,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DEBUG;_DEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;_DEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\include\Construct_Models;$(ProjectDir)..\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251;4250</DisableSpecificWarnings>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -199,13 +199,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\include\Construct_Models;$(ProjectDir)..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4251;4250</DisableSpecificWarnings>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -224,13 +224,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;CONSTRUCTDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\include\Construct_Models;$(ProjectDir)..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4251;4250</DisableSpecificWarnings>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -245,12 +245,28 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Construct.h" />
+    <ClInclude Include="..\include\Construct_Models\Beliefs.h" />
+    <ClInclude Include="..\include\Construct_Models\Emotions.h" />
+    <ClInclude Include="..\include\Construct_Models\Forget.h" />
+    <ClInclude Include="..\include\Construct_Models\GrandInteraction.h" />
+    <ClInclude Include="..\include\Construct_Models\KnowledgeLearningDifficulty.h" />
+    <ClInclude Include="..\include\Construct_Models\KnowledgeParsing.h" />
+    <ClInclude Include="..\include\Construct_Models\KnowledgeTransactiveMemory.h" />
+    <ClInclude Include="..\include\Construct_Models\KnowledgeTrust.h" />
+    <ClInclude Include="..\include\Construct_Models\Location.h" />
+    <ClInclude Include="..\include\Construct_Models\Mail.h" />
+    <ClInclude Include="..\include\Construct_Models\SocialMedia.h" />
+    <ClInclude Include="..\include\Construct_Models\StandardInteraction.h" />
+    <ClInclude Include="..\include\Construct_Models\Subscription.h" />
+    <ClInclude Include="..\include\Construct_Models\Tasks.h" />
+    <ClInclude Include="..\include\Construct_Models\Template.h" />
+    <ClInclude Include="..\include\Output.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Supp_Library.h" />
-    <ClInclude Include="Template.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\Construct_Models\Template.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -261,7 +277,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Quiet|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Supp_Library.cpp" />
-    <ClCompile Include="Template.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
