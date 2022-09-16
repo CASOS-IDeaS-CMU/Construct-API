@@ -262,12 +262,14 @@
     <ClInclude Include="..\include\Construct_Models\Template.h" />
     <ClInclude Include="..\include\Output.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Infection.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Supp_Library.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\Construct_Models\Template.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Infection.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

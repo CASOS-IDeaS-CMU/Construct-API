@@ -78,6 +78,9 @@
     <ClInclude Include="..\include\Construct_Models\Emotions.h">
       <Filter>Models</Filter>
     </ClInclude>
+    <ClInclude Include="Infection.h">
+      <Filter>Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\include\Construct_Models\Template.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Infection.cpp">
       <Filter>Models</Filter>
     </ClCompile>
   </ItemGroup>

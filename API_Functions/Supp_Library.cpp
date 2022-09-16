@@ -12,6 +12,7 @@
 #include "Subscription.h"
 #include "KnowledgeTrust.h"
 #include "Emotions.h"
+#include "Infection.h"
 
 
 
@@ -35,6 +36,14 @@ namespace dynet {
 		//*    add your custom model here    *
 		//************************************
 
+		else if (model_name == "Infection v1 Model")
+			return new Infection_v1(construct);
+
+		else if (model_name == "Infection v2 Model")
+			return new Infection_v2(construct);
+
+		else if (model_name == "Standard Interaction Infection Model")
+			return new Infection_v3(parameters, construct);
 
 		else if (model_name == model_names::SIM)
 			return new StandardInteraction(parameters, construct);
