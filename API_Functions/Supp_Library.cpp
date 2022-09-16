@@ -12,6 +12,7 @@
 #include "Subscription.h"
 #include "KnowledgeTrust.h"
 #include "Emotions.h"
+#include "Interventions.h"
 
 
 
@@ -124,14 +125,36 @@ namespace dynet {
 void dynet::load_users(Social_Media_no_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_no_followers::default_media_user(media, node);
+
+		if (node->attributes->find("censored") != node->attributes->end())
+			media->users[node->index] = new Intervention1_nf(media, node);
+
+		else if (node->attributes->find("one time compell") != node->attributes->end())
+			media->users[node->index] = new Intervention2_nf(media, node);
+
+		else if (node->attributes->find("compell") != node->attributes->end())
+			media->users[node->index] = new Intervention3_nf(media, node);
+
+		else 
+			media->users[node->index] = new Social_Media_no_followers::default_media_user(media, node);
 	}
 }
 
 void dynet::load_users(Social_Media_with_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_with_followers::default_media_user(media, node);
+		if (node->attributes->find("censored") != node->attributes->end())
+			media->users[node->index] = new Intervention1(media, node);
+
+		else if (node->attributes->find("one time compell") != node->attributes->end())
+			media->users[node->index] = new Intervention2(media, node);
+
+		else if (node->attributes->find("compell") != node->attributes->end())
+			media->users[node->index] = new Intervention3(media, node);
+
+		else
+			media->users[node->index] = new Social_Media_with_followers::default_media_user(media, node);
+
 		media->Social_Media_no_followers::users[node->index] = media->users[node->index];
 	}
 }
