@@ -257,9 +257,37 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 		Model(_construct, "") {}
 
 	struct default_media_user : public Social_Media_with_followers::default_media_user, virtual public SM_nf_emotions::default_media_user {
+
 		default_media_user(SM_wf_emotions* _media, Nodeset::iterator node) :
 			Social_Media_with_followers::default_media_user(_media, node), 
 			SM_nf_emotions::default_media_user(_media, node) {}
+	
+		void read(media_event* _event) { Social_Media_with_followers::default_media_user::read(_event); }
+	
+		void reply(media_event* _event) { SM_nf_emotions::default_media_user::reply(_event); }
+
+		void quote(media_event* _event) { SM_nf_emotions::default_media_user::quote(_event); }
+
+		void repost(media_event* _event) { SM_nf_emotions::default_media_user::repost(_event); }
+
+		void generate_post_events(void) { SM_nf_emotions::default_media_user::generate_post_events(); }
+
+		unsigned int get_read_count(void) { return SM_nf_emotions::default_media_user::get_read_count(); }
+
+		virtual unsigned int get_knowledge_selection(void) { return SM_nf_emotions::default_media_user::get_knowledge_selection(); }
+
+        virtual void add_mentions(media_event* post) { Social_Media_with_followers::default_media_user::add_mentions(post); }
+
+        bool follow_user(unsigned int alter_agent_index) { return Social_Media_with_followers::default_media_user::follow_user(alter_agent_index); }
+
+        bool unfollow_user(unsigned int alter_agent_index) { return Social_Media_with_followers::default_media_user::unfollow_user(alter_agent_index); }
+
+        bool respond_to_follow(unsigned int alter_agent_index) { return Social_Media_with_followers::default_media_user::respond_to_follow(alter_agent_index); }
+
+        unsigned int consider_recommendations(void) { return Social_Media_with_followers::default_media_user::consider_recommendations(); }
+
+        float get_charisma() { return Social_Media_with_followers::default_media_user::get_charisma(); }
+
 	};
 	virtual void load_users() {
 		dynet::load_users(this);

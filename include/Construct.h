@@ -863,6 +863,47 @@ struct CONSTRUCT_LIB typeless_graph_iterator {
 template<typename link_type>
 class Graph;
 
+template<typename T>
+std::vector<T> operator+(const std::vector<T>& left, const std::vector<T>& right) {
+	assert(left.size() == right.size());
+	std::vector<T> ret(left.size());
+	for(unsigned int i=0; i<ret.size(); ++i) {
+		ret[i]=left[i]+right[i];
+	}
+	return ret;
+}
+
+template<typename T>
+std::map<unsigned int, T> operator+(const std::map<unsigned int, T>& left, const std::map<unsigned int, T>& right) {
+	std::map<unsigned int, T> ret;
+	auto lit = left.begin();
+	auto rit = right.begin();
+	while(lit != left.end() && rit != right.end()) {
+		if(lit->first < rit->first) {
+			ret[lit->first] = lit->second;
+			++lit;
+		}
+		else if (lit->first > rit->first) {
+			ret[rit->first] = rit->second;
+			++rit;
+		}
+		else {
+			ret[rit->first] = rit->second + lit->second;
+			++lit;
+			++rit;
+		}
+	}
+	while(lit != left.end()) {
+		ret[lit->first] = lit->second;
+		++lit;
+	}
+	while(rit != right.end()) {
+		ret[rit->first] = rit->second;
+		++rit;
+	}
+	return ret;
+}
+
 template<typename link_type>
 struct CONSTRUCT_LIB Transpose {
 	Graph<link_type>* g;
@@ -1093,7 +1134,7 @@ namespace graph_utils {
 			return ret;
 		}
 
-		template<class output = decltype(link_type()* link_type())>
+		template<class output = decltype(link_type() + link_type())>
 		output sum() const {
 			output ret = 0;
 			for (auto it = sparse_begin(0); it != end(); ++it) ret += *it;
@@ -1169,7 +1210,7 @@ namespace graph_utils {
 			return ret;
 		}
 
-		template<class output = decltype(link_type()* link_type())>
+		template<class output = decltype(link_type() + link_type())>
 		output sum() const {
 			output ret = 0;
 			for (auto it = sparse_begin(0); it != end(); ++it) ret += *it;
@@ -1200,7 +1241,6 @@ namespace graph_utils {
 	};
 
 }
-
 
 
 
@@ -1520,12 +1560,12 @@ public:
 		return *this;
 	}
 
-	template<class output = decltype(link_type() * link_type())>
+	template<class output = decltype(link_type() + link_type())>
 	output row_sum(unsigned int row_index) const {
 		return get_row(row_index).sum();
 	}
 
-	template<class output = decltype(link_type()* link_type())>
+	template<class output = decltype(link_type() + link_type())>
 	output col_sum(unsigned int col_index) const {
 		return get_col(col_index).sum();
 	}
