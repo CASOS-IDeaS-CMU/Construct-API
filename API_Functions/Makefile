@@ -74,7 +74,7 @@ SRC_DIR := .
 ADD_INC ?=
 
 # The location of the Construct Header
-CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
+CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include $(SRC_DIR)/../include/Construct_Models
 
 # The location of the static library that provides definitions for the declarations in the Construct Header
 IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)

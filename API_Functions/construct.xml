@@ -5,13 +5,14 @@
         <param name="verbose runtime" value="true"/>
     </construct_parameters>
     <models>
-        <model name="Twitter Interaction Model">
+        <model name="Twitter Emotion Interaction Model">
             <param name="interval time duration" value="1.0"/>
             <param name="maximum post inactivity" value="10.0"/>
         </model>
         <model name="Knowledge Trust Model">
             <param name="relax rate" value="0.2"/>
         </model>
+        <model name="Emotion Model"/>
     </models>
     <nodesets>
         <nodeset name="agent">
@@ -800,6 +801,11 @@
             <node name="time_8"/>
             <node name="time_9"/>
         </nodeset>
+        <nodeset name="emotion">
+            <generator type="constant">
+                <count value="8"/>
+            </generator>
+        </nodeset>
     </nodesets>
     <networks>
         <network default="0" edge_type="bool" name="knowledge network">
@@ -807,6 +813,38 @@
             <target nodeset="knowledge" representation="sparse"/>
             <generator type="random binary">
                 <param name="density" value="0.2"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="emotion network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="emotion" representation="dense"/>
+            <generator type="random uniform">
+                <param name="min" value="0.0"/>
+                <param name="max" value="1.0"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="first order emotion reading network">
+            <source nodeset="emotion" representation="dense"/>
+            <target nodeset="emotion" representation="dense"/>
+            <generator type="random uniform">
+                <param name="min" value="-0.1"/>
+                <param name="max" value="0.1"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="emotion regulation bias network">
+            <source nodeset="agent" representation="dense"/>
+            <target nodeset="emotion" representation="dense"/>
+            <generator type="random uniform">
+                <param name="min" value="-0.1"/>
+                <param name="max" value="0.1"/>
+            </generator>
+        </network>
+        <network default="0" edge_type="float" name="first order emotion regulation network">
+            <source nodeset="emotion" representation="dense"/>
+            <target nodeset="emotion" representation="dense"/>
+            <generator type="random uniform">
+                <param name="min" value="-0.1"/>
+                <param name="max" value="0.1"/>
             </generator>
         </network>
         <network default="0" edge_type="bool" name="twitter follower network">
@@ -828,7 +866,7 @@
     </networks>
     <outputs>
         <output type="dynetml">
-            <param name="network names" value="knowledge network,knowledge trust network,twitter follower network"/>
+            <param name="network names" value="knowledge network,knowledge trust network,twitter follower network,emotion network"/>
             <param name="output file" value="my_ouput.xml"/>
             <param name="timeperiods" value="all"/>
         </output>
