@@ -23,8 +23,6 @@ struct Infection_v1 : public Model {
 	// "infection network"
 	// agent x infection
 	Graph<bool>* infection_net;
-
-	Graph<float>* stance;
 };
 
 

@@ -30,16 +30,6 @@ Infection_v1::Infection_v1(Construct* _construct) : Model(_construct, "Infection
 
 void Infection_v1::think() {
 
-	auto agent_10_stance = stance->examine(10, construct->current_time);
-	stance->at(10, construct->current_time, !agent_10_stance);
-
-
-
-
-
-
-
-
 	// loop over all infections
 	for (auto infection = infection_net->begin_cols(); infection != infection_net->end_cols(); ++infection) {
 		// for each agent infected
