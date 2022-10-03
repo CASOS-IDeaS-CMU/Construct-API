@@ -22,10 +22,6 @@ Infection_v1::Infection_v1(Construct* _construct) : Model(_construct, "Infection
 	}
 
 	infection_net = this->graph_manager->load_required("infection network", agents, infections);
-
-	stance = graph_manager->load_optional("stance network", 0.0f, agents, false, ns_manager->get_nodeset(nodeset_names::time), false);
-
-	//graph_manager->hard_("stance network", agents, ns_manager->get_nodeset(nodeset_names::time), stance, this->name);
 }
 
 void Infection_v1::think() {
