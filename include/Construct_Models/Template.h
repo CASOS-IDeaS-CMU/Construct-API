@@ -10,7 +10,7 @@ public:
 	void initialize(void);
 	void think(void);
 	void update(void);
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 	void cleanup(void);
 };
 #endif

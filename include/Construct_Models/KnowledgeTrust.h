@@ -31,7 +31,7 @@ public:
 
 	void update(void);
 
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 
 	void cleanup(void);
 };

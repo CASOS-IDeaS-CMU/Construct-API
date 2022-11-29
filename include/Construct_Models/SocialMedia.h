@@ -2,7 +2,8 @@
 #define SOCIAL_MEDIA_HEADER_GUARD
 #include "pch.h"
 
-class Social_Media_no_followers;
+#ifdef CUSTOM_MEDIA_USERS
+struct Social_Media_no_followers;
 struct Social_Media_with_followers;
 
 //these functions are defined in Supp_Library.cpp
@@ -10,8 +11,9 @@ namespace dynet {
     void load_users(Social_Media_no_followers* media);
     void load_users(Social_Media_with_followers* media);
 }
+#endif
 
-class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
+struct CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
 {
 
 
@@ -20,7 +22,6 @@ class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
 
     //model parameter name who's value gets entered into Social_Media_with_followers::age
     const std::string maximum_post_inactivity = "maximum post inactivity";
-public:
 
     struct CONSTRUCT_LIB media_event {
 
@@ -152,7 +153,7 @@ public:
 
     struct CONSTRUCT_LIB default_media_user : public virtual media_user {
 
-        default_media_user(Social_Media_no_followers* _media, Nodeset::iterator node);
+        default_media_user(Social_Media_no_followers* _media, const Node& node);
 
         //the social media that this user is interacting with
         Social_Media_no_followers* media;
@@ -306,7 +307,13 @@ public:
     virtual ~Social_Media_no_followers();
 
     virtual void load_users() {
+#ifdef CUSTOM_MEDIA_USERS
         dynet::load_users(this);
+#else
+        for (auto node = agents->begin(); node != agents->end(); ++node) {
+            users[node->index] = new default_media_user(this, *node);
+        }
+#endif
     }
 
     //agents read events in their feeds starting with the first event
@@ -319,7 +326,7 @@ public:
 
     //only parses messages that have an attribute equal to Social_Media_no_followers::event_key for the feed position index corresponding to a media_event pointer
     //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
-    void communicate(InteractionMessageQueue::iterator msg);
+    void communicate(const InteractionMessage& msg);
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
     void cleanup(void);
@@ -358,7 +365,7 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
 
     struct CONSTRUCT_LIB default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
 
-        default_media_user(Social_Media_with_followers* _media, Nodeset::iterator node);
+        default_media_user(Social_Media_with_followers* _media, const Node& node);
 
         //the social media that this user is interacting with
         Social_Media_with_followers* media;
@@ -412,10 +419,17 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
 	Social_Media_with_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
 
     virtual void load_users() {
+#ifdef CUSTOM_MEDIA_USERS
         dynet::load_users(this);
+#else
+        for (auto node = agents->begin(); node != agents->end(); ++node) {
+            users[node->index] = new default_media_user(this, *node);
+            static_cast<Social_Media_no_followers*>(this)->users[node->index] = users[node->index];
+        }
+#endif
     }
 
-    void communicate(InteractionMessageQueue::iterator msg);
+    void communicate(const InteractionMessage& msg);
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
     void cleanup(void);

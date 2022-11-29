@@ -23,7 +23,7 @@ public:
 	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, sparse, time, sparse);
 
 	void initialize(void);
-	void cleanup(void);
+	void clean_up(void);
 
 	float get_additions(unsigned int agent_i, unsigned int agent_j);
 	float get_belief_sim(unsigned int agent_i, unsigned int agent_j);

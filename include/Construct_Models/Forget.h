@@ -33,7 +33,7 @@ struct CONSTRUCT_LIB Forget : public Model
 
 	Forget(Construct* construct);
 	void think(void);
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 	void cleanup(void);
 
 };

@@ -62,6 +62,7 @@ struct Output_Graph : public Output {
 		else if (str != "initial") throw dynet::unknown_value(timeperiods, str);
 
 		output_times.push_back(construct->time_count);
+		_next_output_time = output_times.begin();
 
 		for (Nodeset::iterator node = _graph->target_nodeset->begin(); node != _graph->target_nodeset->end(); ++node) {
 			_output_file << "," << node->name;

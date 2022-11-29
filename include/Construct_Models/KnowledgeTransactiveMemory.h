@@ -38,7 +38,7 @@ public:
 	KnowledgeTransactiveMemory(const dynet::ParameterMap& parameters, Construct* construct);
 	
 	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 	void cleanup();
 
 	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm);

@@ -84,14 +84,14 @@ struct CONSTRUCT_LIB Emotions : public Model
 	void update(void);
 
 	//parses the message for emotions and updates the receiver's emotions
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 
 	//each agent self-regulates their emotions using the emotion regulation networks
 	void cleanup(void);
 };
 
 #include "SocialMedia.h"
-
+#ifdef CUSTOM_MEDIA_USERS
 struct SM_nf_emotions;
 
 struct SM_wf_emotions;
@@ -101,7 +101,7 @@ namespace dynet {
 	void load_users(SM_nf_emotions* media);
 	void load_users(SM_wf_emotions* media);
 }
-
+#endif
 struct CONSTRUCT_LIB SM_nf_emotions : public virtual Social_Media_no_followers {
 	SM_nf_emotions(const std::string& _media_name, const dynet::ParameterMap& params, Construct* _construct) : 
 		Social_Media_no_followers(_media_name, params, _construct), Model(_construct,"") {}
@@ -109,12 +109,18 @@ struct CONSTRUCT_LIB SM_nf_emotions : public virtual Social_Media_no_followers {
 	const Nodeset* emotions = ns_manager->get_nodeset(nodeset_names::emotions);
 
 	virtual void load_users() {
+#ifdef CUSTOM_MEDIA_USERS
 		dynet::load_users(this);
+#else
+		for (auto node = agents->begin(); node != agents->end(); ++node) {
+			users[node->index] = new default_media_user(this, *node);
+		}
+#endif
 	}
 
 	struct CONSTRUCT_LIB default_media_user : public Social_Media_no_followers::default_media_user {
 
-		default_media_user(SM_nf_emotions* _media, Nodeset::iterator node) : 
+		default_media_user(SM_nf_emotions* _media, const Node& node) : 
 			Social_Media_no_followers::default_media_user(_media, node), media(_media) {}
 		SM_nf_emotions* media;
 
@@ -250,6 +256,7 @@ struct CONSTRUCT_LIB SM_nf_emotions : public virtual Social_Media_no_followers {
 };
 
 struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf_emotions {
+	
 	SM_wf_emotions(const std::string& _media_name, const dynet::ParameterMap& params, Construct* _construct) :
 		Social_Media_with_followers(_media_name, params, _construct),
 		Social_Media_with_followers::Social_Media_no_followers(_media_name, params, _construct),
@@ -258,7 +265,7 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 
 	struct default_media_user : public Social_Media_with_followers::default_media_user, virtual public SM_nf_emotions::default_media_user {
 
-		default_media_user(SM_wf_emotions* _media, Nodeset::iterator node) :
+		default_media_user(SM_wf_emotions* _media, const Node& node) :
 			Social_Media_with_followers::default_media_user(_media, node), 
 			SM_nf_emotions::default_media_user(_media, node) {}
 	
@@ -290,7 +297,14 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 
 	};
 	virtual void load_users() {
+#ifdef CUSTOM_MEDIA_USERS
 		dynet::load_users(this);
+#else 
+		for (auto node = agents->begin(); node != agents->end(); ++node) {
+			Social_Media_with_followers::users[node->index] = new default_media_user(this, *node);
+			Social_Media_no_followers::users[node->index] = Social_Media_with_followers::users[node->index];
+		}
+#endif
 	}
 };
 

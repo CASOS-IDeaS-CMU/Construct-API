@@ -12,7 +12,7 @@ public:
 
 	KnowledgeParsing(Construct* _construct) : Model(_construct, model_names::KPARSE) {}
 
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 };
 #endif
 

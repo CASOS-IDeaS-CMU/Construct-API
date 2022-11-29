@@ -7,7 +7,7 @@ struct CONSTRUCT_LIB Subscription : public Model
 	Subscription(Construct* _construct) : Model(_construct, model_names::SUB) {};
 
 	void think();
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 	void cleanup();
 
 	//graph name - "public propensity"

@@ -300,7 +300,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	comms->check_attributes<unsigned int>(comms_att::tts);
 	auto medium_node = comms->begin();
 
-	CommunicationMedium medium(medium_node);
+	CommunicationMedium medium(*medium_node);
 
 	//A custom CommunicationMedium can be created with all the relevant attribute information
 	std::string comm_name = "medium name";
@@ -379,6 +379,6 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 void Template::initialize(void) {}
 void Template::think(void) {}
 void Template::update(void) {}
-void Template::communicate(InteractionMessageQueue::iterator msg) {}
+void Template::communicate(const InteractionMessage& msg) {}
 void Template::cleanup() {}
 

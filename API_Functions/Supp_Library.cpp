@@ -1,4 +1,3 @@
-
 #include "pch.h" 
 #include "Supp_Library.h"
 #include "Output.h"
@@ -124,27 +123,27 @@ namespace dynet {
 void dynet::load_users(Social_Media_no_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_no_followers::default_media_user(media, node);
+		media->users[node->index] = new Social_Media_no_followers::default_media_user(media, *node);
 	}
 }
 
 void dynet::load_users(Social_Media_with_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_with_followers::default_media_user(media, node);
+		media->users[node->index] = new Social_Media_with_followers::default_media_user(media, *node);
 		media->Social_Media_no_followers::users[node->index] = media->users[node->index];
 	}
 }
 
 void dynet::load_users(SM_nf_emotions* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
-		media->users[node->index] = new SM_nf_emotions::default_media_user(media, node);
+		media->users[node->index] = new SM_nf_emotions::default_media_user(media, *node);
 	}
 }
 
 void dynet::load_users(SM_wf_emotions* media) {
 	for (auto node = media->Social_Media_no_followers::agents->begin(); node != media->Social_Media_no_followers::agents->end(); ++node) {
-		media->Social_Media_with_followers::users[node->index] = new SM_wf_emotions::default_media_user(media, node);
+		media->Social_Media_with_followers::users[node->index] = new SM_wf_emotions::default_media_user(media, *node);
 		media->Social_Media_no_followers::users[node->index] = media->Social_Media_with_followers::users[node->index];
 	}
 }

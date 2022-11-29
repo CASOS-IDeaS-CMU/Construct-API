@@ -72,7 +72,7 @@ public:
 
 	GrandInteraction(const dynet::ParameterMap& parameters, Construct* construct);
 	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator msg);
+	void communicate(const InteractionMessage& msg);
 	void cleanup(void);
 
 	//see Beliefs::think for why these functions are here

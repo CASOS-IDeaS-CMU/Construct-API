@@ -49,17 +49,19 @@
 #include <unordered_set>
 
 
-#if defined WIN32 || defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
+//#if defined WIN32 || defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
+//
+//#ifdef CONSTRUCTDLL_EXPORTS
+//	#define CONSTRUCT_LIB __declspec(dllimport)
+//#else
+//	#define CONSTRUCT_LIB __declspec(dllexport)
+//#endif
+//
+//#else
+//	#define CONSTRUCT_LIB
+//#endif
 
-#ifdef CONSTRUCTDLL_EXPORTS
-	#define CONSTRUCT_LIB __declspec(dllimport)
-#else
-	#define CONSTRUCT_LIB __declspec(dllexport)
-#endif
-
-#else
-	#define CONSTRUCT_LIB
-#endif
+#define CONSTRUCT_LIB
 
 
 namespace dynet
@@ -265,7 +267,7 @@ namespace dynet
 	public:
 		Type_Interface(unsigned int data) { _data = data; }
 		operator bool() const noexcept { return (bool)_data; }
-		operator int() const noexcept { return (int)_data; }
+		operator int() const;
 		operator unsigned() const noexcept { return _data; }
 		operator float() const noexcept { return (float)_data; }
 		operator std::string() const;
@@ -324,6 +326,7 @@ namespace dynet
 	extern ostream_wrapper cout;
 }
 #include <random>
+#include <time.h>
 
 
 class CONSTRUCT_LIB Random
@@ -332,11 +335,14 @@ class CONSTRUCT_LIB Random
 
 	//Constructor is kept private so that only Construct has access to it.
 	//This will prevent models from creating their own instance.
-	Random() { ; }
-	std::default_random_engine generator;
+	Random() : generator(seed) { ; }
 	~Random() { ; }
-
 public:
+	unsigned int seed = time(nullptr);
+private:
+	std::default_random_engine generator;
+public:
+
 	/*<summary> Sets the random number generator seed. </summary>*/
 	void set_seed(unsigned int seed) noexcept;
 
@@ -356,7 +362,7 @@ public:
 	bool randombool(float probability = .5);
 
 	//samples from a normal distribution
-	float normal(float mean, float variance);
+	float normal(float mean, float standard_deviation);
 
 	//samples from an exoponential distribution
 	float exponential(float mean);
@@ -459,11 +465,13 @@ public:
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	bool add_node(const dynet::ParameterMap* attributes);
+	void add_node(const dynet::ParameterMap& attributes);
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	bool add_node(const std::string& node_name, const dynet::ParameterMap* attributes);
+	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes);
+
+	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes);
 
 	const Node* get_node_by_index(unsigned int index) const;
 
@@ -546,7 +554,7 @@ struct CONSTRUCT_LIB CommunicationMedium
 	const bool valid;
 
 	//Constructor that uses a Nodeset iterator that points to a node in the "medium" nodeset
-	CommunicationMedium(Nodeset::iterator node);
+	CommunicationMedium(const Node& node);
 
 	//Constructor that sets each member variable explicitly
 	CommunicationMedium(const std::string& name, unsigned int medium_node_index,
@@ -608,15 +616,15 @@ struct CONSTRUCT_LIB InteractionItem
 
 	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
-	bool get_knowledge_item(unsigned int& knowledge_index);
+	bool get_knowledge_item(unsigned int& knowledge_index) const;
 
-	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent);
+	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent) const;
 
-	bool get_belief_item(unsigned int& belief_index, float& belief_value);
+	bool get_belief_item(unsigned int& belief_index, float& belief_value) const;
 
-	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value);
+	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value) const;
 
-	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust);
+	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust) const;
 
 	void clear(void) noexcept;
 
@@ -666,17 +674,16 @@ public:
 		const CommunicationMedium* _medium,
 		const std::vector<InteractionItem>& interactionItems = std::vector<InteractionItem>());
 
-	
 
-	iterator begin(void) noexcept {return items.begin();}
+	iterator begin(void) noexcept { return items.begin(); }
 
-	iterator end(void) noexcept {return items.end();}
+	iterator end(void) noexcept { return items.end(); }
 
-	const_iterator begin(void) const noexcept {return items.begin();}
-	
-	const_iterator end(void) const noexcept {return items.end();}
+	const_iterator begin(void) const noexcept { return items.begin(); }
 
-	unsigned int size() noexcept {return (unsigned int)items.size();}
+	const_iterator end(void) const noexcept { return items.end(); }
+
+	unsigned int size() noexcept { return (unsigned int)items.size(); }
 
 	iterator erase(iterator itr) noexcept;
 
@@ -760,7 +767,7 @@ public:
 
 
 protected:
-	Typeless_Graph(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, edge_types edge);
+	Typeless_Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const std::string& network_name, edge_types edge);
 public:
 
 	template<typename T>
@@ -788,6 +795,12 @@ public:
 	const unsigned int col_size;
 
 	const edge_types edge_type;
+
+//whether the data for each column is stored in an array or tree
+	const bool col_dense;
+
+	//whether the data for each row is stored in an array or tree
+	const bool row_dense;
 };
 
 
@@ -1082,6 +1095,8 @@ namespace graph_utils {
 
 		const_full_row_iterator<link_type> full_begin(void) const;
 
+		const_full_row_iterator<link_type> begin() const { return full_begin(); }
+
 		const_sparse_row_iterator<link_type> sparse_begin(const link_type& data) const;
 
 		typeless_graph_iterator end(void) const;
@@ -1160,6 +1175,8 @@ namespace graph_utils {
 		using const_row_begin_iterator<link_type>::const_row_begin_iterator;
 		full_row_iterator<link_type> full_begin(void);
 
+		full_row_iterator<link_type> begin(void) { return full_begin(); }
+
 		sparse_row_iterator<link_type> sparse_begin(const link_type& data);
 	};
 
@@ -1171,6 +1188,8 @@ namespace graph_utils {
 		unsigned int operator*(void) const;
 
 		const_full_col_iterator<link_type> full_begin(void) const;
+
+		const_full_col_iterator<link_type> begin(void) const { return full_begin(); }
 
 		const_sparse_col_iterator<link_type> sparse_begin(const link_type& data) const;
 
@@ -1236,6 +1255,8 @@ namespace graph_utils {
 		using const_col_begin_iterator<link_type>::const_col_begin_iterator;
 
 		full_col_iterator<link_type> full_begin(void);
+
+		full_col_iterator<link_type> begin(void) { return full_begin(); }
 
 		sparse_col_iterator<link_type> sparse_begin(const link_type& data);
 	};
@@ -1303,23 +1324,6 @@ public:
 	//if an element is not held in memory, it is assumed that element equals this value
 	const link_type def_val;
 
-	//whether the data for each column is stored in an array or tree
-	const bool col_dense;
-
-	//whether the data for each row is stored in an array or tree
-	const bool row_dense;
-
-	
-
-
-
-
-
-
-
-
-
-
 
 	//returns a reference to the element
 	virtual link_type& at(unsigned int row, unsigned int col) = 0;
@@ -1332,6 +1336,15 @@ public:
 
 	//sets all elements to the submitted value
 	virtual void clear(const link_type& data) noexcept = 0;
+
+	template<typename Callable>
+	void examine_all_links(Callable lambda) {
+		for (auto row = begin_rows(); row != end_rows(); ++row) {
+			for (auto it = row.full_begin(); it != row.end(); ++it) {
+				lambda(*it);
+			}
+		}
+	}
 
 	template<typename Callable>
 	void apply_operation(Callable lambda) {
@@ -1573,9 +1586,8 @@ public:
 
 
 
-class CONSTRUCT_LIB Graph_Intermediary {
+struct CONSTRUCT_LIB Graph_Intermediary {
 	Typeless_Graph* ptr;
-public:
 
 	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
 	void check_ptr() const;
@@ -3590,7 +3602,7 @@ struct CONSTRUCT_LIB Model
 
 	virtual void update(void);
 
-	virtual void communicate(InteractionMessageQueue::iterator msg);
+	virtual void communicate(const InteractionMessage& msg);
 
 	virtual void cleanup(void);
 
@@ -3673,7 +3685,7 @@ class CONSTRUCT_LIB ModelManager
 
 	void UpdateAllModels(bool verbose_runtime);
 
-	void CommunicateAllModels(InteractionMessageQueue::iterator& msg);
+	void CommunicateAllModels(const InteractionMessage& msg);
 
 	void CleanUpAllModels(bool verbose_runtime);
 
@@ -3716,7 +3728,6 @@ class CONSTRUCT_LIB OutputManager {
 
 	~OutputManager(void);
 public:
-	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
 	void add_output(Output* output) noexcept;
 };
