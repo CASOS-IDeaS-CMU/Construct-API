@@ -1,13 +1,13 @@
 #Author: Stephen Dipple
 #Last Updated: 11/29/22
 
-# This makefile is used to create an executable using the Construct API.
-# By default this makefile will produce the debug version of the executable.
+# This makefile is used to create shared libraries used in the Construct API.
+# By default this makefile will produce the debug version of the shared library.
 # To change this configuration use one of the following targets.
 
 # debug	  -Same as default
-# quiet	  -Compiles the executable with the QUIET and NDEBUG preprocessor flag
-# release -Compiles the executable with the NDEBUG preprocessor flag
+# quiet	  -Compiles the library with the QUIET and NDEBUG preprocessor flag
+# release -Compiles the library with the NDEBUG preprocessor flag
 
 # A complimentary set of targets is used to clean up their respective configurations
 # clean_debug
@@ -34,8 +34,9 @@
 # In addition, the Makefile will add any preprocessor flags from the CXXFLAGS variable.
 # These are added to configuration dependent preprocessor flags during compliation.
 # The elements of this variable should be exactly as they appear in the source files.
-# Libraries can be included via the EXE_OPTIONS and OBJECT_OPTIONS variables.
-# These are used verbatim in the compiler so be sure to use -l -L or -I to include paths/files.
+# Libraries can be included via the EXE_OPTIONS and OBJECT_OPTIONS variables
+# These are used verbatim in the compiler so be sure to use -l -L or -I to include paths/files 
+# The Construct exes require a specific naming convention, which is also handled by this Makefile.
 
 
 
@@ -73,10 +74,17 @@ SRC_DIR := .
 ADD_INC ?=
 
 # The location of the Construct Header
-CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include $(SRC_DIR)/../include/Construct_Models
+CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
 
 # The location of the static library that provides definitions for the declarations in the Construct Header
 IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
+
+
+# The location of the Construct Models
+CONSTRUCT_MODELS_DIR = $(CONSTRUCT_HEADER_DIR)/Construct_Models
+
+# The name of the output executable. Exe gets output to $(UNAME_S)/$(CONFIG)
+EXE_OUT := construct
 
 
 CXX = g++ -g -std=c++20
@@ -103,7 +111,7 @@ CXX = g++ -g -std=c++20
 
 .PHONY: clean debug quiet release clean_debug clean_quiet clean_release FORCE
 
-override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR)
+override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR) $(CONSTRUCT_MODELS_DIR)
 
 debug: export CONFIG = Debug
 debug: export CONFIG_FLAGS = DEBUG
@@ -117,7 +125,7 @@ debug:
 
 # the quiet configuration will silence any runtime console output, but will still output errors
 quiet: export CONFIG = Quiet
-quiet: export CONFIG_FLAGS = QUIET NDEBUG
+quiet: export CONFIG_FLAGS = QUIET NDEBUG 
 
 # You can't have a command in a target when defining a local variable.
 quiet:
@@ -148,25 +156,13 @@ clean_release:
 # Directory that holds the corresponding library and exe
 # Also holds intermediary object files
 API_OUT_DIR ?= $(SRC_DIR)/$(UNAME_S)/$(CONFIG)
-API_OUT = $(API_OUT_DIR)/lib$(API_LIB).$(LIB_EXT)
+API_OUT = $(API_OUT_DIR)/$(EXE_OUT)
 
-API_LIB ?= constructAPI
 IMPORT_LIB ?= construct
 
 #this makefile can work with either linux or mac
 #this handles the differences in extensions
 UNAME_S = $(shell uname -s)
-
-# figures out the correct options and extensions for the operating system
-ifeq ($(UNAME_S),Linux)
-SHARED_OPTION = -shared
-LIB_EXT = so 
-endif
-
-ifeq ($(UNAME_S),Darwin)
-SHARED_OPTION = -dynamiclib
-LIB_EXT = dylib
-endif
 
 # Adds -D to the beginning of each preprocessor flag
 override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS))
@@ -183,12 +179,12 @@ override SRC_OBJ = $(patsubst %.cpp, $(API_OUT_DIR)/%.o, $(SRC_CPP))
 
 # Combines all the options required to create the shared library.
 # This included the -shared/-dynamiclib option, the Construct shared library and its dir.
-override SHARED_LIB_OPTIONS := $(SHARED_OPTION) -L$(IMPORT_LIB_DIR) -l$(IMPORT_LIB) 
+override API_LIB_OPTIONS := -L$(IMPORT_LIB_DIR) -l$(IMPORT_LIB) 
 
 
 # creates the shared library for the API
-%/lib$(API_LIB).$(LIB_EXT): $(SRC_OBJ) $(SRC_HED) $(IMPORT_LIB_DIR)/lib$(IMPORT_LIB).a
-	$(CXX) $(LINKER_OPTIONS) $(SRC_OBJ) $(SHARED_LIB_OPTIONS) -o $@ $(MACROS)
+%/$(EXE_OUT): $(SRC_OBJ) $(SRC_HED) $(IMPORT_LIB_DIR)/lib$(IMPORT_LIB).a
+	$(CXX) $(LINKER_OPTIONS) $(SRC_OBJ) $(API_LIB_OPTIONS) -o $@ $(MACROS)
 	
 
 #this is needed to do the recursive search for the specified cpp and h files in build/%.o
@@ -200,12 +196,12 @@ override SHARED_LIB_OPTIONS := $(SHARED_OPTION) -L$(IMPORT_LIB_DIR) -l$(IMPORT_L
 # we have to search for the cpp file which is what this shell command does
 # it only searches files in this directory so as to make sure other files aren't accidently used
 $(API_OUT_DIR)/%.o: $$(shell find .. -name $$*.cpp)
-	$(CXX) -c -fPIC $(OBJECT_OPTIONS) $(INC_DIR) $< -o $@ $(MACROS)
+	$(CXX) -c $(OBJECT_OPTIONS) $(INC_DIR) $< -o $@ $(MACROS)
 
 
 	
 clean:
 	-rm -f $(API_OUT_DIR)/*.o 
-	-rm $(API_OUT_DIR)/lib$(API_LIB).$(LIB_EXT)
+	-rm $(API_OUT_DIR)/$(EXE_OUT)
 
 
