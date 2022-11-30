@@ -3,7 +3,6 @@
 #include "StandardInteraction.h"
 
 int main() {
-	srand(time(NULL));
 	Construct construct;
 
 	// Construct parameters used by various components of Construct
