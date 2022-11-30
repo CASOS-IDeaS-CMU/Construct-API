@@ -73,11 +73,13 @@ SRC_DIR := .
 ADD_INC ?=
 
 # The location of the Construct Header
-CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include $(SRC_DIR)/../include/Construct_Models
+CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
 
 # The location of the static library that provides definitions for the declarations in the Construct Header
 IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
 
+# The location of the Construct Models
+CONSTRUCT_MODELS_DIR = $(CONSTRUCT_HEADER_DIR)/Construct_Models
 
 CXX = g++ -g -std=c++20
 # end user defined variables
@@ -103,7 +105,7 @@ CXX = g++ -g -std=c++20
 
 .PHONY: clean debug quiet release clean_debug clean_quiet clean_release FORCE
 
-override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR)
+override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR) $(CONSTRUCT_MODELS_DIR)
 
 debug: export CONFIG = Debug
 debug: export CONFIG_FLAGS = DEBUG
@@ -169,7 +171,7 @@ LIB_EXT = dylib
 endif
 
 # Adds -D to the beginning of each preprocessor flag
-override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS))
+override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_MEDIA_USERS
 
 # Adds -I to the beginning of each include directory
 override INC_DIR += $(patsubst %, -I%, $(INC) $(ADD_INC))

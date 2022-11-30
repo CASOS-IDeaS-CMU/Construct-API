@@ -83,6 +83,13 @@ IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
 EXE_OUT := construct
 
 
+# The location of the Construct Models
+CONSTRUCT_MODELS_DIR = $(CONSTRUCT_HEADER_DIR)/Construct_Models
+
+# The name of the output executable. Exe gets output to $(UNAME_S)/$(CONFIG)
+EXE_OUT := construct
+
+
 CXX = g++ -g -std=c++20
 # end user defined variables
 
@@ -107,7 +114,7 @@ CXX = g++ -g -std=c++20
 
 .PHONY: clean debug quiet release clean_debug clean_quiet clean_release FORCE
 
-override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR)
+override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR) $(CONSTRUCT_MODELS_DIR)
 
 debug: export CONFIG = Debug
 debug: export CONFIG_FLAGS = DEBUG
