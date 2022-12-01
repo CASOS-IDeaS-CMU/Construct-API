@@ -13,6 +13,7 @@
 /Custom_Construct/Darwin/Debug/*
 /Custom_Construct/Darwin/Quiet/*
 /Custom_Construct/Darwin/Release/*
+.DS_Store
 *.exp
 *.ilk
 *.pch
