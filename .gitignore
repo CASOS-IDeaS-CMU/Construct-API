@@ -4,7 +4,16 @@
 
 /API_Functions/.vs/*
 /Custom_Construct/.vs/*
-/Custom_Construct/x64/*
+/Custom_Construct/x64/Debug/*
+/Custom_Construct/x64/Quiet/*
+/Custom_Construct/x64/Release/*
+/Custom_Construct/Linux/Debug/*
+/Custom_Construct/Linux/Quiet/*
+/Custom_Construct/Linux/Release/*
+/Custom_Construct/Darwin/Debug/*
+/Custom_Construct/Darwin/Quiet/*
+/Custom_Construct/Darwin/Release/*
+.DS_Store
 *.exp
 *.ilk
 *.pch
@@ -19,6 +28,12 @@
 *.dll
 *.recipe
 *.tlog
-/API_Functions/x64/Debug/libconstructAPI.lib
-/API_Functions/x64/Quiet/libconstructAPI.lib
-/API_Functions/x64/Release/libconstructAPI.lib
+/API_Functions/x64/Debug/libconstructAPI.dll
+/API_Functions/x64/Quiet/libconstructAPI.dll
+/API_Functions/x64/Release/libconstructAPI.dll
+/API_Functions/Linux/Debug/libconstructAPI.so
+/API_Functions/Linux/Quiet/libconstructAPI.so
+/API_Functions/Linux/Release/libconstructAPI.so
+/API_Functions/Darwin/Debug/libconstructAPI.dylib
+/API_Functions/Darwin/Quiet/libconstructAPI.dylib
+/API_Functions/Darwin/Release/libconstructAPI.dylib
