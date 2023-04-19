@@ -334,6 +334,8 @@ struct CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
     //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
     virtual void append_message(media_event* _event, InteractionMessage& msg);
 
+    virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
+
     //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
     //events are ordered by direct replies or mentions, events of followers, and all other events
     //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
@@ -450,13 +452,32 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
     virtual void update_feeds(void);
 };
 
-struct CONSTRUCT_LIB Facebook : public virtual Social_Media_with_followers {
-    Facebook(const dynet::ParameterMap& parameters, Construct* construct);
+struct CONSTRUCT_LIB Facebook_wf : public virtual Social_Media_with_followers {
+    Facebook_wf(const dynet::ParameterMap& parameters, Construct* construct);
+
+    void initialize() {
+        add_base_model_to_model_manager(model_names::FB_nf);
+        Social_Media_with_followers::initialize();
+    }
 };
 
 
-struct CONSTRUCT_LIB Twitter : public virtual Social_Media_with_followers {
-    Twitter(const dynet::ParameterMap& parameters, Construct* construct);
+struct CONSTRUCT_LIB Twitter_wf : public virtual Social_Media_with_followers {
+    Twitter_wf(const dynet::ParameterMap& parameters, Construct* construct);
+
+    void initialize() {
+        add_base_model_to_model_manager(model_names::TWIT_nf);
+        Social_Media_with_followers::initialize();
+    }
+};
+
+struct CONSTRUCT_LIB Facebook_nf : public virtual Social_Media_no_followers {
+    Facebook_nf(const dynet::ParameterMap& parameters, Construct* construct);
+};
+
+
+struct CONSTRUCT_LIB Twitter_nf : public virtual Social_Media_no_followers {
+    Twitter_nf(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
 // TWITTER_SIM_HH_H

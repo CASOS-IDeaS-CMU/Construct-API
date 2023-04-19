@@ -2,13 +2,8 @@
 #define TRUST_HEADER_GUARD
 #include "pch.h"
 
-class CONSTRUCT_LIB KnowledgeTrust : public Model
+struct CONSTRUCT_LIB Trust : public Model
 {
-	const std::string relax_rate = "relax rate";
-public:
-
-	float rr;
-
 	//graph name - "knowledge network"
 	//agent x knowledge
 	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, nodeset_names::agents, nodeset_names::knowledge);
@@ -23,9 +18,25 @@ public:
 	Graph<std::map<unsigned int, float> >& kttm = graph_manager->load_optional(graph_names::kttm, std::map<unsigned int, float>(),
 		nodeset_names::agents, dense, nodeset_names::agents, sparse, nodeset_names::knowledge);
 
+	//graph name - "agent trust network"
+	//agent x agnet
+	Graph<float>& agent_trust_net = graph_manager->load_optional(graph_names::agent_trust, 0.0f,
+		nodeset_names::agents, dense, nodeset_names::agents, sparse);
+
+	//graph name - "knowledge trust resistance"
+	//agent x knowledge
+	const Graph<float>& knowledge_trust_resistance = graph_manager->load_optional(graph_names::ktrust_resist, 1.0f,
+		nodeset_names::agents, sparse, nodeset_names::knowledge, sparse);
+
+	//produced from agent node attribute "agent trust resistance"
+	std::vector<float> agent_trust_resistance;
+
+	//produced from agent node attribute "alter trust weight"
+	std::vector<float> alter_trust_weight;
+
 	
 
-	KnowledgeTrust(const dynet::ParameterMap& parameters, Construct* construct);
+	Trust(const dynet::ParameterMap& parameters, Construct* construct);
 
 	void initialize(void);
 

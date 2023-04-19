@@ -414,6 +414,8 @@ namespace node_attributes {
 	const std::string receive_beliefsTM = "can receive beliefTM";		//"can receive beliefTM"
 	const std::string influence			= "influence";					//"influence"
 	const std::string susceptiblity		= "susceptiblity";				//"susceptiblity"
+	const std::string send_e			= "can send emotion";			//"can send emotion"
+	const std::string recv_e			= "can receive emotion";		//"can receive emotion"
 
 	//These node attributes have prefixes that precede their name
 	//See the class media_user
@@ -580,6 +582,12 @@ struct CONSTRUCT_LIB InteractionItem
 		emotion
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
+		//added items should be added to the item_names data structure
+
+
+
+
+		//item_key list should not exceed 100 as this is reserved for the emotion nodeset
 	};
 
 
@@ -682,6 +690,10 @@ public:
 	const_iterator begin(void) const noexcept { return items.begin(); }
 
 	const_iterator end(void) const noexcept { return items.end(); }
+
+	InteractionItem& front(void) { return items.front(); }
+
+	InteractionItem& back(void) { return items.back(); }
 
 	unsigned int size() noexcept { return (unsigned int)items.size(); }
 
@@ -1626,6 +1638,21 @@ struct CONSTRUCT_LIB Graph_Intermediary {
 
 namespace graph_utils {
 	
+	template<typename T>
+	void check_range(const Graph<T>& graph, const T& lower_bound, const T& upper_bound) {
+		for (auto row = graph.begin_rows(); row != graph.end_rows(); ++row) {
+			for (auto it = row.full_begin(); it != row.end(); ++it) {
+				if (*it < lower_bound) {
+					throw dynet::construct_exception(graph.name + " has an element at [" + std::to_string(it.row()) + "," + std::to_string(it.col()) + "]" 
+						+ " that is below the lower bound of " + (std::string)dynet::convert(lower_bound));
+				}
+				else if (*it > upper_bound) {
+					throw dynet::construct_exception(graph.name + " has an element at [" + std::to_string(it.row()) + "," + std::to_string(it.col()) + "]"
+						+ " that is above the upper bound of " + (std::string)dynet::convert(upper_bound));
+				}
+			}
+		}
+	}
 
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
@@ -3372,6 +3399,7 @@ namespace graph_names {
 	const std::string loc_preference       = "agent location preference network";                // "agent location preference network"
 	const std::string mail_usage           = "agent mail usage by medium network";               // "agent mail usage by medium network"
 	const std::string recep_count          = "agent reception count network";                    // "agent reception count network"
+	const std::string agent_trust		   = "agent trust network";								 // "agent trust network"
 	const std::string b_k_wgt              = "belief knowledge weight network";                  // "belief knowledge weight network"
 	const std::string belief_msg_complex   = "belief message complexity network";                // "belief message complexity network"
 	const std::string beliefs              = "belief network";                                   // "belief network"
@@ -3391,11 +3419,12 @@ namespace graph_names {
 	const std::string k_diff               = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
 	const std::string k_msg_complex        = "knowledge message complexity network";             // "knowledge message complexity network"
 	const std::string knowledge            = "knowledge network";                                // "knowledge network"
-	const std::string k_trust	           = "knowledge trust network";							 // "knowledge trust network"
 	const std::string k_priority           = "knowledge priority network";                       // "knowledge priority network"
 	const std::string k_sim_wgt            = "knowledge similarity weight network";              // "knowledge similarity weight network"
 	const std::string k_strength           = "knowledge strength network";                       // "knowledge strength network"
 	const std::string ktm                  = "knowledge transactive memory network";			 // "knowledge transactive memory network"
+	const std::string k_trust			   = "knowledge trust network";							 // "knowledge trust network"
+	const std::string ktrust_resist		   = "knowledge trust resistance network";				 // "knowledge trust resistance network"
 	const std::string learnable_k          = "learnable knowledge network";                      // "learnable knowledge network"
 	const std::string loc_knowledge	       = "location knowledge network";                       // "location knowledge network"
 	const std::string loc_learning_limit   = "location learning limit network";                  // "location learning limit network"
@@ -3609,11 +3638,17 @@ struct CONSTRUCT_LIB Model
 	const std::string name;
 
 	bool valid;
+
+	void add_base_model_to_model_manager(const std::string& base_model_name);
 };
 
 
-struct CONSTRUCT_LIB PlaceHolder : virtual public Model {
-	PlaceHolder(const std::string& model_name) : Model(model_name) { ; }
+struct Inheritence_Wrapper : virtual public Model {
+	Model* wrapped_model;
+
+	Inheritence_Wrapper(Model* model, const std::string& model_name) : Model(model_name) {
+		wrapped_model = model;
+	}
 };
 
 
@@ -3635,14 +3670,26 @@ namespace model_names {
 	
 	//"Location Interaction Model"
 	const std::string LOC		= "Location Interaction Model";
-	//"Twitter Interaction Model"
-	const std::string TWIT		= "Twitter Interaction Model";
-	//"Facebook Interaction Model"
-	const std::string FB		= "Facebook Interaction Model";
-	const std::string TWIT_nf_emot = "Twitter Emotion Interaction Model no followers";
-	const std::string TWIT_wf_emot = "Twitter Emotion Interaction Model";
-	const std::string FB_nf_emot = "Facebook Emotion Interaction Model no followers";
-	const std::string FB_wf_emot = "Facebook Emotion Interaction Model";
+
+
+	//Social Media Models
+
+	//"Twitter Model"
+	const std::string TWIT_nf	= "Twitter Model";
+	//"Twitter Follower Model"
+	const std::string TWIT_wf	= "Twitter Follower Model";
+	//"Twitter Emotion Model"
+	const std::string TWIT_nf_emot = "Twitter Emotion Model";
+	//"Twitter Emotion Follower Model"
+	const std::string TWIT_wf_emot = "Twitter Emotion Follower Model";
+	//"Facebook Model"
+	const std::string FB_nf		= "Facebook Model";
+	//"Facebook Follower Model"
+	const std::string FB_wf		= "Facebook Follower Model";
+	//"Facebook Emotion Model"
+	const std::string FB_nf_emot = "Facebook Emotion Model";
+	//"Facebook Emotion Follower Model"
+	const std::string FB_wf_emot = "Facebook Emotion Follower Model";
 
 	//Modification Models
 
@@ -3659,7 +3706,7 @@ namespace model_names {
 	//"Subscription Model"
 	const std::string SUB		= "Subscription Model";
 	//"Knowledge Trust Parsing Model"
-	const std::string TRUST		= "Knowledge Trust Model";
+	const std::string TRUST		= "Trust Model";
 
 	//Parsing Models
 

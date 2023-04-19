@@ -59,12 +59,12 @@ namespace dynet {
 			return new Mail(construct);
 
 		//Fully tested - 7/26/21 : I'm constantly working on this model however.
-		else if (model_name == model_names::TWIT)
-			return new Twitter(parameters, construct);
+		else if (model_name == model_names::TWIT_wf)
+			return new Twitter_wf(parameters, construct);
 
 		//Same as above
-		else if (model_name == model_names::FB)
-			return new Facebook(parameters, construct);
+		else if (model_name == model_names::FB_wf)
+			return new Facebook_wf(parameters, construct);
 
 		//Fully tested - 7/20/21
 		else if (model_name == model_names::BELIEF)
@@ -78,7 +78,7 @@ namespace dynet {
 			return new GrandInteraction(parameters, construct);
 
 		else if (model_name == model_names::TRUST)
-			return new KnowledgeTrust(parameters, construct);
+			return new Trust(parameters, construct);
 
 		else if (model_name == model_names::LOC)
 			return new Location(construct);
