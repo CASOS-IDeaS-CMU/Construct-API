@@ -2,7 +2,7 @@
 #define TRUST_HEADER_GUARD
 #include "pch.h"
 
-struct CONSTRUCT_LIB Trust : public Model
+struct Trust : public Model
 {
 	//graph name - "knowledge network"
 	//agent x knowledge
@@ -38,13 +38,13 @@ struct CONSTRUCT_LIB Trust : public Model
 
 	Trust(const dynet::ParameterMap& parameters, Construct* construct);
 
-	void initialize(void);
+	void initialize(void) override;
 
-	void update(void);
+	void update(void) override;
 
-	void communicate(const InteractionMessage& msg);
+	void communicate(const InteractionMessage& msg) override;
 
-	void cleanup(void);
+	void cleanup(void) override;
 };
 #endif
 

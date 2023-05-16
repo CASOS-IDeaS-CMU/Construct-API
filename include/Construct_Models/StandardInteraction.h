@@ -2,17 +2,17 @@
 #define STANDARD_INTERACTION_HEADER_GUARD
 #include "pch.h"
 
-class CONSTRUCT_LIB StandardInteraction : public virtual Model
+class StandardInteraction : public virtual Model
 {
 public:
 
 	StandardInteraction(const dynet::ParameterMap& parameters, Construct* construct);
 
 	//adds the knowledge parsing model to the models list
-	virtual void initialize(void);
+	virtual void initialize(void) override;
 
 	//sets interaction probabilities, creates messages, and adds them to construct's interaction queue
-	virtual void think(void);
+	virtual void think(void) override;
 
 	//creates all the communication mediums based on the medium nodeset
 	void initialize_communication_mediums();

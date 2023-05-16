@@ -1,96 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Do Not Edit">
+      <UniqueIdentifier>{b3df8c04-48fc-409c-ba6a-1fa82722423b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Models">
+    <Filter Include="Do Not Edit\Models">
       <UniqueIdentifier>{ac1fb563-fb7c-49e5-b25a-02e30555e537}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Customization">
+      <UniqueIdentifier>{bd406e4b-a2a2-421a-b0a3-c18bbbf0ecc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Supp_Library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Construct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Beliefs.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Forget.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\GrandInteraction.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\KnowledgeLearningDifficulty.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\KnowledgeParsing.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\KnowledgeTransactiveMemory.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\KnowledgeTrust.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Location.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Mail.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\SocialMedia.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\StandardInteraction.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Subscription.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Tasks.h">
-      <Filter>Models</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Output.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Construct_Models\Template.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Construct_Models\Emotions.h">
-      <Filter>Models</Filter>
+      <Filter>Do Not Edit\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Supp_Library.h">
+      <Filter>Do Not Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct.h">
+      <Filter>Do Not Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Do Not Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\json.hpp">
+      <Filter>Do Not Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Do Not Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="item_keys.h">
+      <Filter>Customization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Output.h">
+      <Filter>Customization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Template.h">
+      <Filter>Customization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Supp_Library.cpp">
+      <Filter>Customization</Filter>
+    </ClCompile>
     <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Do Not Edit</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Supp_Library.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Do Not Edit</Filter>
     </ClCompile>
     <ClCompile Include="..\include\Construct_Models\Template.cpp">
-      <Filter>Models</Filter>
+      <Filter>Customization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

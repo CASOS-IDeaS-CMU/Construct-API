@@ -7,11 +7,11 @@ class Template : public Model
 public:
 
 	Template(dynet::ParameterMap parameters, Construct* construct);
-	void initialize(void);
-	void think(void);
-	void update(void);
-	void communicate(const InteractionMessage& msg);
-	void cleanup(void);
+	void initialize(void) override;
+	void think(void) override;
+	void update(void) override;
+	void communicate(const InteractionMessage& msg) override;
+	void cleanup(void) override;
 };
 #endif
 

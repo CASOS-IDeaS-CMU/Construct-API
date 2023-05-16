@@ -2,7 +2,7 @@
 #define MAILING_HEADER_GUARD
 #include "pch.h"
 
-class CONSTRUCT_LIB Mail : public Model
+class Mail : public Model
 {
 public:
 
@@ -17,7 +17,7 @@ public:
 	std::vector<InteractionMessageQueue> mailboxes = std::vector<InteractionMessageQueue>(mail_pref.source_nodeset->size());
 
 	Mail(Construct* _construct) : Model(_construct, model_names::MAIL) {};
-	void update(void);
+	void update(void) override;
 };
 #endif
 
