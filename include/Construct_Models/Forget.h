@@ -2,7 +2,7 @@
 #define FORGET_HEADER_GUARD
 #include "pch.h" 
 
-struct CONSTRUCT_LIB Forget : public Model
+struct Forget : public Model
 {
 	const Nodeset* agents;
 
@@ -32,9 +32,9 @@ struct CONSTRUCT_LIB Forget : public Model
 	Graph<bool>* unused_knowledge = 0;
 
 	Forget(Construct* construct);
-	void think(void);
-	void communicate(const InteractionMessage& msg);
-	void cleanup(void);
+	void think(void) override;
+	void communicate(const InteractionMessage& msg) override;
+	void cleanup(void) override;
 
 };
 #endif

@@ -2,13 +2,13 @@
 #define KNOWLEDGE_LEARNING_DIFFICULTY_HEADER_GUARD
 #include "pch.h"
 
-class CONSTRUCT_LIB KnowledgeLearningDifficulty : public Model
+class KnowledgeLearningDifficulty : public Model
 {
 public:
 
 	//sifts through interaction queue and removes items that are too difficult to learn
 	//if a message loses all of items, it is removed from the queue
-	void update(void);
+	void update(void) override;
 
 	KnowledgeLearningDifficulty(Construct* _construct) : Model(_construct, model_names::KDIFF) {}
 

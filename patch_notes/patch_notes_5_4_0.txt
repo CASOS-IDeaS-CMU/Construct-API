@@ -1,0 +1,8 @@
+Added support to export social media events to json file.
+Added version strings to Construct, this will check when creating a custom library if the exe and library have the same version string.
+Removed CONSTRUCT_LIB as it was no longer needed for any classes or functions.
+Changed InteractionItem::item_keys to be forward declared when using the preprocessor definition CUSTOM_ITEM_KEYS. The file "item_keys.h" is then included after. The file makes it explicit that the enumuration can be edited.
+Filters have been modified for visual studio to add clarity on which files can be edited and which files should not.
+Various social media models are added to the create model function.
+The Trust models has included trust between agents.
+An additional parameter has been added to construct which defines a file path to the custom library.

@@ -5,7 +5,7 @@
 //This model is a variant on the Standard Interaction Model
 #include "StandardInteraction.h"
 
-class CONSTRUCT_LIB Beliefs : public StandardInteraction {
+class Beliefs : public StandardInteraction {
 public:
 
 	Beliefs(const dynet::ParameterMap& parameters, Construct* construct);
@@ -22,10 +22,10 @@ public:
 	//agent - timeperiod
 	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, sparse, time, sparse);
 
-	void initialize(void);
-	void clean_up(void);
+	void initialize(void) override;
+	void cleanup(void) override;
 
-	float get_additions(unsigned int agent_i, unsigned int agent_j);
+	float get_additions(unsigned int agent_i, unsigned int agent_j) override;
 	float get_belief_sim(unsigned int agent_i, unsigned int agent_j);
 
 	float get_belief_value(unsigned int agent_i, unsigned int belief);

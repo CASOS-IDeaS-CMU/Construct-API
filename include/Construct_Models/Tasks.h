@@ -5,7 +5,7 @@
 //This model is a variant on the Standard Interaction Model
 #include "StandardInteraction.h"
 
-struct CONSTRUCT_LIB Tasks: public StandardInteraction
+struct Tasks: public StandardInteraction
 {
 		const Nodeset* tasks = ns_manager->get_nodeset(nodeset_names::task);
 
@@ -36,10 +36,10 @@ struct CONSTRUCT_LIB Tasks: public StandardInteraction
 
 		Tasks(const dynet::ParameterMap& parameters, Construct* construct);
 
-		void initialize(void);
-		void cleanup(void);
+		void initialize(void) override;
+		void cleanup(void) override;
 
-		float get_k_exp(unsigned int agent_i, unsigned int agent_j);
+		float get_k_exp(unsigned int agent_i, unsigned int agent_j) override;
 };
 #endif
 

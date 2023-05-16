@@ -2,7 +2,7 @@
 #define KNOWLEDGE_PARSING_HEADER_GUARD
 #include "pch.h"
 
-struct CONSTRUCT_LIB KnowledgeParsing : public Model
+struct KnowledgeParsing : public Model
 {
 public:
 
@@ -12,7 +12,7 @@ public:
 
 	KnowledgeParsing(Construct* _construct) : Model(_construct, model_names::KPARSE) {}
 
-	void communicate(const InteractionMessage& msg);
+	void communicate(const InteractionMessage& msg) override;
 };
 #endif
 

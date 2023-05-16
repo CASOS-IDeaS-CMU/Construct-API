@@ -8,7 +8,7 @@
 #include "Tasks.h"
 #include "KnowledgeTransactiveMemory.h"
 
-class CONSTRUCT_LIB GrandInteraction : public StandardInteraction
+class GrandInteraction : public StandardInteraction
 {
 	//model paramters - not all are required
 
@@ -71,16 +71,16 @@ public:
 
 
 	GrandInteraction(const dynet::ParameterMap& parameters, Construct* construct);
-	void initialize(void);
-	void communicate(const InteractionMessage& msg);
-	void cleanup(void);
+	void initialize(void) override;
+	void communicate(const InteractionMessage& msg) override;
+	void cleanup(void) override;
 
 	//see Beliefs::think for why these functions are here
-	float get_k_sim(unsigned int initiator, unsigned int receiver);
-	float get_k_exp(unsigned int initiator, unsigned int receiver);
+	float get_k_sim(unsigned int initiator, unsigned int receiver) override;
+	float get_k_exp(unsigned int initiator, unsigned int receiver) override;
 	float get_belief_sim(unsigned int initiator, unsigned int receiver);
-	float get_additions(unsigned int agent_i, unsigned int agent_j);
-	std::vector<InteractionItem> get_interaction_items(unsigned int initiator, unsigned int receiver, const CommunicationMedium* comm);
+	float get_additions(unsigned int agent_i, unsigned int agent_j) override;
+	std::vector<InteractionItem> get_interaction_items(unsigned int initiator, unsigned int receiver, const CommunicationMedium* comm) override;
 
 	void update_group_belief(void);
 	unsigned int get_k_intersect(unsigned int initiator, unsigned int receiver);
