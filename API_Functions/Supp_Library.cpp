@@ -27,7 +27,7 @@
 
 Model * dynet::create_model(const std::string & model_name, const ParameterMap& parameters, Construct * construct, const std::string& version) {
 
-	assert(Construct::version == version);
+	assert(std::string(Construct::version) == version);
 
 	if (model_name == "Template Model")
 		return new Template(parameters, construct);
@@ -102,7 +102,7 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 
 Output* dynet::create_output(const std::string& output_name, const ParameterMap& parameters, Construct* construct, const std::string& version) {
 
-	assert(Construct::version == version);
+	assert(std::string(Construct::version) == version);
 
 	if (output_name == output_names::output_graph) {
 		return new Output_Graph(parameters, construct);

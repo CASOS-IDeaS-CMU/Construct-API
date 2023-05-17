@@ -193,7 +193,9 @@ namespace dynet
 	};
 
 
-	
+	struct end_early {
+	};
+
 
 	constexpr inline char seperator() noexcept {
 #ifdef _WIN32
@@ -3867,7 +3869,7 @@ class Construct {
 	time_t begTim;
 public:
 
-	static constexpr std::string version = "5.4.0";
+	static constexpr const char* version = "5.4.0";
 
 	Construct();
 
