@@ -37,14 +37,18 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	//*    add your custom model here    *
 	//************************************
 
-		else if (model_name == "Infection v1 Model")
-			return new Infection_v1(construct);
+	else if (model_name == model_names::infection_v1)
+		return new Infection_v1(construct);
 
-		else if (model_name == "Infection v2 Model")
-			return new Infection_v2(construct);
+	else if (model_name == "Infection v2 Model")
+		return new Infection_v2(construct);
 
-		else if (model_name == "Standard Interaction Infection Model")
-			return new Infection_v3(parameters, construct);
+	else if (model_name == "Standard Interaction Infection Model")
+		return new Infection_v3(parameters, construct);
+
+
+
+
 
 	if (model_name == model_names::SIM)
 		return new StandardInteraction(parameters, construct);
