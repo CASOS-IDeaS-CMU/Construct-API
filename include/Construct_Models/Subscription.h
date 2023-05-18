@@ -2,13 +2,13 @@
 #define SUBSCRIPTION_HEADER_GUARD
 #include "pch.h"
 
-struct CONSTRUCT_LIB Subscription : public Model
+struct Subscription : public Model
 {
 	Subscription(Construct* _construct) : Model(_construct, model_names::SUB) {};
 
-	void think();
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup();
+	void think() override;
+	void communicate(const InteractionMessage& msg) override;
+	void cleanup() override;
 
 	//graph name - "public propensity"
 	//agent x CommunicationMedium

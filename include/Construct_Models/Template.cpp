@@ -300,7 +300,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	comms->check_attributes<unsigned int>(comms_att::tts);
 	auto medium_node = comms->begin();
 
-	CommunicationMedium medium(medium_node);
+	CommunicationMedium medium(*medium_node);
 
 	//A custom CommunicationMedium can be created with all the relevant attribute information
 	std::string comm_name = "medium name";
@@ -333,15 +333,15 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//To avoid potential conflicts and double parsing that model may not be directly loaded in the model manager
 	//If two or more models use seperately the same model internally they can communicate their usage through a placeholder model
 
-	construct->model_manager.add_model(new PlaceHolder(model_names::SIM));
+	construct->model_manager.add_model(new Inheritence_Wrapper(this, name));
 
 	//now when all other models query for the Standard Interaction Model, they will see the model as currently active
 	//importantly the PlaceHolder model does not perform any operations when called by the model manager
 	//lastly it is important that other entities know if this model is a real model or a placeholder
 	//all models have the variable valid which will be false if created using the PlaceHolder class
 
-	if (!construct->model_manager.get_model_by_name(model_names::SIM)->valid) {
-		std::cout << "The Standard Interaction Model loaded is a placeholder." << std::endl;
+	if (!construct->model_manager.get_model_by_name(name)->valid) {
+		std::cout << "The " << name << " loaded as a placeholder." << std::endl;
 	}
 
 	//by having a central random generation we can reliably reproduce results
@@ -379,6 +379,6 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 void Template::initialize(void) {}
 void Template::think(void) {}
 void Template::update(void) {}
-void Template::communicate(InteractionMessageQueue::iterator msg) {}
+void Template::communicate(const InteractionMessage& msg) {}
 void Template::cleanup() {}
 

@@ -2,17 +2,17 @@
 #define STANDARD_INTERACTION_HEADER_GUARD
 #include "pch.h"
 
-class CONSTRUCT_LIB StandardInteraction : public virtual Model
+class StandardInteraction : public virtual Model
 {
 public:
 
 	StandardInteraction(const dynet::ParameterMap& parameters, Construct* construct);
 
 	//adds the knowledge parsing model to the models list
-	virtual void initialize(void);
+	virtual void initialize(void) override;
 
 	//sets interaction probabilities, creates messages, and adds them to construct's interaction queue
-	virtual void think(void);
+	virtual void think(void) override;
 
 	//creates all the communication mediums based on the medium nodeset
 	void initialize_communication_mediums();
@@ -34,7 +34,7 @@ public:
 	
 	// generates a vector of paired values with first being the agent index
 	// and second being the associated initiation/reception count
-	virtual void initialize_interaction_lists(std::vector<std::pair<unsigned int, unsigned int> > &initiators, std::vector<std::pair<unsigned int,unsigned int> > &receivers);
+	void initialize_interaction_lists(std::vector<std::pair<unsigned int, unsigned int> > &initiators, std::vector<std::pair<unsigned int,unsigned int> > &receivers);
 
 	//gets the index in the initiators and receivers list of the interaction partners found
 	std::pair<unsigned int, unsigned int> get_interaction_pair_index(std::vector<std::pair<unsigned int, unsigned int> >& initiators, std::vector<std::pair<unsigned int, unsigned int> >& receivers);

@@ -1,0 +1,20 @@
+An overflow was causing the conversion from unsigned int to int to return negative values
+A bug was causing the Random class's seed to not be randomly chosen at initialization. The Random class now assigns the seed to time(0)
+virtual key word was removed from StandardInteraction::initalize_interaction_lists
+row density information was moved from Graph to Typeless_Graph
+Graph now has the function examine_all_links which takes a lambda with parameters "const T&". This function will call the lambda on every link in the Graph.
+Simplified adding nodes to nodesets so that it is no longer required to manage the memory of submitted attributes
+Added Nodeset::add_nodes which will add groups of nodes to the nodeset using the default node name
+Changed the constructor of CommunicationMedium to use a Node reference instead of a Nodeset iterator.
+Changed Model's communicate function to take a InteractionMessage reference instead of a InteractionMessageQueue iterator
+Changed the default_media_user constructor for various Social_Media models to use a Node reference instead of a Nodeset iterator
+Added const qualifiers to various functions in InteractionItem
+Added begin functions to const_row_begin_iterator, row_begin_iterator, const_col_begin_iterator, and col_begin_iterator to allow for use with "for (auto& link : graph.get_row(0))"
+Fixed an issue where the precompiled headers file wasn't being included in the Custom_Construct solution.
+Updated dynet::load_users to only be compiled if the flag CUSTOM_MEDIA_USERS was defined. This will allow Custom_Construct to compile without having to define any dynet::load_users functions. CUSTOM_MEDIA_USERS flag has been added to the preprocessor definitions of Construct_DLL.sln for all configurations.
+Fixed an issue where symbols for GraphManager::set_of_generators::dynetml_generator were not being found.
+GraphManager::set_of_generators::dynetml_generator no longer excludes takes a Graph with default value not equal to zero. DyNetML files must have their links ordered (ORA defaults to ordered links) otherwise undefined behavior occurs. This requirement can be removed by supplying the parameter "ordered link"="false". This will cause significant increase in memory usage based on size of the Graph.
+Fixed a bug that was causing Custom_Construct to require a construct.exe.
+Added a Makefile for Custom_Construct
+
+

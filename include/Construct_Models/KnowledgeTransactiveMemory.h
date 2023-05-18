@@ -5,7 +5,7 @@
 //This model operates as a modification to the Standard Interaction Model and thus requires the header
 #include "StandardInteraction.h"
 
-class CONSTRUCT_LIB KnowledgeTransactiveMemory : public StandardInteraction
+class KnowledgeTransactiveMemory : public StandardInteraction
 {
 	const std::string send_ktm = "can send knowledgeTM";
 	const std::string recv_ktm = "can receive knowledgeTM";
@@ -37,13 +37,13 @@ public:
 
 	KnowledgeTransactiveMemory(const dynet::ParameterMap& parameters, Construct* construct);
 	
-	void initialize(void);
-	void communicate(InteractionMessageQueue::iterator msg);
-	void cleanup();
+	void initialize(void) override;
+	void communicate(const InteractionMessage& msg) override;
+	void cleanup() override;
 
-	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm);
-	float get_k_sim(unsigned int agent_i,unsigned int agent_j);
-	float get_k_exp(unsigned int agent_i, unsigned int agent_j);
+	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm) override;
+	float get_k_sim(unsigned int agent_i,unsigned int agent_j) override;
+	float get_k_exp(unsigned int agent_i, unsigned int agent_j) override;
 	void update_group_knowledge(void);
 };
 #endif

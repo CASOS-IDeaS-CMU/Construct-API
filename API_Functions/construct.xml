@@ -868,7 +868,7 @@
         <output type="dynetml">
             <param name="network names" value="knowledge network,knowledge trust network,twitter follower network,emotion network"/>
             <param name="output file" value="my_ouput.xml"/>
-            <param name="timeperiods" value="all"/>
+            <param name="timeperiods" value="last"/>
         </output>
     </outputs>
 </construct>

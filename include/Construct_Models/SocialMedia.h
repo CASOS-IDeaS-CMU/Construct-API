@@ -1,8 +1,10 @@
 #ifndef SOCIAL_MEDIA_HEADER_GUARD
 #define SOCIAL_MEDIA_HEADER_GUARD
 #include "pch.h"
+#include "json.hpp"
 
-class Social_Media_no_followers;
+#ifdef CUSTOM_MEDIA_USERS
+struct Social_Media_no_followers;
 struct Social_Media_with_followers;
 
 //these functions are defined in Supp_Library.cpp
@@ -10,8 +12,11 @@ namespace dynet {
     void load_users(Social_Media_no_followers* media);
     void load_users(Social_Media_with_followers* media);
 }
+#endif
 
-class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
+
+
+struct Social_Media_no_followers : public virtual Model
 {
 
 
@@ -20,9 +25,8 @@ class CONSTRUCT_LIB Social_Media_no_followers : public virtual Model
 
     //model parameter name who's value gets entered into Social_Media_with_followers::age
     const std::string maximum_post_inactivity = "maximum post inactivity";
-public:
 
-    struct CONSTRUCT_LIB media_event {
+    struct media_event {
 
         //this goes through the entire chain of events recursively and updates the last_used
         //to the most recent time. Source call is only on the root event.
@@ -126,8 +130,110 @@ public:
         void check_consistency(void) const;
     };
 
+    struct could_not_find_property_key : public dynet::construct_exception {
+        could_not_find_property_key(const std::string& key) :
+            construct_exception("Could not find property key \"" + key + "\" in JSON object") {}
+        could_not_find_property_key(const std::string& key, const std::string& id) :
+            construct_exception("Could not find property key \"" + key + "\" in JSON object with id:" + id) {}
+    };
+
+    void load_events(const std::string& fname, const dynet::datetime& start_time, float time_conversion) {
+        std::ifstream f(fname);
+        if (f.is_open()) {
+            nlohmann::json data = nlohmann::json::parse(f);
+            if (data.contains("data")) {
+                auto& events = data.find("data").value();
+                if (events.is_array()) {
+                    std::map<std::string, media_event*> id_mapping;
+                    for (auto& _event : events) {
+                        if (!_event.contains("id"))
+                            throw could_not_find_property_key("id");
+                        std::string id = _event.find("id").value().dump();
+                        list_of_events.emplace_front(media_event());
+                        id_mapping[id] = &list_of_events.front();
+                    }
+
+                    for (auto& _event : events) {
+                        std::string id = _event.find("id").value().dump();
+                        if (!_event.contains("author_id"))
+                            throw could_not_find_property_key("author_id", id);
+                        std::string author = _event.find("author_id").value().dump();
+                        if (!_event.contains("created_at"))
+                            throw could_not_find_property_key("created_at", id);
+                        std::string time = _event.find("created_at").value().dump();
+                        media_event& post = *id_mapping[id];
+                        post.user = agents->get_node_by_name(author)->index;
+                        time_t time_val = start_time.time - dynet::datetime(time).time;
+                        post.time_stamp = time_val / time_conversion;
+                        if (_event.contains("referenced_tweets")) {
+                            auto& response_info = _event.find("referenced_tweets").value();
+                            if (response_info.is_array()) {
+                                auto& nest_response_info = response_info.front();
+                                if (nest_response_info.contains("type") && nest_response_info.contains("id")) {
+                                    std::string type = nest_response_info.find("type").value().dump();
+                                    std::string parent_name = nest_response_info.find("id").value().dump();
+                                    media_event& parent = *id_mapping[parent_name];
+                                    post.parent_event = &parent;
+                                    if (type == "quoted") {
+                                        post.type = media_event::event_type::quote;
+                                        parent.quotes.push_back(&post);
+                                    }
+                                    if (type == "replied_to") {
+                                        post.type = media_event::event_type::reply;
+                                        parent.replies.push_back(&post);
+                                    }
+                                    if (type == "retweeted") {
+                                        post.type = media_event::event_type::repost;
+                                        parent.reposts.push_back(&post);
+                                    }
+                                }
+                            }
+                        }
+                        if (_event.contains("entities")) {
+                            auto& entities = _event.find("entities").value();
+                            if (entities.contains("mentions")) {
+                                auto& mentions = entities.find("mentions").value();
+                                if (mentions.is_array()) {
+                                    for (auto& mention : mentions) {
+                                        if (mention.contains("id")) {
+                                            std::string node_name = mention.find("id").value().dump();
+                                            post.mentions.push_back(agents->get_node_by_name(node_name)->index);
+                                        }
+                                    }
+                                }
+                            }
+                            if (entities.contains("indexes")) {
+                                auto indexes = entities.find("indexes").value();
+                                if (indexes.is_array()) {
+                                    for (auto& index : indexes) {
+                                        if (index.begin() != index.end()) {
+                                            post.indexes[InteractionItem::get_item_key(index.begin().key())] = dynet::convert(index.begin().value().dump());
+                                        }
+                                    }
+                                }
+                            }
+                            if (entities.contains("values")) {
+                                auto values = entities.find("values").value();
+                                if (values.is_array()) {
+                                    for (auto& val : values) {
+                                        if (val.begin() != val.end()) {
+                                            post.values[InteractionItem::get_item_key(val.begin().key())] = dynet::convert(val.begin().value().dump());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            throw dynet::could_not_open_file(fname);
+        }
+    }
+
     //class that contains all settings for a user as well as functions that dictates how each user interacts
-    struct CONSTRUCT_LIB media_user {
+    struct media_user {
 
         virtual ~media_user() { ; }
 
@@ -150,9 +256,9 @@ public:
         virtual unsigned int get_read_count(void) = 0;
     };
 
-    struct CONSTRUCT_LIB default_media_user : public virtual media_user {
+    struct default_media_user : public virtual media_user {
 
-        default_media_user(Social_Media_no_followers* _media, Nodeset::iterator node);
+        default_media_user(Social_Media_no_followers* _media, const Node& node);
 
         //the social media that this user is interacting with
         Social_Media_no_followers* media;
@@ -176,25 +282,25 @@ public:
         float pdread;
 
         //this reads the post given and performs any actions before the post is potentially responded to
-        void read(media_event* _event);
+        void read(media_event* _event) override;
 
         //this adds a reply to the post with probability equal to media_user::pr
         //if an event is created default_media_user::add_mentions is called on that event
-        void reply(media_event* _event);
+        void reply(media_event* _event) override;
 
         //this adds a quote to the post with probability equal to media_user::prp
         //if an event is created media_user::add_mentions is called on that event
-        void quote(media_event* _event);
+        void quote(media_event* _event) override;
 
         //this adds a repost to the post with probability equal to default_media_user::pqu
         //if an event is created default_media_user::add_mentions is called on that event
-        void repost(media_event* _event);
+        void repost(media_event* _event) override;
 
         //user adds a number of post events based on default_media_user::pdp
-        void generate_post_events(void);
+        void generate_post_events(void) override;
 
         //number of events read each time step
-        unsigned int get_read_count(void);
+        unsigned int get_read_count(void) override;
 
         //mentions are added to the event if the event is a post by randomly selecting a followee
         virtual void add_mentions(media_event* post);
@@ -207,7 +313,7 @@ public:
         virtual unsigned int get_knowledge_selection(void);
     };
 
-    class CONSTRUCT_LIB event_container : public std::list<media_event> {
+    class event_container : public std::list<media_event> {
         using std::list<media_event>::insert;
         using std::list<media_event>::push_back;
         using std::list<media_event>::emplace_back;
@@ -260,7 +366,7 @@ public:
     CommunicationMedium medium;
 
     //this key is added to messages created by this model for items that contain the feed index
-    InteractionItem::item_keys event_key = InteractionItem::item_keys::twitter_event;
+    const InteractionItem::item_keys event_key;
 
     // list of all current active events, all users can access this list
     // new events should be added to the front of this list
@@ -300,32 +406,41 @@ public:
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-    Social_Media_no_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
+    Social_Media_no_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct* _construct);
 
     //delete all pointers in stored in the Social_Media_with_followers::users data structure
     virtual ~Social_Media_no_followers();
 
-    virtual void load_users() {
+    virtual void load_users(const std::string& version) {
+#ifdef CUSTOM_MEDIA_USERS
+        assert(Construct::version == version);
         dynet::load_users(this);
+#else
+        for (auto node = agents->begin(); node != agents->end(); ++node) {
+            users[node->index] = new default_media_user(this, *node);
+        }
+#endif
     }
 
     //agents read events in their feeds starting with the first event
     //reading an event will create a message with all relavant knowledge and trust information in items along with the event's feed index
     //messages are sent from the read event's author to the reading user and uses a CommunicationMedium with maximum complexity
-    void think(void);
+    void think(void) override;
 
     //adds the Knowledge Parsing %Model, and attempts to find and save the pointer for the Knowledge Trust %Model if it has been added to the model list
-    void initialize(void);
+    void initialize(void) override;
 
     //only parses messages that have an attribute equal to Social_Media_no_followers::event_key for the feed position index corresponding to a media_event pointer
     //that pointer is then given to media_user::read and if the user already knows the knowledge the event is passed to media_user::(reply, quote, repost)
-    void communicate(InteractionMessageQueue::iterator msg);
+    void communicate(const InteractionMessage& msg) override;
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
-    void cleanup(void);
+    void cleanup(void) override;
 
     //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
     virtual void append_message(media_event* _event, InteractionMessage& msg);
+
+    virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
 
     //updates each user's feeds with the new events created during the time step while also discarding read events from the feed
     //events are ordered by direct replies or mentions, events of followers, and all other events
@@ -335,10 +450,10 @@ public:
 };
 
 
-struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_no_followers
+struct Social_Media_with_followers : public virtual Social_Media_no_followers
 {
     //class that contains all settings for a user as well as functions that dictates how each user interacts
-    struct CONSTRUCT_LIB media_user : virtual public Social_Media_no_followers::media_user {
+    struct media_user : virtual public Social_Media_no_followers::media_user {
 
         //returns true if this user decides to follow an agent when called
         virtual bool follow_user(unsigned int alter_agent_index) = 0;
@@ -356,9 +471,9 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
         virtual float get_charisma() = 0;
     };
 
-    struct CONSTRUCT_LIB default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
+    struct default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
 
-        default_media_user(Social_Media_with_followers* _media, Nodeset::iterator node);
+        default_media_user(Social_Media_with_followers* _media, const Node& node);
 
         //the social media that this user is interacting with
         Social_Media_with_followers* media;
@@ -377,7 +492,7 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
         bool auto_follow;
 
         //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post);
+        virtual void add_mentions(media_event* post) override;
 
         //returns true if this user decides to follow an agent when called
         bool follow_user(unsigned int alter_agent_index);
@@ -409,16 +524,24 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-	Social_Media_with_followers(const std::string& _media_name, const dynet::ParameterMap& parameters, Construct* _construct);
+	Social_Media_with_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct* _construct);
 
-    virtual void load_users() {
+    virtual void load_users(const std::string& version) override {
+#ifdef CUSTOM_MEDIA_USERS
+        assert(Construct::version == version);
         dynet::load_users(this);
+#else
+        for (auto node = agents->begin(); node != agents->end(); ++node) {
+            users[node->index] = new default_media_user(this, *node);
+            static_cast<Social_Media_no_followers*>(this)->users[node->index] = users[node->index];
+        }
+#endif
     }
 
-    void communicate(InteractionMessageQueue::iterator msg);
+    void communicate(const InteractionMessage& msg) override;
 
     //feeds are updated, the social media will recommend users to follow, and users can decide to unfollow other users
-    void cleanup(void);
+    void cleanup(void) override;
 
     //computes the Jaccard Similarity in the follower network between the two agent indexes
     float follower_jaccard_similarity(unsigned int agent_i, unsigned int agent_j) const;
@@ -433,16 +556,35 @@ struct CONSTRUCT_LIB Social_Media_with_followers : public virtual Social_Media_n
     //events are ordered by direct replies or mentions, events of followers, and all other events
     //within each category events are sorted based on media_event::score which is set to media_event::child_size * media_event::time_stamp
     //after the events have been organized stochastic shuffling is done on 10% of the feed to avoid a fully deterministic feed
-    virtual void update_feeds(void);
+    virtual void update_feeds(void) override;
 };
 
-struct CONSTRUCT_LIB Facebook : public virtual Social_Media_with_followers {
-    Facebook(const dynet::ParameterMap& parameters, Construct* construct);
+struct Facebook_wf : public virtual Social_Media_with_followers {
+    Facebook_wf(const dynet::ParameterMap& parameters, Construct* construct);
+
+    void initialize() override {
+        add_base_model_to_model_manager(model_names::FB_nf);
+        Social_Media_with_followers::initialize();
+    }
 };
 
 
-struct CONSTRUCT_LIB Twitter : public virtual Social_Media_with_followers {
-    Twitter(const dynet::ParameterMap& parameters, Construct* construct);
+struct Twitter_wf : public virtual Social_Media_with_followers {
+    Twitter_wf(const dynet::ParameterMap& parameters, Construct* construct);
+
+    void initialize() override {
+        add_base_model_to_model_manager(model_names::TWIT_nf);
+        Social_Media_with_followers::initialize();
+    }
+};
+
+struct Facebook_nf : public virtual Social_Media_no_followers {
+    Facebook_nf(const dynet::ParameterMap& parameters, Construct* construct);
+};
+
+
+struct Twitter_nf : public virtual Social_Media_no_followers {
+    Twitter_nf(const dynet::ParameterMap& parameters, Construct* construct);
 };
 
 // TWITTER_SIM_HH_H

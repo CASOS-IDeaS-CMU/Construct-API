@@ -1,4 +1,6 @@
-#include "Construct.h"
+#include "pch.h"
+#include "Output.h"
+#include "StandardInteraction.h"
 
 int main() {
 	Construct construct;
@@ -13,9 +15,9 @@ int main() {
 	// Any attribute pointer previously submitted to add_node can be always safely be used in subsequent add_node calls.
 	// if the attribute pointer needs to be deallocated add_node will return true
 	Nodeset* agents = construct.ns_manager.create_nodeset(nodeset_names::agents);
-	auto agent_attributes = new dynet::ParameterMap();
-	agent_attributes->insert(std::pair("can send knowledge", "true"));
-	agent_attributes->insert(std::pair("can receive knowledge", "true"));
+	dynet::ParameterMap agent_attributes;
+	agent_attributes.insert(std::pair("can send knowledge", "true"));
+	agent_attributes.insert(std::pair("can receive knowledge", "true"));
 	for (int i = 0; i < 50; i++) {
 		agents->add_node(agent_attributes);
 	}
@@ -23,33 +25,33 @@ int main() {
 	agents->turn_to_const();
 
 	Nodeset* knowledge = construct.ns_manager.create_nodeset(nodeset_names::knowledge);
-	auto knowledge_attributes = new dynet::ParameterMap();
+	dynet::ParameterMap knowledge_attributes;
 	for (int i = 0; i < 20; i++) {
 		knowledge->add_node(knowledge_attributes);
 	}
 	knowledge->turn_to_const();
 
 	Nodeset* time = construct.ns_manager.create_nodeset(nodeset_names::time);
-	auto time_attributes = new dynet::ParameterMap();
+	dynet::ParameterMap time_attributes;
 	for (int i = 0; i < 10; i++) {
 		time->add_node(time_attributes);
 	}
 	time->turn_to_const();
+	construct.time_count = time->size();
 
 	Nodeset* comms = construct.ns_manager.create_nodeset(nodeset_names::comm);
 
 	// each new set of attributes requires a new allocation
 	// the pointers are saved in the nodeset so no need to deallocate them after calling add_node
-	auto comm_attributes = new dynet::ParameterMap();
-	comm_attributes->insert(std::pair(comms_att::msg_complex, "1"));
-	comm_attributes->insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes->insert(std::pair(comms_att::tts, "0"));
+	dynet::ParameterMap comm_attributes;
+	comm_attributes.insert(std::pair(comms_att::msg_complex, "1"));
+	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
+	comm_attributes.insert(std::pair(comms_att::tts, "0"));
 	comms->add_node(comm_attributes);
 
-	comm_attributes = new dynet::ParameterMap();
-	comm_attributes->insert(std::pair(comms_att::msg_complex, "2"));
-	comm_attributes->insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes->insert(std::pair(comms_att::tts, "1"));
+	comm_attributes.insert(std::pair(comms_att::msg_complex, "2"));
+	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
+	comm_attributes.insert(std::pair(comms_att::tts, "1"));
 	comms->add_node(comm_attributes);
 
 	comms->turn_to_const();
@@ -79,7 +81,7 @@ int main() {
 	dynet::ParameterMap output_params;
 	output_params["network name"] = graph_names::knowledge;
 	output_params["timeperiods"] = "all";
-	output_params["output file"] = "my_output.xml";
+	output_params["output file"] = "my_output.csv";
 	auto kout = new Output_Graph(output_params, &construct);
 	construct.output_manager.add_output(kout);
 
@@ -88,5 +90,4 @@ int main() {
 	// Each model's respective function is called for each of these steps before moving on to the next step.
 	// In the communicate function, each message is dispersed one at a time to each model.
 	construct.run();
-
 }
