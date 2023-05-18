@@ -48,25 +48,15 @@
 #include <set>
 #include <unordered_set>
 
-
-#if defined WIN32 || defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
-
-#ifdef CONSTRUCTDLL_EXPORTS
-	#define CONSTRUCT_LIB __declspec(dllimport)
-#else
-	#define CONSTRUCT_LIB __declspec(dllexport)
-#endif
-
-#else
-	#define CONSTRUCT_LIB
-#endif
+#include <locale>
+#include <iomanip>
 
 
 namespace dynet
 {
 
 
-	struct CONSTRUCT_LIB ParameterMap : public std::unordered_map<std::string, std::string> {
+	struct ParameterMap : public std::unordered_map<std::string, std::string> {
 		const std::string& get_parameter(const std::string& parameter_key) const;
 	};
 
@@ -222,10 +212,10 @@ namespace dynet
 	template<typename T>
 	T maximum(T v1, T v2) noexcept { return (v1 > v2) * v1 + (v1 <= v2) * v2; }
 
-	CONSTRUCT_LIB std::vector<std::string> split(const std::string& s, const std::string& delimiter) noexcept;
+	std::vector<std::string> split(const std::string& s, const std::string& delimiter) noexcept;
 
 	template<typename T>
-	class CONSTRUCT_LIB Type_Interface {
+	class Type_Interface {
 		T _data;
 	public:
 		Type_Interface(T data) { _data = data; }
@@ -233,7 +223,7 @@ namespace dynet
 	};
 
 	template<>
-	class CONSTRUCT_LIB Type_Interface<bool> {
+	class Type_Interface<bool> {
 		bool _data;
 		static constexpr std::array<char, 2> boolean_outputs{ { '0', '1' } };
 
@@ -248,7 +238,7 @@ namespace dynet
 
 
 	template<>
-	class CONSTRUCT_LIB Type_Interface<int> {
+	class Type_Interface<int> {
 		int _data;
 	public:
 		Type_Interface(int data) { _data = data; }
@@ -260,19 +250,19 @@ namespace dynet
 	};
 
 	template<>
-	class CONSTRUCT_LIB Type_Interface<unsigned int> {
+	class Type_Interface<unsigned int> {
 		unsigned int _data;
 	public:
 		Type_Interface(unsigned int data) { _data = data; }
 		operator bool() const noexcept { return (bool)_data; }
-		operator int() const noexcept { return (int)_data; }
+		operator int() const;
 		operator unsigned() const noexcept { return _data; }
 		operator float() const noexcept { return (float)_data; }
 		operator std::string() const;
 	};
 
 	template<>
-	class CONSTRUCT_LIB Type_Interface<std::string> {
+	class Type_Interface<std::string> {
 		std::string _data;
 	public:
 		Type_Interface(std::string data) { _data = data; }
@@ -285,7 +275,7 @@ namespace dynet
 	};
 
 	template<>
-	class CONSTRUCT_LIB Type_Interface<float> {
+	class Type_Interface<float> {
 		float _data;
 	public:
 		Type_Interface(float data) { _data = data; }
@@ -300,7 +290,7 @@ namespace dynet
 	template<typename T> 
 	Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
 
-	struct CONSTRUCT_LIB ostream_wrapper {
+	struct ostream_wrapper {
 
 		template <typename T>
 		ostream_wrapper& operator<<(const T& data) {
@@ -318,25 +308,63 @@ namespace dynet
 
 
 	
-	CONSTRUCT_LIB ostream_wrapper& endl(ostream_wrapper& out);
+	ostream_wrapper& endl(ostream_wrapper& out);
 
 	// similar behaviour to std::cout except defining QUIET will supress all text output.
 	extern ostream_wrapper cout;
+
+	struct datetime {
+		time_t time;
+		static constexpr const char* dateTimeFormat = "%Y-%m-%dT%H:%M:%S.000Z";
+
+		datetime(const std::string& input_time) {
+			std::istringstream ss(input_time);
+			std::tm t;
+
+			ss >> std::get_time(&t, dateTimeFormat);
+
+			if (ss.fail()) {
+				throw dynet::construct_exception("Input datetime format \"" + input_time + "\" does not match the format \"" + dateTimeFormat + "\"");
+			}
+
+			time = std::mktime(&t);
+		}
+
+		datetime() : time(0) {}
+	};
+
+
+	std::string convert_datetime(const dynet::datetime& val);
 }
+
+inline std::ostream& operator<<(std::ostream& os, const dynet::datetime& val) {
+
+	char buffer[25];
+	std::strftime(buffer, 25, dynet::datetime::dateTimeFormat, std::localtime(&val.time));
+	os << buffer;
+
+	return os;
+}
+
+
 #include <random>
+#include <time.h>
 
 
-class CONSTRUCT_LIB Random
+class Random
 {
 	friend class Construct;
 
 	//Constructor is kept private so that only Construct has access to it.
 	//This will prevent models from creating their own instance.
-	Random() { ; }
-	std::default_random_engine generator;
+	Random() : generator(seed) { ; }
 	~Random() { ; }
-
 public:
+	unsigned int seed = time(nullptr);
+private:
+	std::default_random_engine generator;
+public:
+
 	/*<summary> Sets the random number generator seed. </summary>*/
 	void set_seed(unsigned int seed) noexcept;
 
@@ -356,7 +384,7 @@ public:
 	bool randombool(float probability = .5);
 
 	//samples from a normal distribution
-	float normal(float mean, float variance);
+	float normal(float mean, float standard_deviation);
 
 	//samples from an exoponential distribution
 	float exponential(float mean);
@@ -408,6 +436,8 @@ namespace node_attributes {
 	const std::string receive_beliefsTM = "can receive beliefTM";		//"can receive beliefTM"
 	const std::string influence			= "influence";					//"influence"
 	const std::string susceptiblity		= "susceptiblity";				//"susceptiblity"
+	const std::string send_e			= "can send emotion";			//"can send emotion"
+	const std::string recv_e			= "can receive emotion";		//"can receive emotion"
 
 	//These node attributes have prefixes that precede their name
 	//See the class media_user
@@ -425,7 +455,7 @@ namespace node_attributes {
 
 //nodes are the endpoints of a network link
 //nodes also have constant attributes
-struct CONSTRUCT_LIB Node {
+struct Node {
 
 	Node(const std::string& _name, unsigned int _index, const dynet::ParameterMap* atts) : attributes(atts), name(_name), index(_index) { ; }
 
@@ -439,7 +469,7 @@ struct CONSTRUCT_LIB Node {
 };
 
 
-class CONSTRUCT_LIB Nodeset {
+class Nodeset {
 	std::vector<Node> _nodes;
 	std::set<const dynet::ParameterMap*> _node_attributes;
 public:
@@ -459,11 +489,13 @@ public:
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	bool add_node(const dynet::ParameterMap* attributes);
+	void add_node(const dynet::ParameterMap& attributes);
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	bool add_node(const std::string& node_name, const dynet::ParameterMap* attributes);
+	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes);
+
+	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes);
 
 	const Node* get_node_by_index(unsigned int index) const;
 
@@ -482,6 +514,8 @@ public:
 
 	void import_dynetml(const std::string& fname, const std::string& dynetml_ns_name);
 
+	void import_csv(const std::string& fname);
+
 private:
 	bool malliable = true;
 
@@ -491,7 +525,7 @@ public:
 };
 
 
-class CONSTRUCT_LIB NodesetManager
+class NodesetManager
 {
 	NodesetManager(void) { ; }
 	~NodesetManager(void);
@@ -525,7 +559,7 @@ namespace comms_att {
 	const std::string percent_learnable = "maximum percent learnable";	//"maximum percent learnable"
 }
 
-struct CONSTRUCT_LIB CommunicationMedium
+struct CommunicationMedium
 {
 	//name of the medium
 	const std::string name;
@@ -546,7 +580,7 @@ struct CONSTRUCT_LIB CommunicationMedium
 	const bool valid;
 
 	//Constructor that uses a Nodeset iterator that points to a node in the "medium" nodeset
-	CommunicationMedium(Nodeset::iterator node);
+	CommunicationMedium(const Node& node);
 
 	//Constructor that sets each member variable explicitly
 	CommunicationMedium(const std::string& name, unsigned int medium_node_index,
@@ -557,9 +591,11 @@ struct CONSTRUCT_LIB CommunicationMedium
 
 
 
-struct CONSTRUCT_LIB InteractionItem
+struct InteractionItem
 {
-	enum class item_keys : char {
+	enum class item_keys : char
+#ifndef CUSTOM_ITEM_KEYS
+	{
 		knowledge,
 		alter,
 		belief,
@@ -572,12 +608,20 @@ struct CONSTRUCT_LIB InteractionItem
 		emotion
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
-	};
+		//added items should be added to the item_names data structure
 
+
+
+
+		//item_key list should not exceed 100 as this is reserved for the emotion nodeset
+	}
+#endif
+	;
 
 	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
 
 	static const std::string& get_item_name(InteractionItem::item_keys key);
+	static InteractionItem::item_keys get_item_key(const std::string& name);
 
 	using attribute_iterator = std::unordered_set<item_keys>::iterator;
 	using attribute_const_iterator = std::unordered_set<item_keys>::const_iterator;
@@ -608,15 +652,15 @@ struct CONSTRUCT_LIB InteractionItem
 
 	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
-	bool get_knowledge_item(unsigned int& knowledge_index);
+	bool get_knowledge_item(unsigned int& knowledge_index) const;
 
-	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent);
+	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent) const;
 
-	bool get_belief_item(unsigned int& belief_index, float& belief_value);
+	bool get_belief_item(unsigned int& belief_index, float& belief_value) const;
 
-	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value);
+	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value) const;
 
-	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust);
+	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust) const;
 
 	void clear(void) noexcept;
 
@@ -634,7 +678,11 @@ struct CONSTRUCT_LIB InteractionItem
 };
 
 
-class CONSTRUCT_LIB InteractionMessage
+#ifdef CUSTOM_ITEM_KEYS
+#include<item_keys.h>
+#endif
+
+class InteractionMessage
 {
 	//this is private so the class can track whether the message is valid
 	std::vector<InteractionItem> items;
@@ -666,17 +714,20 @@ public:
 		const CommunicationMedium* _medium,
 		const std::vector<InteractionItem>& interactionItems = std::vector<InteractionItem>());
 
-	
 
-	iterator begin(void) noexcept {return items.begin();}
+	iterator begin(void) noexcept { return items.begin(); }
 
-	iterator end(void) noexcept {return items.end();}
+	iterator end(void) noexcept { return items.end(); }
 
-	const_iterator begin(void) const noexcept {return items.begin();}
-	
-	const_iterator end(void) const noexcept {return items.end();}
+	const_iterator begin(void) const noexcept { return items.begin(); }
 
-	unsigned int size() noexcept {return (unsigned int)items.size();}
+	const_iterator end(void) const noexcept { return items.end(); }
+
+	InteractionItem& front(void) { return items.front(); }
+
+	InteractionItem& back(void) { return items.back(); }
+
+	unsigned int size() noexcept { return (unsigned int)items.size(); }
 
 	iterator erase(iterator itr) noexcept;
 
@@ -695,7 +746,7 @@ public:
 
 
 
-class CONSTRUCT_LIB InteractionMessageQueue
+class InteractionMessageQueue
 {
 	//order nor does random access matter for the queue
 	//constant insert and erase are more important
@@ -737,7 +788,7 @@ public:
 #endif // max
 
 
-class CONSTRUCT_LIB Typeless_Graph {
+class Typeless_Graph {
 	friend class GraphManager;
 public:
 	enum class edge_types : char {
@@ -760,14 +811,14 @@ public:
 
 
 protected:
-	Typeless_Graph(const Nodeset* src, const Nodeset* trg, const Nodeset* slc, const std::string& network_name, edge_types edge);
+	Typeless_Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const std::string& network_name, edge_types edge);
 public:
 
 	template<typename T>
-	static constexpr CONSTRUCT_LIB edge_types get_edge_type(void) noexcept;
+	static constexpr edge_types get_edge_type(void) noexcept;
 
 	template<typename T>
-	static constexpr CONSTRUCT_LIB std::string get_type_name(void) noexcept;
+	static constexpr std::string get_type_name(void) noexcept;
 
 	virtual ~Typeless_Graph() { ; }
 
@@ -788,6 +839,12 @@ public:
 	const unsigned int col_size;
 
 	const edge_types edge_type;
+
+//whether the data for each column is stored in an array or tree
+	const bool col_dense;
+
+	//whether the data for each row is stored in an array or tree
+	const bool row_dense;
 };
 
 
@@ -833,7 +890,7 @@ public:
 
 
 
-struct CONSTRUCT_LIB typeless_graph_iterator {
+struct typeless_graph_iterator {
 
 	//the graph will know how to cast this value to the correct type
 	mutable void* _ptr;
@@ -848,9 +905,9 @@ struct CONSTRUCT_LIB typeless_graph_iterator {
 
 	unsigned int col(void) const noexcept;
 
-	friend bool CONSTRUCT_LIB operator==(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
+	friend bool operator==(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
 
-	friend bool CONSTRUCT_LIB operator!=(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
+	friend bool operator!=(const typeless_graph_iterator& l, const typeless_graph_iterator& r) noexcept;
 
 	virtual unsigned int index() const noexcept;
 
@@ -905,7 +962,7 @@ std::map<unsigned int, T> operator+(const std::map<unsigned int, T>& left, const
 }
 
 template<typename link_type>
-struct CONSTRUCT_LIB Transpose {
+struct Transpose {
 	Graph<link_type>* g;
 	Transpose(Graph<link_type>* _g) : g(_g) {}
 	Transpose(const Graph<link_type>* _g) : g(const_cast<Graph<link_type>*>(_g)) {}
@@ -915,7 +972,7 @@ struct CONSTRUCT_LIB Transpose {
 
 
 template<typename link_type>
-class CONSTRUCT_LIB Temporary_Graph {
+class Temporary_Graph {
 	Graph<link_type>* g;
 public:
 	Temporary_Graph() : g(nullptr) {}
@@ -945,16 +1002,16 @@ public:
 
 namespace graph_utils {
 
-	void CONSTRUCT_LIB it_align(std::vector<typeless_graph_iterator*>& it_list);
+	void it_align(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB init_align(std::vector<typeless_graph_iterator*>& it_list);
+	void init_align(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+	void it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 
-	void CONSTRUCT_LIB init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+	void init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB graph_iterator : public typeless_graph_iterator {
+	struct graph_iterator : public typeless_graph_iterator {
 		Graph<link_type>* _parent = NULL;
 		graph_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr) :
 			typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<link_type>*>(parent)) {}
@@ -966,14 +1023,14 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB sparse_graph_iterator {
+	struct sparse_graph_iterator {
 		const link_type _skip;
 		sparse_graph_iterator(const link_type& skip_data) : _skip(skip_data) {}
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB row_graph_iterator : public graph_iterator<link_type> {
+	struct row_graph_iterator : public graph_iterator<link_type> {
 		using graph_iterator<link_type>::graph_iterator;
 
 		unsigned int index() const noexcept;
@@ -989,7 +1046,7 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB col_graph_iterator : public graph_iterator<link_type> {
+	struct col_graph_iterator : public graph_iterator<link_type> {
 		using graph_iterator<link_type>::graph_iterator;
 
 		unsigned int index() const noexcept;
@@ -1005,7 +1062,7 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_full_row_iterator : public row_graph_iterator<link_type> {
+	struct const_full_row_iterator : public row_graph_iterator<link_type> {
 
 		using row_graph_iterator<link_type>::row_graph_iterator;
 		using row_graph_iterator<link_type>::operator*;
@@ -1016,13 +1073,13 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB full_row_iterator : public const_full_row_iterator<link_type> {
+	struct full_row_iterator : public const_full_row_iterator<link_type> {
 		using const_full_row_iterator<link_type>::const_full_row_iterator;
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_sparse_row_iterator : public row_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
+	struct const_sparse_row_iterator : public row_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
 		const_sparse_row_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr, const link_type& skip_data) :
 			row_graph_iterator<link_type>(row, col, parent, ptr), sparse_graph_iterator<link_type>(skip_data) {
 			if (row_graph_iterator<link_type>::operator*() == skip_data) this->operator++();
@@ -1035,13 +1092,13 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB sparse_row_iterator : public const_sparse_row_iterator<link_type> {
+	struct sparse_row_iterator : public const_sparse_row_iterator<link_type> {
 		using const_sparse_row_iterator<link_type>::const_sparse_row_iterator;
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_full_col_iterator : public col_graph_iterator<link_type> {
+	struct const_full_col_iterator : public col_graph_iterator<link_type> {
 		using col_graph_iterator<link_type>::col_graph_iterator;
 		using col_graph_iterator<link_type>::operator*;
 
@@ -1050,13 +1107,13 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB full_col_iterator : public const_full_col_iterator<link_type> {
+	struct full_col_iterator : public const_full_col_iterator<link_type> {
 		using const_full_col_iterator<link_type>::const_full_col_iterator;
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_sparse_col_iterator : public col_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
+	struct const_sparse_col_iterator : public col_graph_iterator<link_type>, public sparse_graph_iterator<link_type> {
 		const_sparse_col_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr, const link_type& skip_data) :
 			col_graph_iterator<link_type>(row, col, parent, ptr), sparse_graph_iterator<link_type>(skip_data) {
 			if (col_graph_iterator<link_type>::operator*() == skip_data) this->operator++();
@@ -1069,18 +1126,20 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB sparse_col_iterator : public const_sparse_col_iterator<link_type> {
+	struct sparse_col_iterator : public const_sparse_col_iterator<link_type> {
 		using const_sparse_col_iterator<link_type>::const_sparse_col_iterator;
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_row_begin_iterator : public col_graph_iterator<link_type> {
+	struct const_row_begin_iterator : public col_graph_iterator<link_type> {
 		const_row_begin_iterator(unsigned int row, const Graph<link_type>* parent, void* ptr) : col_graph_iterator<link_type>(row, 0, parent, ptr) {}
 
 		unsigned int operator*(void) const;
 
 		const_full_row_iterator<link_type> full_begin(void) const;
+
+		const_full_row_iterator<link_type> begin() const { return full_begin(); }
 
 		const_sparse_row_iterator<link_type> sparse_begin(const link_type& data) const;
 
@@ -1156,21 +1215,25 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB row_begin_iterator : public const_row_begin_iterator<link_type> {
+	struct row_begin_iterator : public const_row_begin_iterator<link_type> {
 		using const_row_begin_iterator<link_type>::const_row_begin_iterator;
 		full_row_iterator<link_type> full_begin(void);
+
+		full_row_iterator<link_type> begin(void) { return full_begin(); }
 
 		sparse_row_iterator<link_type> sparse_begin(const link_type& data);
 	};
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB const_col_begin_iterator : public row_graph_iterator<link_type> {
+	struct const_col_begin_iterator : public row_graph_iterator<link_type> {
 		const_col_begin_iterator(unsigned int col, const Graph<link_type>* parent, void* ptr) : row_graph_iterator<link_type>(0, col, parent, ptr) {}
 
 		unsigned int operator*(void) const;
 
 		const_full_col_iterator<link_type> full_begin(void) const;
+
+		const_full_col_iterator<link_type> begin(void) const { return full_begin(); }
 
 		const_sparse_col_iterator<link_type> sparse_begin(const link_type& data) const;
 
@@ -1232,10 +1295,12 @@ namespace graph_utils {
 
 
 	template<typename link_type>
-	struct CONSTRUCT_LIB col_begin_iterator : public const_col_begin_iterator<link_type> {
+	struct col_begin_iterator : public const_col_begin_iterator<link_type> {
 		using const_col_begin_iterator<link_type>::const_col_begin_iterator;
 
 		full_col_iterator<link_type> full_begin(void);
+
+		full_col_iterator<link_type> begin(void) { return full_begin(); }
 
 		sparse_col_iterator<link_type> sparse_begin(const link_type& data);
 	};
@@ -1251,7 +1316,7 @@ namespace graph_utils {
 
 
 template<typename link_type>
-class CONSTRUCT_LIB Graph : public Typeless_Graph {
+class Graph : public Typeless_Graph {
 
 
 	
@@ -1303,23 +1368,6 @@ public:
 	//if an element is not held in memory, it is assumed that element equals this value
 	const link_type def_val;
 
-	//whether the data for each column is stored in an array or tree
-	const bool col_dense;
-
-	//whether the data for each row is stored in an array or tree
-	const bool row_dense;
-
-	
-
-
-
-
-
-
-
-
-
-
 
 	//returns a reference to the element
 	virtual link_type& at(unsigned int row, unsigned int col) = 0;
@@ -1332,6 +1380,15 @@ public:
 
 	//sets all elements to the submitted value
 	virtual void clear(const link_type& data) noexcept = 0;
+
+	template<typename Callable>
+	void examine_all_links(Callable lambda) {
+		for (auto row = begin_rows(); row != end_rows(); ++row) {
+			for (auto it = row.full_begin(); it != row.end(); ++it) {
+				lambda(*it);
+			}
+		}
+	}
 
 	template<typename Callable>
 	void apply_operation(Callable lambda) {
@@ -1573,9 +1630,8 @@ public:
 
 
 
-class CONSTRUCT_LIB Graph_Intermediary {
+struct Graph_Intermediary {
 	Typeless_Graph* ptr;
-public:
 
 	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
 	void check_ptr() const;
@@ -1614,6 +1670,21 @@ public:
 
 namespace graph_utils {
 	
+	template<typename T>
+	void check_range(const Graph<T>& graph, const T& lower_bound, const T& upper_bound) {
+		for (auto row = graph.begin_rows(); row != graph.end_rows(); ++row) {
+			for (auto it = row.full_begin(); it != row.end(); ++it) {
+				if (*it < lower_bound) {
+					throw dynet::construct_exception(graph.name + " has an element at [" + std::to_string(it.row()) + "," + std::to_string(it.col()) + "]" 
+						+ " that is below the lower bound of " + (std::string)dynet::convert(lower_bound));
+				}
+				else if (*it > upper_bound) {
+					throw dynet::construct_exception(graph.name + " has an element at [" + std::to_string(it.row()) + "," + std::to_string(it.col()) + "]"
+						+ " that is above the upper bound of " + (std::string)dynet::convert(upper_bound));
+				}
+			}
+		}
+	}
 
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
@@ -3360,6 +3431,7 @@ namespace graph_names {
 	const std::string loc_preference       = "agent location preference network";                // "agent location preference network"
 	const std::string mail_usage           = "agent mail usage by medium network";               // "agent mail usage by medium network"
 	const std::string recep_count          = "agent reception count network";                    // "agent reception count network"
+	const std::string agent_trust		   = "agent trust network";								 // "agent trust network"
 	const std::string b_k_wgt              = "belief knowledge weight network";                  // "belief knowledge weight network"
 	const std::string belief_msg_complex   = "belief message complexity network";                // "belief message complexity network"
 	const std::string beliefs              = "belief network";                                   // "belief network"
@@ -3369,6 +3441,14 @@ namespace graph_names {
 	const std::string comm_pref            = "communication medium preferences network";         // "communication medium preferences network"
 	const std::string fb_friend            = "facebook friend network";                          // "facebook friend network"
 	const std::string emotion_net		   = "emotion network";									 // "emotion network"
+	const std::string emot_broad_bias	   = "emotion broadcast bias network";					 // "emotion broadcast bias network"
+	const std::string emot_broad_first	   = "emotion broadcast first order network";			 // "emotion broadcast first order network"
+	const std::string emot_broad_second    = "emotion broadcast second order network";			 // "emotion broadcast second order network"
+	const std::string emot_read_first	   = "emotion reading first order network";				 // "emotion reading first order network"
+	const std::string emot_read_second     = "emotion reading second order network";			 // "emotion reading second order network"
+	const std::string emot_reg_bias		   = "emotion regulation bias network";					 // "emotion regulation bias network"
+	const std::string emot_reg_first	   = "emotion regulation first order network";			 // "emotion regulation first order network"
+	const std::string emot_reg_second	   = "emotion regulation second order network";			 // "emotion regulation second order network"
 	const std::string interact_k_wgt       = "interaction knowledge weight network";             // "interaction knowledge weight network"
 	const std::string interact             = "interaction network";                              // "interaction network"
 	const std::string interact_prob        = "interaction probability network";                  // "interaction probability network"
@@ -3379,11 +3459,12 @@ namespace graph_names {
 	const std::string k_diff               = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
 	const std::string k_msg_complex        = "knowledge message complexity network";             // "knowledge message complexity network"
 	const std::string knowledge            = "knowledge network";                                // "knowledge network"
-	const std::string k_trust	           = "knowledge trust network";							 // "knowledge trust network"
 	const std::string k_priority           = "knowledge priority network";                       // "knowledge priority network"
 	const std::string k_sim_wgt            = "knowledge similarity weight network";              // "knowledge similarity weight network"
 	const std::string k_strength           = "knowledge strength network";                       // "knowledge strength network"
 	const std::string ktm                  = "knowledge transactive memory network";			 // "knowledge transactive memory network"
+	const std::string k_trust			   = "knowledge trust network";							 // "knowledge trust network"
+	const std::string ktrust_resist		   = "knowledge trust resistance network";				 // "knowledge trust resistance network"
 	const std::string learnable_k          = "learnable knowledge network";                      // "learnable knowledge network"
 	const std::string loc_knowledge	       = "location knowledge network";                       // "location knowledge network"
 	const std::string loc_learning_limit   = "location learning limit network";                  // "location learning limit network"
@@ -3448,7 +3529,7 @@ namespace generator_names {
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
 class Construct;
 
-class CONSTRUCT_LIB GraphManager 
+class GraphManager 
 {
 	GraphManager(Construct* _construct);
 	~GraphManager();
@@ -3571,7 +3652,7 @@ public:
 
 
 
-struct CONSTRUCT_LIB Model
+struct Model
 {
 	Construct* const construct;
 	GraphManager* const graph_manager;
@@ -3590,18 +3671,28 @@ struct CONSTRUCT_LIB Model
 
 	virtual void update(void);
 
-	virtual void communicate(InteractionMessageQueue::iterator msg);
+	virtual void communicate(const InteractionMessage& msg);
 
 	virtual void cleanup(void);
 
 	const std::string name;
 
 	bool valid;
+
+	// add a dummy model using this model but under a different name
+	// this dummy model doesn't have its functions called
+	// primarily for identifying mutally exclusive models while allowing the model pointer to still be accessible
+	void add_base_model_to_model_manager(const std::string& base_model_name);
 };
 
 
-struct CONSTRUCT_LIB PlaceHolder : virtual public Model {
-	PlaceHolder(const std::string& model_name) : Model(model_name) { ; }
+
+struct Inheritence_Wrapper : virtual public Model {
+	Model* wrapped_model;
+
+	Inheritence_Wrapper(Model* model, const std::string& model_name) : Model(model_name) {
+		wrapped_model = model;
+	}
 };
 
 
@@ -3623,14 +3714,26 @@ namespace model_names {
 	
 	//"Location Interaction Model"
 	const std::string LOC		= "Location Interaction Model";
-	//"Twitter Interaction Model"
-	const std::string TWIT		= "Twitter Interaction Model";
-	//"Facebook Interaction Model"
-	const std::string FB		= "Facebook Interaction Model";
-	const std::string TWIT_nf_emot = "Twitter Emotion Interaction Model no followers";
-	const std::string TWIT_wf_emot = "Twitter Emotion Interaction Model";
-	const std::string FB_nf_emot = "Facebook Emotion Interaction Model no followers";
-	const std::string FB_wf_emot = "Facebook Emotion Interaction Model";
+
+
+	//Social Media Models
+
+	//"Twitter Model"
+	const std::string TWIT_nf	= "Twitter Model";
+	//"Twitter Follower Model"
+	const std::string TWIT_wf	= "Twitter Follower Model";
+	//"Twitter Emotion Model"
+	const std::string TWIT_nf_emot = "Twitter Emotion Model";
+	//"Twitter Emotion Follower Model"
+	const std::string TWIT_wf_emot = "Twitter Emotion Follower Model";
+	//"Facebook Model"
+	const std::string FB_nf		= "Facebook Model";
+	//"Facebook Follower Model"
+	const std::string FB_wf		= "Facebook Follower Model";
+	//"Facebook Emotion Model"
+	const std::string FB_nf_emot = "Facebook Emotion Model";
+	//"Facebook Emotion Follower Model"
+	const std::string FB_wf_emot = "Facebook Emotion Follower Model";
 
 	//Modification Models
 
@@ -3647,7 +3750,7 @@ namespace model_names {
 	//"Subscription Model"
 	const std::string SUB		= "Subscription Model";
 	//"Knowledge Trust Parsing Model"
-	const std::string TRUST		= "Knowledge Trust Model";
+	const std::string TRUST		= "Trust Model";
 
 	//Parsing Models
 
@@ -3656,7 +3759,7 @@ namespace model_names {
 	
 }
 
-class CONSTRUCT_LIB ModelManager
+class ModelManager
 {
 	ModelManager(void) { ; }
 	~ModelManager(void);
@@ -3673,7 +3776,7 @@ class CONSTRUCT_LIB ModelManager
 
 	void UpdateAllModels(bool verbose_runtime);
 
-	void CommunicateAllModels(InteractionMessageQueue::iterator& msg);
+	void CommunicateAllModels(const InteractionMessage& msg);
 
 	void CleanUpAllModels(bool verbose_runtime);
 
@@ -3696,17 +3799,55 @@ namespace output_names {
 	const std::string output_graph = "csv"; //csv
 	const std::string output_dynetml = "dynetml"; //dynetml
 	const std::string output_messages = "messages"; //messages
+	const std::string output_media_events = "media events"; //media events
 }
 
-struct CONSTRUCT_LIB Output {
+// output base class
+class Output {
+protected:
+	// vector that contains all the indexes for which output should be recorded
+	// -1 indicates that output should be recorded before the start of the simulation
+	// vector should be ordered in ascending order
+	std::vector<int> output_times;
+
+	// indicates the next time index that output should be recorded
+	std::vector<int>::const_iterator _next_output_time;
+public:
+
+	// Constructor will setup a time system controlled by Output::should_process.
+	Output(const dynet::ParameterMap& params, Construct* construct) {
+		output_times = get_output_timeperiods(params, construct);
+		_next_output_time = output_times.begin();
+	}
+
+	// Constructor that doesn't setup a time system, Output::should_process should not be called
+	Output() {}
+
+	// call this function before processing any output unless the output is always processed
+	bool should_process(int t) {
+		if (_next_output_time != output_times.end()) {
+			assert(t >= *_next_output_time);
+			if (t == *_next_output_time) {
+				_next_output_time++;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	virtual ~Output() { ; }
+
+	// called by Output to set output_times
+	// uses the "timeperiods" key from params to inform the structure of the returned vector
+	// replace this to function customize when the Output should be processed
+	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct* construct);
 
 	//this function should be replaced by classes that inheriet from Output
 	virtual void process(unsigned int t) = 0;
 };
 
 
-class CONSTRUCT_LIB OutputManager {
+class OutputManager {
 
 	std::vector<Output*> _output;
 	friend class Construct;
@@ -3716,18 +3857,19 @@ class CONSTRUCT_LIB OutputManager {
 
 	~OutputManager(void);
 public:
-	void operator*(void) const { assert(false); } //Pointers to this class should not be dereferenced
 
+	// pointers added to OutputManager are deallocated by the OutputManager
 	void add_output(Output* output) noexcept;
 };
 
 
 #include <ctime>
 
-class CONSTRUCT_LIB Construct {
+class Construct {
 	time_t begTim;
-
 public:
+
+	static constexpr const char* version = "5.4.0";
 
 	Construct();
 
@@ -3758,6 +3900,9 @@ public:
 
 	//directory where all output gets sent.
 	std::string working_directory = "";
+
+	//file that contains a custom model and output library.
+	std::string custom_library = "";
 	
 	//current index in the time nodeset aka current time step
 	unsigned int current_time = 0;

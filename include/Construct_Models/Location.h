@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Tasks.h"
 
-class CONSTRUCT_LIB Location : public Model
+class Location : public Model
 {
 public:
 
@@ -76,9 +76,9 @@ public:
 	Tasks* tasks = 0;
 
 	Location(Construct* construct);
-	void initialize(void);
-	void think(void);
-	void cleanup(void);
+	void initialize(void) override;
+	void think(void) override;
+	void cleanup(void) override;
 
 	virtual float get_expertise(unsigned int agent, unsigned int location);
 	virtual const CommunicationMedium* get_medium(unsigned int agent);
