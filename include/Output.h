@@ -54,7 +54,7 @@ struct Output_Graph : public Output {
 		_output_file.open(file);
 		if (!_output_file.is_open()) throw dynet::could_not_open_file(file);
 
-		for (Nodeset::iterator node = _graph->target_nodeset->begin(); node != _graph->target_nodeset->end(); ++node) {
+		for (auto node = _graph->target_nodeset->begin(); node != _graph->target_nodeset->end(); ++node) {
 			_output_file << "," << node->name;
 		}
 		_output_file << std::endl;

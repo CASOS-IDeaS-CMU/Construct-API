@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "Interventions.h"
 
-Intervention1_nf::Intervention1_nf(Social_Media_no_followers* _media, Nodeset::iterator _node) : default_media_user(_media, _node) {
+Intervention1_nf::Intervention1_nf(Social_Media_no_followers* _media, const Node& _node) : default_media_user(_media, _node) {
 	const Nodeset* knowledge_ns = media->ns_manager->get_nodeset(nodeset_names::knowledge);
 	const Nodeset* time_ns = media->ns_manager->get_nodeset(nodeset_names::time);
 	
 	
-	const Node* k_node = knowledge_ns->get_node_by_name(_node->get_attribute("knowledge"));
+	const Node* k_node = knowledge_ns->get_node_by_name(_node.get_attribute("knowledge"));
 	assert(k_node);
 	knowledge = k_node->index;
-	const Node* t_node = time_ns->get_node_by_name(_node->get_attribute("time"));
+	const Node* t_node = time_ns->get_node_by_name(_node.get_attribute("time"));
 	assert(t_node);
 	time = t_node->index;
 }
@@ -25,15 +25,15 @@ unsigned int Intervention1_nf::get_knowledge_selection(void) {
 	return known_knowledge[media->random->integer((unsigned int)known_knowledge.size())];
 }
 
-Intervention2_nf::Intervention2_nf(Social_Media_no_followers* _media, Nodeset::iterator _node) : default_media_user(_media, _node) {
+Intervention2_nf::Intervention2_nf(Social_Media_no_followers* _media, const Node& _node) : default_media_user(_media, _node) {
 	const Nodeset* knowledge_ns = media->ns_manager->get_nodeset(nodeset_names::knowledge);
 	const Nodeset* time_ns = media->ns_manager->get_nodeset(nodeset_names::time);
 
 
-	const Node* k_node = knowledge_ns->get_node_by_name(_node->get_attribute("knowledge"));
+	const Node* k_node = knowledge_ns->get_node_by_name(_node.get_attribute("knowledge"));
 	assert(k_node);
 	knowledge = k_node->index;
-	const Node* t_node = time_ns->get_node_by_name(_node->get_attribute("time"));
+	const Node* t_node = time_ns->get_node_by_name(_node.get_attribute("time"));
 	assert(t_node);
 	time = t_node->index;
 }
@@ -46,21 +46,21 @@ void Intervention2_nf::generate_post_events(void) {
 	}
 }
 
-Intervention3_nf::Intervention3_nf(Social_Media_no_followers* _media, Nodeset::iterator _node) : default_media_user(_media, _node) {
+Intervention3_nf::Intervention3_nf(Social_Media_no_followers* _media, const Node& _node) : default_media_user(_media, _node) {
 	const Nodeset* knowledge_ns = media->ns_manager->get_nodeset(nodeset_names::knowledge);
 	const Nodeset* time_ns = media->ns_manager->get_nodeset(nodeset_names::time);
 
 
-	const Node* k_node = knowledge_ns->get_node_by_name(_node->get_attribute("knowledge"));
+	const Node* k_node = knowledge_ns->get_node_by_name(_node.get_attribute("knowledge"));
 	assert(k_node);
 	knowledge = k_node->index;
-	const Node* t_node = time_ns->get_node_by_name(_node->get_attribute("time"));
+	const Node* t_node = time_ns->get_node_by_name(_node.get_attribute("time"));
 	assert(t_node);
 	time = t_node->index;
 }
 
 float Intervention3_nf::get_trust(unsigned int knowledge_index) {
-	if (!media->TRUST) return -1;
+	if (!media->ktrust_net) return -1;
 
 	// after the specified time, the user always returns trust 0 for the specified knowledge
 	if (time >= media->time && knowledge_index == knowledge) 

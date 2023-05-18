@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "SocialMedia.h"
 
 //this user after a specified time can no longer talk about a specific piece of knowledge
 struct Intervention1_nf : public Social_Media_no_followers::default_media_user
@@ -11,14 +12,14 @@ struct Intervention1_nf : public Social_Media_no_followers::default_media_user
 	// knowledge that the agent can't broadcast anymore
 	// obtained from the agent attribute "knowledge"
 	unsigned int knowledge;
-	Intervention1_nf(Social_Media_no_followers* _media, Nodeset::iterator _node);
+	Intervention1_nf(Social_Media_no_followers* _media, const Node& _node);
 
-	unsigned int get_knowledge_selection(void);
+	unsigned int get_knowledge_selection(void) override;
 };
 
 
 struct Intervention1 : public Intervention1_nf, public virtual Social_Media_with_followers::default_media_user {
-	Intervention1(Social_Media_with_followers* _media, Nodeset::iterator _node) : 
+	Intervention1(Social_Media_with_followers* _media, const Node& _node) : 
 		Intervention1_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
 };
 
@@ -33,14 +34,14 @@ struct Intervention2_nf : public Social_Media_no_followers::default_media_user {
 	// obtained from the agent attribute "knowledge"
 	unsigned int knowledge;
 
-	Intervention2_nf(Social_Media_no_followers* _media, Nodeset::iterator _node);
+	Intervention2_nf(Social_Media_no_followers* _media, const Node& _node);
 
-	void generate_post_events(void);
+	void generate_post_events(void) override;
 
 };
 
 struct Intervention2 : public Intervention2_nf, virtual public Social_Media_with_followers::default_media_user {
-	Intervention2(Social_Media_with_followers* _media, Nodeset::iterator _node) : 
+	Intervention2(Social_Media_with_followers* _media, const Node& _node) : 
 		Intervention2_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
 
 };
@@ -57,14 +58,14 @@ struct Intervention3_nf : public Social_Media_no_followers::default_media_user {
 	// obtained from the agent attribute "knowledge"
 	unsigned int knowledge;
 
-	Intervention3_nf(Social_Media_no_followers* _media, Nodeset::iterator _node);
+	Intervention3_nf(Social_Media_no_followers* _media, const Node& _node);
 
-	float get_trust(unsigned int knowledge_index);
+	float get_trust(unsigned int knowledge_index) override;
 
 };
 
 
 struct Intervention3 : public Intervention3_nf, virtual public Social_Media_with_followers::default_media_user {
-	Intervention3(Social_Media_with_followers* _media, Nodeset::iterator _node) :
+	Intervention3(Social_Media_with_followers* _media, const Node& _node) :
 		Intervention3_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
 };
