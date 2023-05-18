@@ -63,14 +63,8 @@
     <ClInclude Include="framework.h">
       <Filter>Do Not Edit</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\json.hpp">
-      <Filter>Do Not Edit</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Do Not Edit</Filter>
-    </ClInclude>
-    <ClInclude Include="item_keys.h">
-      <Filter>Customization</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Output.h">
       <Filter>Customization</Filter>
@@ -79,7 +73,7 @@
       <Filter>Customization</Filter>
     </ClInclude>
     <ClInclude Include="Interventions.h">
-      <Filter>Models</Filter>
+      <Filter>Customization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +90,7 @@
       <Filter>Customization</Filter>
     </ClCompile>
     <ClCompile Include="Interventions.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Customization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
