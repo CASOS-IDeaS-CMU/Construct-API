@@ -127,13 +127,13 @@ void dynet::load_users(Social_Media_no_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
 
-		if (node->attributes->find("censored") != node->attributes->end())
+		if (node->attributes->contains("censored"))
 			media->users[node->index] = new Intervention1_nf(media, *node);
 
-		else if (node->attributes->find("one time compell") != node->attributes->end())
+		else if (node->attributes->contains("one time compell"))
 			media->users[node->index] = new Intervention2_nf(media, *node);
 
-		else if (node->attributes->find("compell") != node->attributes->end())
+		else if (node->attributes->contains("compell"))
 			media->users[node->index] = new Intervention3_nf(media, *node);
 
 		else 
@@ -144,13 +144,13 @@ void dynet::load_users(Social_Media_no_followers* media) {
 void dynet::load_users(Social_Media_with_followers* media) {
 	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
 		//custom users should be added at the vector index instead of the default user
-		if (node->attributes->find("censored") != node->attributes->end())
+		if (node->attributes->contains("censored"))
 			media->users[node->index] = new Intervention1(media, *node);
 
-		else if (node->attributes->find("one time compell") != node->attributes->end())
+		else if (node->attributes->contains("one time compell"))
 			media->users[node->index] = new Intervention2(media, *node);
 
-		else if (node->attributes->find("compell") != node->attributes->end())
+		else if (node->attributes->contains("compell"))
 			media->users[node->index] = new Intervention3(media, *node);
 
 		else
