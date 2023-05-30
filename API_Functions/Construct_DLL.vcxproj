@@ -420,6 +420,7 @@
     <ClInclude Include="..\include\Construct_Models\Template.h" />
     <ClInclude Include="..\include\Output.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="item_keys.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Supp_Library.h" />
   </ItemGroup>
