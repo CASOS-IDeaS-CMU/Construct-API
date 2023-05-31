@@ -75,6 +75,9 @@
     <ClInclude Include="Infection.h">
       <Filter>Customization</Filter>
     </ClInclude>
+    <ClInclude Include="item_keys.h">
+      <Filter>Customization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Supp_Library.cpp">

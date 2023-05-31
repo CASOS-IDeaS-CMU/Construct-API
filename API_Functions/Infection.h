@@ -1,12 +1,12 @@
 #ifndef INFECTION_HH_H
 #define INFECTION_HH_H
 #include "pch.h"
-#include "StandardInteraction.h"
 
-// commone names should be stored in a central location to limit typing errors
+
+// common names should be stored in a central location to limit typing errors
 
 namespace nodeset_names {
-	const std::string infections = infections;
+	const std::string infections = "infection";
 }
 
 namespace graph_names {
@@ -95,7 +95,7 @@ struct Infection_v2 : public Model {
 
 
 
-
+#include "StandardInteraction.h"
 
 // Modification that has people attempt to avoid other agents with an infection
 // models don't require cpp file and everything can be declared in the header file
@@ -107,7 +107,7 @@ struct Infection_v3 : public StandardInteraction {
 
 	const Graph<bool>& infection_net = graph_manager->load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
 
-	const Graph<float>& risk_aversion = graph_manager->load_required("infection risk aversion network", nodeset_names::agents, nodeset_names::infections);;
+	const Graph<float>& risk_aversion = graph_manager->load_optional("infection risk aversion network", 1.0f, nodeset_names::agents, sparse, nodeset_names::infections, dense);;
 
 	// this overrides StandardInteraction::get_additions
 	// this function will now be called when the parent class calls its get_additions function
