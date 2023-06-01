@@ -171,7 +171,7 @@ LIB_EXT = dylib
 endif
 
 # Adds -D to the beginning of each preprocessor flag
-override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_MEDIA_USERS
+override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_MEDIA_USERS -DCUSTOM_ITEM_KEYS
 
 # Adds -I to the beginning of each include directory
 override INC_DIR += $(patsubst %, -I%, $(INC) $(ADD_INC))
