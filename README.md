@@ -5,7 +5,7 @@ Useful Links:
 
 [Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
 
-[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-22-102.pdf)
+[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-23-104.pdf)
 
 [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
 
@@ -39,22 +39,21 @@ Finally, developers may wish to take advantage of some of the data structures av
 
 ## Creating a Custom Model
 Custom Model creation examples can be seen in the folder API_Fuctions, which contains the Visual Studio solution Construct_DLL.sln.
-This solution contains all the setup required to build the windows dll that the Construct exes can take as input.
+This solution contains all the setup required to build the windows dynamically linked library (dll) that the Construct exes can take as input.
 For those on a Unix operating system, a Makefile is included which serves a similar purpose as the VS solution.
-Construct will search for the dll/shared library in the directory from which the Construct exes are called.
+This library can be imported in Construct by including the library's path location in the "custom library" attribute for "construct_parameters".
 These exes are currently located in x64/(Debug, Quiet, or Release) with each folder holding an exe compiled with different flags based on the configuration.
-Construct looks for three functions in these files, "create_custom_model", "create_custom_output", "create_custom_media_user_no_followers", and "create_custom_media_user_with_followers".
-These functions are contained in Supp_Library.
+Construct looks for two functions in these files, "create_model" and "create_output" which are defined in Supp_Library.
 In the debug configuration when verbose initialization is set to true, messages will be displayed indicating that the library was loaded and if the functions were found.
 
-The "create_custom_model" function is the injection point for any custom models.
-This function returns a Model pointer.
+The "create_model" function replaces Construct's built in model loading library and returns a Model pointer based on the function's parameters.
+Here you may specify any custom models and under what conditions they should be called.
 All custom models must inheriet (sometimes indirectly) from the Model base class.
-Custom models can inherit from already exsiting models such as the StandardInteraction Model, or the Social_Media Model.
+Custom models can inherit from already exsiting models such as the StandardInteraction Model, or the various social media models.
 Inheriting from an existing model with virtual functions allows developers to replace that model's function which affects how the model interacts with itself and other entities.
 An example would be modifiying StandardInteraction's knowledge_similarity function, which uses jaccard similarity, to use a different metric.
 
-Once a custom model has been defined, it must be included in the definition of "create_custom_model".
+Once a custom model has been defined, it must be included in the definition of "create_model".
 The function call gives as input the model's name.
 This allows Construct to select the appropriate model.
 If the custom model's name is given (the same string given to the Model constructor), the custom model should be allocated with new and its pointer returned by the function.
@@ -62,18 +61,17 @@ To aid in the example of how developers can create models and how interfaces bet
 
 ## Creating Custom Output
 
-With custom models, custom outputs are needed to export information in methods not currently supported.
+As with custom models, custom outputs are needed to export information in methods not currently supported.
 An example would be exporting when certain conditions were met, or aggregating data before exporting.
 Custom output operates very similarly to how models are defined.
 Each output must inheriet from the Output class, each output is selected using the output_name string, and the output must be allocated with new and returned by the function.
 
 ## Custom Media Users
 
-As with the previous two examples, custom media users must inherit from the media_user sub-class of a Social Media model, allocated using new, and returned by the function.
-The significant difference is a specific social media model and a nodeset iterator from the agent nodeset is used as input.
-Attributes of the agent node then can be used to determine which type of media user should be returned.
-This customization allows developers to create different types of users that can interact on a social media.
-An example would be creating a user that always reposts events from a specific account, or always creates events with the same content.
+When the preprocessor definition "CUSTOM_MEDIA_USERS" is present as it is in Construct_DLL.sln, custom load_users function can be defined.
+These replace the load_users function in the social media models without having to create a new class inherieting from the corresponding models.
+While many methods can be used to instantiate social media users, the default method is using the node attributes for each of the user's corresponding nodes'.
+By creating a class that inheriets from the media_user or default_media_user class contained in a social media model, various functionality can be modified such as targeted behavior when reposting.
 
 ## Full Manual Construct
 
