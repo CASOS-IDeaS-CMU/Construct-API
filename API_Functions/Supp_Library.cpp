@@ -130,10 +130,10 @@ void dynet::load_users(Social_Media_no_followers* media) {
 		if (node->attributes->contains("censored"))
 			media->users[node->index] = new Intervention1_nf(media, *node);
 
-		else if (node->attributes->contains("one time compell"))
+		else if (node->attributes->contains("one time compel"))
 			media->users[node->index] = new Intervention2_nf(media, *node);
 
-		else if (node->attributes->contains("compell"))
+		else if (node->attributes->contains("compel"))
 			media->users[node->index] = new Intervention3_nf(media, *node);
 
 		else 
@@ -147,10 +147,10 @@ void dynet::load_users(Social_Media_with_followers* media) {
 		if (node->attributes->contains("censored"))
 			media->users[node->index] = new Intervention1(media, *node);
 
-		else if (node->attributes->contains("one time compell"))
+		else if (node->attributes->contains("one time compel"))
 			media->users[node->index] = new Intervention2(media, *node);
 
-		else if (node->attributes->contains("compell"))
+		else if (node->attributes->contains("compel"))
 			media->users[node->index] = new Intervention3(media, *node);
 
 		else
