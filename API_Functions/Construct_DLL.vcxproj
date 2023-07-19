@@ -297,8 +297,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(Projectdir)..\include\x64\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libconstruct.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(Projectdir);$(Projectdir)..\include\x64\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libconstruct.lib;reddit_libconstructAPI.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -421,6 +421,7 @@
     <ClInclude Include="..\include\Output.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Reddit.h" />
     <ClInclude Include="Supp_Library.h" />
   </ItemGroup>
   <ItemGroup>

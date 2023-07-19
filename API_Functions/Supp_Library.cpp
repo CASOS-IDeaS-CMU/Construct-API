@@ -12,6 +12,7 @@
 #include "KnowledgeTrust.h"
 #include "Emotions.h"
 
+#include "Reddit.h"
 
 
 //only edit the contents of each function and include any extra files needed
@@ -30,9 +31,8 @@ namespace dynet {
 		if (model_name == "Template Model")
 			return new Template(parameters, construct);
 
-		//************************************
-		//*    add your custom model here    *
-		//************************************
+        else if (model_name == model_names::REDDIT)
+            return new Reddit(parameters, construct);
 
 
 		else if (model_name == model_names::SIM)
@@ -115,6 +115,9 @@ namespace dynet {
 		//*************************************
 		//*    add your custom output here    *
 		//*************************************
+        else if (output_name == output_names::output_posts) {
+            return new Output_Posts(parameters, construct);    //UPDATE THIS!! START HERE 2
+        }
 
 		return NULL;
 	}

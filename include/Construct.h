@@ -577,9 +577,14 @@ struct CONSTRUCT_LIB InteractionItem
 		twitter_event,
 		facebook_event,
 		feed_position,
-		emotion
+		emotion,
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
+		banned,
+		upvotes,
+		downvotes,
+		subreddit,
+		prev_banned
 	};
 
 
@@ -3708,6 +3713,8 @@ namespace output_names {
 	const std::string output_graph = "csv"; //csv
 	const std::string output_dynetml = "dynetml"; //dynetml
 	const std::string output_messages = "messages"; //messages
+	const std::string output_posts = "posts"; //posts
+
 }
 
 struct CONSTRUCT_LIB Output {

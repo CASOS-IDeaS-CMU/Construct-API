@@ -58,7 +58,7 @@ struct Output_Graph : public Output {
 		auto str = params.get_parameter(timeperiods);
 
 		if (str == "last") output_times.push_back(construct->time_count - 1);
-		else if (str == "all") for (unsigned int i = 0; i < construct->time_count; i++) output_times.push_back(i);
+		else if (str == "all") for (unsigned int i = 0; i < construct->time_count; i++) output_times.push_back(i=i+(12*6));
 		else if (str != "initial") throw dynet::unknown_value(timeperiods, str);
 
 		output_times.push_back(construct->time_count);
@@ -236,7 +236,9 @@ struct Output_dynetml : public Output {
 
 		//output_time should be sorted so the iterator should always be less than or equal to t
 		//the last element in output_time should be the time count
-		assert(t >= *_next_output_time);
+		std::cout << "t: " << t << std::endl;
+		std::cout << "next_output_time: " << *_next_output_time << std::endl;
+		//assert(t >= *_next_output_time);
 
 		if (t == *_next_output_time) {
 			_output_file << "<MetaNetwork id=\"timeperiod_" << t << "\" timePeriod=\"" << t << "\">";
@@ -283,7 +285,7 @@ struct Output_dynetml : public Output {
 
 		auto str = params.get_parameter(timeperiods);
 		if (str == "last") output_times.push_back(construct->time_count - 1);
-		else if (str == "all") for (unsigned int i = 0; i < construct->time_count; i++) output_times.push_back(i);
+		else if (str == "all") for (unsigned int i = 0; i < construct->time_count + 72; i+=72) output_times.push_back(i);
 		else if (str != "initial") throw dynet::unknown_value(timeperiods, str);
 
 		_next_output_time = output_times.begin();
@@ -436,6 +438,190 @@ struct Output_Messages : public Output {
 		}
 	}
 };
+
+
+struct Output_Posts : public Output {
+
+	Social_Media_no_followers::event_container queue;
+	std::ofstream _output_file;
+	Social_Media_no_followers* reddit_model;
+
+	~Output_Posts(void) {
+		_output_file << "}" << std::endl;
+		_output_file.close();
+	}
+
+	void item_out(InteractionMessage::iterator item) {
+
+		static constexpr const char* tabs = "\t\t\t\t\t";
+
+		_output_file << tabs << "\"attributes\" : [";
+		if (item->attributes.size()) {
+			InteractionItem::attribute_iterator it = item->attributes.begin();
+			_output_file << "\"" << InteractionItem::get_item_name(*it) << "\"";
+			++it;
+			for (; it != item->attributes.end(); ++it) {
+				_output_file << "," << "\"" << InteractionItem::get_item_name(*it) << "\"";
+			}
+		}
+		_output_file << "]," << std::endl;
+		_output_file << tabs << "\"indexes\" : {" << std::endl;
+		if (item->indexes.size()) {
+			InteractionItem::index_iterator it = item->indexes.begin();
+			_output_file << tabs << "\t\"" << InteractionItem::get_item_name(it->first) << "\" : " << it->second;
+			++it;
+			for (; it != item->indexes.end(); ++it) {
+				_output_file << "," << std::endl;
+				_output_file << tabs << "\t\"" << InteractionItem::get_item_name(it->first) << "\" : " << it->second;
+			}
+			_output_file << std::endl;
+
+		}
+		_output_file << tabs << "}," << std::endl;
+		_output_file << tabs << "\"values\" : {" << std::endl;
+		if (item->values.size()) {
+			InteractionItem::value_iterator it = item->values.begin();
+			_output_file << tabs << "\t\"" << InteractionItem::get_item_name(it->first) << "\" : " << it->second;
+			++it;
+			for (; it != item->values.end(); ++it) {
+				_output_file << "," << std::endl;
+				_output_file << tabs << "\t\"" << InteractionItem::get_item_name(it->first) << "\" : " << it->second;
+			}
+			_output_file << std::endl;
+		}
+		_output_file << tabs << "}" << std::endl;
+	}
+
+	void msg_out(const Social_Media_no_followers::event_container::const_iterator msg, const unsigned int current_timestep) {
+
+		static constexpr const char* tabs = "\t\t\t";
+		_output_file << "\"current timestep\", " << current_timestep << ", ";
+		_output_file << "\"timestep created\", " << msg->time_stamp << ", ";
+		_output_file << "\"user\", \"" << msg->user << "\", ";
+		_output_file << "\"last used\", " << msg->last_used << ", ";
+		_output_file << "\"prev banned\", " << msg->indexes.find(InteractionItem::item_keys::prev_banned)->second << ", ";
+		_output_file << "\"subreddit\", " << msg->indexes.find(InteractionItem::item_keys::subreddit)->second << ", ";
+		_output_file << "\"knowledge\", " << msg->indexes.find(InteractionItem::item_keys::knowledge)->second << ", ";
+		_output_file << "\"ktrust\", " << msg->values.find(InteractionItem::item_keys::ktrust)->second << ", ";
+		_output_file << "\"upvotes\", " << msg->indexes.find(InteractionItem::item_keys::upvotes)->second << ", ";
+		_output_file << "\"downvotes\", " << msg->indexes.find(InteractionItem::item_keys::downvotes)->second << ", ";
+		_output_file << "\"banned\", " << msg->indexes.find(InteractionItem::item_keys::banned)->second << ", ";
+
+		//_output_file << "\"type\" : " << (std::string)(msg->type) << ", ";
+		//_output_file << "\"child_size\" : " << msg->child_size() << ", ";
+		_output_file << "\"parent_event\", " << msg->parent_event << ", ";
+		_output_file << "\"root_event\", " << msg->root_event << ", ";
+		_output_file << "\"id\", " << &(*msg) << std::endl;
+
+
+		//_output_file << tabs << "\"timestep\" : " << msg->time_stamp << ", " << std::endl;
+		//_output_file << tabs << "\"user\" : \"" << msg->user << "\"," << std::endl;
+		//_output_file << tabs << "\"last used\" : " << msg->last_used << "," << std::endl;
+
+		//_output_file << tabs << "\"subreddit\" : " << msg->indexes[InteractionItem::item_keys::subreddit] << "," << std::endl;
+		//_output_file << tabs << "\"knowledge\" : " << msg->indexes[InteractionItem::item_keys::knowledge] << "," << std::endl;
+		//_output_file << tabs << "\"ktrust\" : " << msg->indexes[InteractionItem::item_keys::ktrust] << "," << std::endl;
+		//_output_file << tabs << "\"upvotes\" : " << msg->indexes[InteractionItem::item_keys::upvotes] << "," << std::endl;
+		//_output_file << tabs << "\"downvotes\" : " << msg->indexes[InteractionItem::item_keys::downvotes] << "," << std::endl;
+		//_output_file << tabs << "\"banned\" : " << msg->indexes[InteractionItem::item_keys::banned] << "," << std::endl;
+
+
+		/*_output_file << tabs << "\"Items\" : [" << std::endl;
+
+		InteractionMessage::iterator item = msg->begin();
+		_output_file << tabs << "\t{" << std::endl;
+		if (msg->size()) {
+			item_out(item);
+			++item;
+		}
+
+		for (; item != msg->end(); ++item) {
+			_output_file << tabs << "\t}," << std::endl;
+			_output_file << tabs << "\t{" << std::endl;
+			item_out(item);
+		}
+		_output_file << tabs << "\t}" << std::endl;
+		_output_file << tabs << "]" << std::endl;*/
+	}
+
+	void process(unsigned int t) {
+		//_output_file << "\t\"timeperiod\", " << t;
+
+		//std::cout << "Process Check List BEFORE: " << std::endl;
+		//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
+		//	Social_Media_no_followers::media_event& post = *itr;
+		//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+		//}
+
+		//queue = reddit_model->list_of_events;  //this caused the data loss issue
+
+		//std::cout << "Process Check List before for loop: " << std::endl;
+		//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
+		//	Social_Media_no_followers::media_event& post = *itr;
+		//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+		//}
+		if (t % (12*6) == 0) {
+			if (reddit_model->list_of_events.cbegin() != reddit_model->list_of_events.cend()) {
+
+				//std::cout << "Process Check List before for loop: " << std::endl;
+				//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
+				//	Social_Media_no_followers::media_event& post = *itr;
+				//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+				//}
+
+				auto msg = reddit_model->list_of_events.cbegin();
+
+				for (; msg != reddit_model->list_of_events.cend(); ++msg) {
+					msg_out(msg, t);
+				}
+
+				//std::cout << "Process Check List after for loop: " << std::endl;
+				//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
+				//	Social_Media_no_followers::media_event& post = *itr;
+				//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+				//}
+			}
+
+			//std::cout << "Process Check List AFTER: " << std::endl;
+			//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
+			//	Social_Media_no_followers::media_event& post = *itr;
+			//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+			//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
+			//	std::cout << "upvote = " << post.indexes[InteractionItem::item_keys::upvotes] << std::endl;
+			//	std::cout << "downvote = " << post.indexes[InteractionItem::item_keys::downvotes] << std::endl;
+			//	std::cout << "banned = " << post.indexes[InteractionItem::item_keys::banned] << std::endl;
+			//	std::cout << "ktrust = " << post.values[InteractionItem::item_keys::ktrust] << std::endl;
+			//	std::cout << "knowledge = " << post.values[InteractionItem::item_keys::knowledge] << std::endl;
+			//	std::cout << "user = " << post.user << std::endl;
+			//	std::cout << "id = " << &post << std::endl;
+			//}
+		}
+	}
+
+
+	Output_Posts(const dynet::ParameterMap& params, Construct* construct) {
+
+		//name of required parameter
+		const char* output_file = "output file";
+
+		reddit_model = dynamic_cast<Social_Media_no_followers*>((construct->model_manager).get_model_by_name("Reddit Interaction Model"));
+		queue = reddit_model->list_of_events;
+
+		std::string file = params.get_parameter(output_file);
+		if (file.size() <= 4 || ".csv" != file.substr(file.size() - 4, 4)) {
+			throw dynet::wrong_file_extension(output_file, ".csv");
+		}
+
+		if (construct->working_directory != "") file = construct->working_directory + dynet::seperator() + file;
+
+		_output_file.open(file);
+
+		if (!_output_file.is_open()) {
+			throw dynet::could_not_open_file(file);
+		}
+	}
+};
+
 
 #include <locale>
 #include <iomanip>
