@@ -236,7 +236,6 @@ struct Output_dynetml : public Output {
 
 		//output_time should be sorted so the iterator should always be less than or equal to t
 		//the last element in output_time should be the time count
-		std::cout << "t: " << t << std::endl;
 		std::cout << "next_output_time: " << *_next_output_time << std::endl;
 		//assert(t >= *_next_output_time);
 
@@ -285,7 +284,12 @@ struct Output_dynetml : public Output {
 
 		auto str = params.get_parameter(timeperiods);
 		if (str == "last") output_times.push_back(construct->time_count - 1);
-		else if (str == "all") for (unsigned int i = 0; i < construct->time_count + 72; i+=72) output_times.push_back(i);
+		else if (str == "all") {
+			for (unsigned int i = 0; i < construct->time_count + 144; i += 144) {
+				if (i < (construct->time_count - 1)) output_times.push_back(i) ;
+			}
+			output_times.push_back(construct->time_count - 1);
+		}
 		else if (str != "initial") throw dynet::unknown_value(timeperiods, str);
 
 		_next_output_time = output_times.begin();
@@ -447,7 +451,7 @@ struct Output_Posts : public Output {
 	Social_Media_no_followers* reddit_model;
 
 	~Output_Posts(void) {
-		_output_file << "}" << std::endl;
+		_output_file.flush();
 		_output_file.close();
 	}
 
@@ -513,88 +517,19 @@ struct Output_Posts : public Output {
 		_output_file << "\"root_event\", " << msg->root_event << ", ";
 		_output_file << "\"id\", " << &(*msg) << std::endl;
 
-
-		//_output_file << tabs << "\"timestep\" : " << msg->time_stamp << ", " << std::endl;
-		//_output_file << tabs << "\"user\" : \"" << msg->user << "\"," << std::endl;
-		//_output_file << tabs << "\"last used\" : " << msg->last_used << "," << std::endl;
-
-		//_output_file << tabs << "\"subreddit\" : " << msg->indexes[InteractionItem::item_keys::subreddit] << "," << std::endl;
-		//_output_file << tabs << "\"knowledge\" : " << msg->indexes[InteractionItem::item_keys::knowledge] << "," << std::endl;
-		//_output_file << tabs << "\"ktrust\" : " << msg->indexes[InteractionItem::item_keys::ktrust] << "," << std::endl;
-		//_output_file << tabs << "\"upvotes\" : " << msg->indexes[InteractionItem::item_keys::upvotes] << "," << std::endl;
-		//_output_file << tabs << "\"downvotes\" : " << msg->indexes[InteractionItem::item_keys::downvotes] << "," << std::endl;
-		//_output_file << tabs << "\"banned\" : " << msg->indexes[InteractionItem::item_keys::banned] << "," << std::endl;
-
-
-		/*_output_file << tabs << "\"Items\" : [" << std::endl;
-
-		InteractionMessage::iterator item = msg->begin();
-		_output_file << tabs << "\t{" << std::endl;
-		if (msg->size()) {
-			item_out(item);
-			++item;
-		}
-
-		for (; item != msg->end(); ++item) {
-			_output_file << tabs << "\t}," << std::endl;
-			_output_file << tabs << "\t{" << std::endl;
-			item_out(item);
-		}
-		_output_file << tabs << "\t}" << std::endl;
-		_output_file << tabs << "]" << std::endl;*/
 	}
 
 	void process(unsigned int t) {
-		//_output_file << "\t\"timeperiod\", " << t;
 
-		//std::cout << "Process Check List BEFORE: " << std::endl;
-		//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
-		//	Social_Media_no_followers::media_event& post = *itr;
-		//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-		//}
-
-		//queue = reddit_model->list_of_events;  //this caused the data loss issue
-
-		//std::cout << "Process Check List before for loop: " << std::endl;
-		//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
-		//	Social_Media_no_followers::media_event& post = *itr;
-		//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-		//}
-		if (t % (12*6) == 0) {
+		if ((t+1) % (12 * 24) == 0) {
 			if (reddit_model->list_of_events.cbegin() != reddit_model->list_of_events.cend()) {
-
-				//std::cout << "Process Check List before for loop: " << std::endl;
-				//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
-				//	Social_Media_no_followers::media_event& post = *itr;
-				//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-				//}
 
 				auto msg = reddit_model->list_of_events.cbegin();
 
 				for (; msg != reddit_model->list_of_events.cend(); ++msg) {
 					msg_out(msg, t);
 				}
-
-				//std::cout << "Process Check List after for loop: " << std::endl;
-				//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
-				//	Social_Media_no_followers::media_event& post = *itr;
-				//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-				//}
 			}
-
-			//std::cout << "Process Check List AFTER: " << std::endl;
-			//for (auto itr = reddit_model->list_of_events.begin(); itr != reddit_model->list_of_events.end(); ++itr) {
-			//	Social_Media_no_followers::media_event& post = *itr;
-			//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-			//	std::cout << "subreddit = " << post.indexes[InteractionItem::item_keys::subreddit] << std::endl;
-			//	std::cout << "upvote = " << post.indexes[InteractionItem::item_keys::upvotes] << std::endl;
-			//	std::cout << "downvote = " << post.indexes[InteractionItem::item_keys::downvotes] << std::endl;
-			//	std::cout << "banned = " << post.indexes[InteractionItem::item_keys::banned] << std::endl;
-			//	std::cout << "ktrust = " << post.values[InteractionItem::item_keys::ktrust] << std::endl;
-			//	std::cout << "knowledge = " << post.values[InteractionItem::item_keys::knowledge] << std::endl;
-			//	std::cout << "user = " << post.user << std::endl;
-			//	std::cout << "id = " << &post << std::endl;
-			//}
 		}
 	}
 

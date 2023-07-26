@@ -1,0 +1,2414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<construct>
+ <construct_parameters>
+  <param name="seed" value="0"/>
+  <param name="verbose initialization" value="false"/>
+  <param name="verbose runtime" value="false"/>
+ </construct_parameters>
+ <nodesets>
+  <nodeset name="agent">
+   <node name="agent_0">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_1">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_2">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_3">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_4">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_5">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_6">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_7">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_8">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_9">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_10">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_11">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_12">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_13">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_14">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_15">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_16">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_17">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_18">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_19">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_20">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_21">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_22">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_23">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_24">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_25">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_26">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_27">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_28">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_29">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_30">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_31">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_32">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_33">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_34">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_35">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_36">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_37">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_38">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_39">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_40">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_41">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_42">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_43">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_44">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_45">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_46">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_47">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_48">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_49">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_50">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_51">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_52">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_53">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_54">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_55">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_56">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_57">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_58">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_59">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_60">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_61">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_62">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_63">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_64">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_65">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_66">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_67">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_68">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_69">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_70">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_71">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_72">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_73">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_74">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_75">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_76">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_77">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_78">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_79">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_80">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_81">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_82">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_83">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_84">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_85">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_86">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_87">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_88">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_89">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_90">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_91">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_92">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_93">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_94">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_95">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_96">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_97">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_98">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_99">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+  </nodeset>
+  <nodeset name="subreddit">
+   <node name="subreddit_0">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_1">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_2">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_3">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_4">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_5">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_6">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_7">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_8">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_9">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+  </nodeset>
+  <nodeset name="knowledge_type">
+   <node name="misinfo"/>
+  </nodeset>
+  <nodeset name="knowledge">
+   <node name="knowledge_0"/>
+   <node name="knowledge_1"/>
+   <node name="knowledge_2"/>
+   <node name="knowledge_3"/>
+   <node name="knowledge_4"/>
+   <node name="knowledge_5"/>
+   <node name="knowledge_6"/>
+   <node name="knowledge_7"/>
+   <node name="knowledge_8"/>
+   <node name="knowledge_9"/>
+   <node name="knowledge_10"/>
+   <node name="knowledge_11"/>
+   <node name="knowledge_12"/>
+   <node name="knowledge_13"/>
+   <node name="knowledge_14"/>
+   <node name="knowledge_15"/>
+   <node name="knowledge_16"/>
+   <node name="knowledge_17"/>
+   <node name="knowledge_18"/>
+   <node name="knowledge_19"/>
+   <node name="knowledge_20"/>
+   <node name="knowledge_21"/>
+   <node name="knowledge_22"/>
+   <node name="knowledge_23"/>
+   <node name="knowledge_24"/>
+  </nodeset>
+  <nodeset name="medium">
+   <node name="medium_0"/>
+  </nodeset>
+  <nodeset name="time">
+   <node name="time_0"/>
+   <node name="time_1"/>
+   <node name="time_2"/>
+   <node name="time_3"/>
+   <node name="time_4"/>
+   <node name="time_5"/>
+   <node name="time_6"/>
+   <node name="time_7"/>
+   <node name="time_8"/>
+   <node name="time_9"/>
+   <node name="time_10"/>
+   <node name="time_11"/>
+   <node name="time_12"/>
+   <node name="time_13"/>
+   <node name="time_14"/>
+   <node name="time_15"/>
+   <node name="time_16"/>
+   <node name="time_17"/>
+   <node name="time_18"/>
+   <node name="time_19"/>
+   <node name="time_20"/>
+   <node name="time_21"/>
+   <node name="time_22"/>
+   <node name="time_23"/>
+   <node name="time_24"/>
+   <node name="time_25"/>
+   <node name="time_26"/>
+   <node name="time_27"/>
+   <node name="time_28"/>
+   <node name="time_29"/>
+   <node name="time_30"/>
+   <node name="time_31"/>
+   <node name="time_32"/>
+   <node name="time_33"/>
+   <node name="time_34"/>
+   <node name="time_35"/>
+   <node name="time_36"/>
+   <node name="time_37"/>
+   <node name="time_38"/>
+   <node name="time_39"/>
+   <node name="time_40"/>
+   <node name="time_41"/>
+   <node name="time_42"/>
+   <node name="time_43"/>
+   <node name="time_44"/>
+   <node name="time_45"/>
+   <node name="time_46"/>
+   <node name="time_47"/>
+   <node name="time_48"/>
+   <node name="time_49"/>
+   <node name="time_50"/>
+   <node name="time_51"/>
+   <node name="time_52"/>
+   <node name="time_53"/>
+   <node name="time_54"/>
+   <node name="time_55"/>
+   <node name="time_56"/>
+   <node name="time_57"/>
+   <node name="time_58"/>
+   <node name="time_59"/>
+   <node name="time_60"/>
+   <node name="time_61"/>
+   <node name="time_62"/>
+   <node name="time_63"/>
+   <node name="time_64"/>
+   <node name="time_65"/>
+   <node name="time_66"/>
+   <node name="time_67"/>
+   <node name="time_68"/>
+   <node name="time_69"/>
+   <node name="time_70"/>
+   <node name="time_71"/>
+   <node name="time_72"/>
+   <node name="time_73"/>
+   <node name="time_74"/>
+   <node name="time_75"/>
+   <node name="time_76"/>
+   <node name="time_77"/>
+   <node name="time_78"/>
+   <node name="time_79"/>
+   <node name="time_80"/>
+   <node name="time_81"/>
+   <node name="time_82"/>
+   <node name="time_83"/>
+   <node name="time_84"/>
+   <node name="time_85"/>
+   <node name="time_86"/>
+   <node name="time_87"/>
+   <node name="time_88"/>
+   <node name="time_89"/>
+   <node name="time_90"/>
+   <node name="time_91"/>
+   <node name="time_92"/>
+   <node name="time_93"/>
+   <node name="time_94"/>
+   <node name="time_95"/>
+   <node name="time_96"/>
+   <node name="time_97"/>
+   <node name="time_98"/>
+   <node name="time_99"/>
+   <node name="time_100"/>
+   <node name="time_101"/>
+   <node name="time_102"/>
+   <node name="time_103"/>
+   <node name="time_104"/>
+   <node name="time_105"/>
+   <node name="time_106"/>
+   <node name="time_107"/>
+   <node name="time_108"/>
+   <node name="time_109"/>
+   <node name="time_110"/>
+   <node name="time_111"/>
+   <node name="time_112"/>
+   <node name="time_113"/>
+   <node name="time_114"/>
+   <node name="time_115"/>
+   <node name="time_116"/>
+   <node name="time_117"/>
+   <node name="time_118"/>
+   <node name="time_119"/>
+   <node name="time_120"/>
+   <node name="time_121"/>
+   <node name="time_122"/>
+   <node name="time_123"/>
+   <node name="time_124"/>
+   <node name="time_125"/>
+   <node name="time_126"/>
+   <node name="time_127"/>
+   <node name="time_128"/>
+   <node name="time_129"/>
+   <node name="time_130"/>
+   <node name="time_131"/>
+   <node name="time_132"/>
+   <node name="time_133"/>
+   <node name="time_134"/>
+   <node name="time_135"/>
+   <node name="time_136"/>
+   <node name="time_137"/>
+   <node name="time_138"/>
+   <node name="time_139"/>
+   <node name="time_140"/>
+   <node name="time_141"/>
+   <node name="time_142"/>
+   <node name="time_143"/>
+   <node name="time_144"/>
+   <node name="time_145"/>
+   <node name="time_146"/>
+   <node name="time_147"/>
+   <node name="time_148"/>
+   <node name="time_149"/>
+   <node name="time_150"/>
+   <node name="time_151"/>
+   <node name="time_152"/>
+   <node name="time_153"/>
+   <node name="time_154"/>
+   <node name="time_155"/>
+   <node name="time_156"/>
+   <node name="time_157"/>
+   <node name="time_158"/>
+   <node name="time_159"/>
+   <node name="time_160"/>
+   <node name="time_161"/>
+   <node name="time_162"/>
+   <node name="time_163"/>
+   <node name="time_164"/>
+   <node name="time_165"/>
+   <node name="time_166"/>
+   <node name="time_167"/>
+   <node name="time_168"/>
+   <node name="time_169"/>
+   <node name="time_170"/>
+   <node name="time_171"/>
+   <node name="time_172"/>
+   <node name="time_173"/>
+   <node name="time_174"/>
+   <node name="time_175"/>
+   <node name="time_176"/>
+   <node name="time_177"/>
+   <node name="time_178"/>
+   <node name="time_179"/>
+   <node name="time_180"/>
+   <node name="time_181"/>
+   <node name="time_182"/>
+   <node name="time_183"/>
+   <node name="time_184"/>
+   <node name="time_185"/>
+   <node name="time_186"/>
+   <node name="time_187"/>
+   <node name="time_188"/>
+   <node name="time_189"/>
+   <node name="time_190"/>
+   <node name="time_191"/>
+   <node name="time_192"/>
+   <node name="time_193"/>
+   <node name="time_194"/>
+   <node name="time_195"/>
+   <node name="time_196"/>
+   <node name="time_197"/>
+   <node name="time_198"/>
+   <node name="time_199"/>
+   <node name="time_200"/>
+   <node name="time_201"/>
+   <node name="time_202"/>
+   <node name="time_203"/>
+   <node name="time_204"/>
+   <node name="time_205"/>
+   <node name="time_206"/>
+   <node name="time_207"/>
+   <node name="time_208"/>
+   <node name="time_209"/>
+   <node name="time_210"/>
+   <node name="time_211"/>
+   <node name="time_212"/>
+   <node name="time_213"/>
+   <node name="time_214"/>
+   <node name="time_215"/>
+   <node name="time_216"/>
+   <node name="time_217"/>
+   <node name="time_218"/>
+   <node name="time_219"/>
+   <node name="time_220"/>
+   <node name="time_221"/>
+   <node name="time_222"/>
+   <node name="time_223"/>
+   <node name="time_224"/>
+   <node name="time_225"/>
+   <node name="time_226"/>
+   <node name="time_227"/>
+   <node name="time_228"/>
+   <node name="time_229"/>
+   <node name="time_230"/>
+   <node name="time_231"/>
+   <node name="time_232"/>
+   <node name="time_233"/>
+   <node name="time_234"/>
+   <node name="time_235"/>
+   <node name="time_236"/>
+   <node name="time_237"/>
+   <node name="time_238"/>
+   <node name="time_239"/>
+   <node name="time_240"/>
+   <node name="time_241"/>
+   <node name="time_242"/>
+   <node name="time_243"/>
+   <node name="time_244"/>
+   <node name="time_245"/>
+   <node name="time_246"/>
+   <node name="time_247"/>
+   <node name="time_248"/>
+   <node name="time_249"/>
+   <node name="time_250"/>
+   <node name="time_251"/>
+   <node name="time_252"/>
+   <node name="time_253"/>
+   <node name="time_254"/>
+   <node name="time_255"/>
+   <node name="time_256"/>
+   <node name="time_257"/>
+   <node name="time_258"/>
+   <node name="time_259"/>
+   <node name="time_260"/>
+   <node name="time_261"/>
+   <node name="time_262"/>
+   <node name="time_263"/>
+   <node name="time_264"/>
+   <node name="time_265"/>
+   <node name="time_266"/>
+   <node name="time_267"/>
+   <node name="time_268"/>
+   <node name="time_269"/>
+   <node name="time_270"/>
+   <node name="time_271"/>
+   <node name="time_272"/>
+   <node name="time_273"/>
+   <node name="time_274"/>
+   <node name="time_275"/>
+   <node name="time_276"/>
+   <node name="time_277"/>
+   <node name="time_278"/>
+   <node name="time_279"/>
+   <node name="time_280"/>
+   <node name="time_281"/>
+   <node name="time_282"/>
+   <node name="time_283"/>
+   <node name="time_284"/>
+   <node name="time_285"/>
+   <node name="time_286"/>
+   <node name="time_287"/>
+   <node name="time_288"/>
+   <node name="time_289"/>
+   <node name="time_290"/>
+   <node name="time_291"/>
+   <node name="time_292"/>
+   <node name="time_293"/>
+   <node name="time_294"/>
+   <node name="time_295"/>
+   <node name="time_296"/>
+   <node name="time_297"/>
+   <node name="time_298"/>
+   <node name="time_299"/>
+   <node name="time_300"/>
+   <node name="time_301"/>
+   <node name="time_302"/>
+   <node name="time_303"/>
+   <node name="time_304"/>
+   <node name="time_305"/>
+   <node name="time_306"/>
+   <node name="time_307"/>
+   <node name="time_308"/>
+   <node name="time_309"/>
+   <node name="time_310"/>
+   <node name="time_311"/>
+   <node name="time_312"/>
+   <node name="time_313"/>
+   <node name="time_314"/>
+   <node name="time_315"/>
+   <node name="time_316"/>
+   <node name="time_317"/>
+   <node name="time_318"/>
+   <node name="time_319"/>
+   <node name="time_320"/>
+   <node name="time_321"/>
+   <node name="time_322"/>
+   <node name="time_323"/>
+   <node name="time_324"/>
+   <node name="time_325"/>
+   <node name="time_326"/>
+   <node name="time_327"/>
+   <node name="time_328"/>
+   <node name="time_329"/>
+   <node name="time_330"/>
+   <node name="time_331"/>
+   <node name="time_332"/>
+   <node name="time_333"/>
+   <node name="time_334"/>
+   <node name="time_335"/>
+   <node name="time_336"/>
+   <node name="time_337"/>
+   <node name="time_338"/>
+   <node name="time_339"/>
+   <node name="time_340"/>
+   <node name="time_341"/>
+   <node name="time_342"/>
+   <node name="time_343"/>
+   <node name="time_344"/>
+   <node name="time_345"/>
+   <node name="time_346"/>
+   <node name="time_347"/>
+   <node name="time_348"/>
+   <node name="time_349"/>
+   <node name="time_350"/>
+   <node name="time_351"/>
+   <node name="time_352"/>
+   <node name="time_353"/>
+   <node name="time_354"/>
+   <node name="time_355"/>
+   <node name="time_356"/>
+   <node name="time_357"/>
+   <node name="time_358"/>
+   <node name="time_359"/>
+   <node name="time_360"/>
+   <node name="time_361"/>
+   <node name="time_362"/>
+   <node name="time_363"/>
+   <node name="time_364"/>
+   <node name="time_365"/>
+   <node name="time_366"/>
+   <node name="time_367"/>
+   <node name="time_368"/>
+   <node name="time_369"/>
+   <node name="time_370"/>
+   <node name="time_371"/>
+   <node name="time_372"/>
+   <node name="time_373"/>
+   <node name="time_374"/>
+   <node name="time_375"/>
+   <node name="time_376"/>
+   <node name="time_377"/>
+   <node name="time_378"/>
+   <node name="time_379"/>
+   <node name="time_380"/>
+   <node name="time_381"/>
+   <node name="time_382"/>
+   <node name="time_383"/>
+   <node name="time_384"/>
+   <node name="time_385"/>
+   <node name="time_386"/>
+   <node name="time_387"/>
+   <node name="time_388"/>
+   <node name="time_389"/>
+   <node name="time_390"/>
+   <node name="time_391"/>
+   <node name="time_392"/>
+   <node name="time_393"/>
+   <node name="time_394"/>
+   <node name="time_395"/>
+   <node name="time_396"/>
+   <node name="time_397"/>
+   <node name="time_398"/>
+   <node name="time_399"/>
+   <node name="time_400"/>
+   <node name="time_401"/>
+   <node name="time_402"/>
+   <node name="time_403"/>
+   <node name="time_404"/>
+   <node name="time_405"/>
+   <node name="time_406"/>
+   <node name="time_407"/>
+   <node name="time_408"/>
+   <node name="time_409"/>
+   <node name="time_410"/>
+   <node name="time_411"/>
+   <node name="time_412"/>
+   <node name="time_413"/>
+   <node name="time_414"/>
+   <node name="time_415"/>
+   <node name="time_416"/>
+   <node name="time_417"/>
+   <node name="time_418"/>
+   <node name="time_419"/>
+   <node name="time_420"/>
+   <node name="time_421"/>
+   <node name="time_422"/>
+   <node name="time_423"/>
+   <node name="time_424"/>
+   <node name="time_425"/>
+   <node name="time_426"/>
+   <node name="time_427"/>
+   <node name="time_428"/>
+   <node name="time_429"/>
+   <node name="time_430"/>
+   <node name="time_431"/>
+   <node name="time_432"/>
+   <node name="time_433"/>
+   <node name="time_434"/>
+   <node name="time_435"/>
+   <node name="time_436"/>
+   <node name="time_437"/>
+   <node name="time_438"/>
+   <node name="time_439"/>
+   <node name="time_440"/>
+   <node name="time_441"/>
+   <node name="time_442"/>
+   <node name="time_443"/>
+   <node name="time_444"/>
+   <node name="time_445"/>
+   <node name="time_446"/>
+   <node name="time_447"/>
+   <node name="time_448"/>
+   <node name="time_449"/>
+   <node name="time_450"/>
+   <node name="time_451"/>
+   <node name="time_452"/>
+   <node name="time_453"/>
+   <node name="time_454"/>
+   <node name="time_455"/>
+   <node name="time_456"/>
+   <node name="time_457"/>
+   <node name="time_458"/>
+   <node name="time_459"/>
+   <node name="time_460"/>
+   <node name="time_461"/>
+   <node name="time_462"/>
+   <node name="time_463"/>
+   <node name="time_464"/>
+   <node name="time_465"/>
+   <node name="time_466"/>
+   <node name="time_467"/>
+   <node name="time_468"/>
+   <node name="time_469"/>
+   <node name="time_470"/>
+   <node name="time_471"/>
+   <node name="time_472"/>
+   <node name="time_473"/>
+   <node name="time_474"/>
+   <node name="time_475"/>
+   <node name="time_476"/>
+   <node name="time_477"/>
+   <node name="time_478"/>
+   <node name="time_479"/>
+   <node name="time_480"/>
+   <node name="time_481"/>
+   <node name="time_482"/>
+   <node name="time_483"/>
+   <node name="time_484"/>
+   <node name="time_485"/>
+   <node name="time_486"/>
+   <node name="time_487"/>
+   <node name="time_488"/>
+   <node name="time_489"/>
+   <node name="time_490"/>
+   <node name="time_491"/>
+   <node name="time_492"/>
+   <node name="time_493"/>
+   <node name="time_494"/>
+   <node name="time_495"/>
+   <node name="time_496"/>
+   <node name="time_497"/>
+   <node name="time_498"/>
+   <node name="time_499"/>
+   <node name="time_500"/>
+   <node name="time_501"/>
+   <node name="time_502"/>
+   <node name="time_503"/>
+   <node name="time_504"/>
+   <node name="time_505"/>
+   <node name="time_506"/>
+   <node name="time_507"/>
+   <node name="time_508"/>
+   <node name="time_509"/>
+   <node name="time_510"/>
+   <node name="time_511"/>
+   <node name="time_512"/>
+   <node name="time_513"/>
+   <node name="time_514"/>
+   <node name="time_515"/>
+   <node name="time_516"/>
+   <node name="time_517"/>
+   <node name="time_518"/>
+   <node name="time_519"/>
+   <node name="time_520"/>
+   <node name="time_521"/>
+   <node name="time_522"/>
+   <node name="time_523"/>
+   <node name="time_524"/>
+   <node name="time_525"/>
+   <node name="time_526"/>
+   <node name="time_527"/>
+   <node name="time_528"/>
+   <node name="time_529"/>
+   <node name="time_530"/>
+   <node name="time_531"/>
+   <node name="time_532"/>
+   <node name="time_533"/>
+   <node name="time_534"/>
+   <node name="time_535"/>
+   <node name="time_536"/>
+   <node name="time_537"/>
+   <node name="time_538"/>
+   <node name="time_539"/>
+   <node name="time_540"/>
+   <node name="time_541"/>
+   <node name="time_542"/>
+   <node name="time_543"/>
+   <node name="time_544"/>
+   <node name="time_545"/>
+   <node name="time_546"/>
+   <node name="time_547"/>
+   <node name="time_548"/>
+   <node name="time_549"/>
+   <node name="time_550"/>
+   <node name="time_551"/>
+   <node name="time_552"/>
+   <node name="time_553"/>
+   <node name="time_554"/>
+   <node name="time_555"/>
+   <node name="time_556"/>
+   <node name="time_557"/>
+   <node name="time_558"/>
+   <node name="time_559"/>
+   <node name="time_560"/>
+   <node name="time_561"/>
+   <node name="time_562"/>
+   <node name="time_563"/>
+   <node name="time_564"/>
+   <node name="time_565"/>
+   <node name="time_566"/>
+   <node name="time_567"/>
+   <node name="time_568"/>
+   <node name="time_569"/>
+   <node name="time_570"/>
+   <node name="time_571"/>
+   <node name="time_572"/>
+   <node name="time_573"/>
+   <node name="time_574"/>
+   <node name="time_575"/>
+  </nodeset>
+ </nodesets>
+ <networks>
+  <network default="false" edge_type="bool" name="knowledge network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="knowledge" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.05"/>
+   </generator>
+  </network>
+  <network default="0.5" edge_type="float" name="knowledge trust network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="knowledge" representation="sparse"/>
+   <generator type="random uniform">
+    <param name="density" value="0.05"/>
+    <param name="min" value="0.1"/>
+    <param name="max" value="0.9"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="user active time network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="time" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.05"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="subreddit membership network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="subreddit" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.1"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="knowledge type network">
+   <source nodeset="knowledge" representation="dense"/>
+   <target nodeset="knowledge_type" representation="dense"/>
+   <generator type="random binary">
+    <param name="density" value="0.25"/>
+   </generator>
+  </network>
+ </networks>
+ <models>
+  <model name="Reddit Interaction Model">
+   <param name="interval time duration" value="1"/>
+   <param name="maximum post inactivity" value="576"/>
+   <param name="maximum percent learnable" value="0.7"/>
+  </model>
+  <model name="Knowledge Trust Model">
+   <param name="relax rate" value="0.1"/>
+  </model>
+ </models>
+ <outputs>
+  <output type="dynetml">
+   <param name="network names" value="knowledge network,knowledge trust network,knowledge type network,banned user network,user active time network,subreddit membership network"/>
+   <param name="output file" value="networks_output_0.xml"/>
+   <param name="timeperiods" value="all"/>
+  </output>
+  <output type="posts">
+   <param name="output file" value="posts_output_0.csv"/>
+  </output>
+ </outputs>
+</construct>

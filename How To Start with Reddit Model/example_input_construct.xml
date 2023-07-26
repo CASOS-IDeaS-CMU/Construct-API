@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<construct>
+ <construct_parameters>
+  <param name="seed" value="0"/>
+  <param name="verbose initialization" value="false"/>
+  <param name="verbose runtime" value="false"/>
+ </construct_parameters>
+ <nodesets>
+  <nodeset name="agent">
+   <node name="agent_0">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_1">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_2">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_3">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_4">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_5">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_6">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_7">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_8">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+   <node name="agent_9">
+    <attribute name="Reddit add follower density" value="1"/>
+    <attribute name="Reddit auto follow" value="true"/>
+    <attribute name="Reddit charisma" value="0.5"/>
+    <attribute name="Reddit post density" value="1"/>
+    <attribute name="Reddit post probability" value="0.05"/>
+    <attribute name="Reddit quote probability" value="0.05"/>
+    <attribute name="Reddit reading density" value="10"/>
+    <attribute name="Reddit user type" value="user"/>
+    <attribute name="Reddit reply probability" value="0.1"/>
+    <attribute name="Reddit repost probability" value="0.15"/>
+    <attribute name="can send knowledge" value="true"/>
+    <attribute name="can send knowledge trust" value="true"/>
+    <attribute name="can receive knowledge" value="true"/>
+    <attribute name="can receive knowledge trust" value="false"/>
+    <attribute name="Reddit can receive knowledge trust" value="true"/>
+   </node>
+  </nodeset>
+  <nodeset name="subreddit">
+   <node name="subreddit_0">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+   <node name="subreddit_1">
+    <attribute name="banned_threshold" value="1"/>
+   </node>
+  </nodeset>
+  <nodeset name="knowledge_type">
+   <node name="misinfo"/>
+  </nodeset>
+  <nodeset name="knowledge">
+   <node name="knowledge_0"/>
+   <node name="knowledge_1"/>
+   <node name="knowledge_2"/>
+   <node name="knowledge_3"/>
+   <node name="knowledge_4"/>
+  </nodeset>
+  <nodeset name="medium">
+   <node name="medium_0"/>
+  </nodeset>
+  <nodeset name="time">
+   <node name="time_0"/>
+   <node name="time_1"/>
+   <node name="time_2"/>
+   <node name="time_3"/>
+   <node name="time_4"/>
+  </nodeset>
+ </nodesets>
+ <networks>
+  <network default="false" edge_type="bool" name="knowledge network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="knowledge" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.1"/>
+   </generator>
+  </network>
+  <network default="0.5" edge_type="float" name="knowledge trust network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="knowledge" representation="sparse"/>
+   <generator type="random uniform">
+    <param name="density" value="0.05"/>
+    <param name="min" value="0.1"/>
+    <param name="max" value="0.9"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="user active time network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="time" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.5"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="subreddit membership network">
+   <source nodeset="agent" representation="dense"/>
+   <target nodeset="subreddit" representation="sparse"/>
+   <generator type="random binary">
+    <param name="density" value="0.5"/>
+   </generator>
+  </network>
+  <network default="0" edge_type="bool" name="knowledge type network">
+   <source nodeset="knowledge" representation="dense"/>
+   <target nodeset="knowledge_type" representation="dense"/>
+   <generator type="random binary">
+    <param name="density" value="0"/>
+   </generator>
+  </network>
+ </networks>
+ <models>
+  <model name="Reddit Interaction Model">
+   <param name="interval time duration" value="1"/>
+   <param name="maximum post inactivity" value="5"/>
+   <param name="maximum percent learnable" value="0.7"/>
+  </model>
+  <model name="Knowledge Trust Model">
+   <param name="relax rate" value="0.1"/>
+  </model>
+ </models>
+ <outputs>
+  <output type="dynetml">
+   <param name="network names" value="knowledge network,knowledge trust network,knowledge type network,banned user network,user active time network,subreddit membership network"/>
+   <param name="output file" value="networks_output_0.xml"/>
+   <param name="timeperiods" value="all"/>
+  </output>
+  <output type="posts">
+   <param name="output file" value="posts_output_0.csv"/>
+  </output>
+ </outputs>
+</construct>  
