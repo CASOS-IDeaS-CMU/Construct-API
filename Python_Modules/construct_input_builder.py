@@ -1,8 +1,11 @@
+# By: Stephen Dipple, Last Edited: Isabel Murdock, 7/25/2023
+
 from typing import List
 from bs4 import BeautifulSoup, element
 
 class ConstructBuilder:
     soup: BeautifulSoup
+    construct: element.Tag
     parameters: element.Tag
     nodesets: element.Tag
     networks: element.Tag
@@ -12,23 +15,26 @@ class ConstructBuilder:
     def __init__(self) -> None:
         self.soup = BeautifulSoup(features = 'xml')
 
+        self.construct = self.soup.new_tag('construct')
+        self.soup.append(self.construct)
+
         self.parameters = self.soup.new_tag('construct_parameters')
-        self.soup.append(self.parameters)
+        self.construct.append(self.parameters)
 
         self.nodesets = self.soup.new_tag('nodesets')
-        self.soup.append(self.nodesets)
+        self.construct.append(self.nodesets)
 
         self.networks = self.soup.new_tag('networks')
-        self.soup.append(self.networks)
+        self.construct.append(self.networks)
 
         self.models = self.soup.new_tag('models')
-        self.soup.append(self.models)
+        self.construct.append(self.models)
 
         self.outputs = self.soup.new_tag('outputs')
-        self.soup.append(self.outputs)
+        self.construct.append(self.outputs)
 
     def add_parameter(self, construct_tag: element.Tag, name: str, value: str) -> None:
-        param = self.soup.new_tag('parameter')
+        param = self.soup.new_tag('param')
         param.attrs['name'] = name
         param.attrs['value'] = value
         construct_tag.append(param)
@@ -81,8 +87,8 @@ class ConstructBuilder:
 
     def add_network_link(self, network: element.Tag, src_index: str, trg_index: str, slc_index = '', value = '') -> None:
         link = self.soup.new_tag('link')
-        link.attrs['src_index'] = src_index
-        link.attrs['trg_index'] = trg_index
+        link.attrs['src_name'] = src_index  #src_index
+        link.attrs['trg_name'] = trg_index #trg_index
         if slc_index and not slc_index.isspace():
             link.attrs['slc_index'] = slc_index
         if value and not value.isspace():
