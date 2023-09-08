@@ -69,25 +69,26 @@ namespace dynet
 
 	struct could_not_convert :public construct_exception {
 		std::string type;
-		could_not_convert(const std::string& _type) : construct_exception("Could not convert value to " + _type), type(_type) {}
+		could_not_convert(const std::string& _type, const std::string& val) : construct_exception("Could not convert value \"" + val + "\" to " + _type), type(_type) {}
 	};
 
 
 	struct could_not_convert_value : public construct_exception {
 		could_not_convert_value(const could_not_convert& e, const std::string& ending = "") :
-			construct_exception("Could not convert value to " + e.type + ending) {}
+			construct_exception(e.what() + ending) {}
 	};
 
 
 	struct could_not_convert_parameter : public construct_exception {
 		could_not_convert_parameter(const could_not_convert& e, const std::string& param_name, const std::string& ending = "") :
-			construct_exception("Could not convert parameter \"" + param_name + "\" to " + e.type + ending) {}
+			construct_exception(e.what() + std::string("for parameter \"") + param_name + "\"" + ending) {}
+			//construct_exception("Could not convert parameter \"" + param_name + "\" to " + e.type + ending) {}
 	};
 
 
 	struct could_not_convert_attribute : public construct_exception {
 		could_not_convert_attribute(const could_not_convert& e, const std::string& att_name, const std::string& ending = "") :
-			construct_exception("Could not convert attribute \"" + att_name + "\" to " + e.type + ending) {}
+			construct_exception(e.what() + std::string("for attribute \"") + att_name + "\" " + ending) {}
 	};
 
 
@@ -152,8 +153,8 @@ namespace dynet
 
 
 	struct csv_too_many_cols : public construct_exception {
-		csv_too_many_cols(const std::string& fname) :
-			construct_exception("csv file \"" + fname + "\" has too many columns") {}
+		csv_too_many_cols(const std::string& fname, unsigned int row_number) :
+			construct_exception("csv file \"" + fname + "\" has too many columns at row " + std::to_string(row_number)) {}
 	};
 
 
@@ -315,6 +316,14 @@ namespace dynet
 
 	struct datetime {
 		time_t time;
+
+		friend bool operator==(const datetime& lhs, const datetime& rhs) { return lhs.time == rhs.time; }
+		friend bool operator!=(const datetime& lhs, const datetime& rhs) { return lhs.time != rhs.time; }
+		friend bool operator<(const datetime& lhs, const datetime& rhs) { return lhs.time < rhs.time; }
+		friend bool operator>(const datetime& lhs, const datetime& rhs) { return lhs.time > rhs.time; }
+		friend bool operator<=(const datetime& lhs, const datetime& rhs) { return lhs.time <= rhs.time; }
+		friend bool operator>=(const datetime& lhs, const datetime& rhs) { return lhs.time >= rhs.time; }
+
 		static constexpr const char* dateTimeFormat = "%Y-%m-%dT%H:%M:%S.000Z";
 
 		datetime(const std::string& input_time) {
@@ -360,7 +369,7 @@ class Random
 	Random() : generator(seed) { ; }
 	~Random() { ; }
 public:
-	unsigned int seed = time(nullptr);
+	unsigned int seed = static_cast<unsigned int>(time(nullptr));
 private:
 	std::default_random_engine generator;
 public:
@@ -493,9 +502,9 @@ public:
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes);
+	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
 
-	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes);
+	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
 
 	const Node* get_node_by_index(unsigned int index) const;
 
@@ -536,7 +545,7 @@ class NodesetManager
 public:
 
 	//Creates a mutable nodeset.
-	//This nodeset can become immutable after calling turn_to_const
+	//This nodeset can become immutable after calling Nodeset::turn_to_const
 	//only immutable nodesets can be found by get_nodeset or does_nodeset_exist
 	//the pointer returned is still owned by the ns_manager
 	Nodeset* create_nodeset(const std::string& name);
@@ -588,9 +597,6 @@ struct CommunicationMedium
 };
 
 
-
-
-
 struct InteractionItem
 {
 	enum class item_keys : char
@@ -621,6 +627,7 @@ struct InteractionItem
 	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
 
 	static const std::string& get_item_name(InteractionItem::item_keys key);
+
 	static InteractionItem::item_keys get_item_key(const std::string& name);
 
 	using attribute_iterator = std::unordered_set<item_keys>::iterator;
@@ -674,6 +681,32 @@ struct InteractionItem
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
 	std::unordered_set<item_keys> attributes;
 
+	InteractionItem() noexcept {}
+
+	InteractionItem(const InteractionItem& item) noexcept :
+		attributes(item.attributes),
+		indexes(item.indexes),
+		values(item.values) {}
+
+	InteractionItem& operator=(const InteractionItem& item) noexcept {
+		attributes = item.attributes;
+		indexes = item.indexes;
+		values = item.values;
+		return *this;
+	}
+
+	InteractionItem(InteractionItem&& item) noexcept :
+		attributes(std::move(item.attributes)),
+		indexes(std::move(item.indexes)),
+		values(std::move(item.values)) {}
+
+	InteractionItem& operator=(InteractionItem&& item) noexcept {
+		attributes = std::move(item.attributes);
+		indexes = std::move(item.indexes);
+		values = std::move(item.values);
+		return *this;
+	}
+
 	
 };
 
@@ -706,13 +739,54 @@ public:
 	using iterator = std::vector<InteractionItem>::iterator;
 	using const_iterator = std::vector<InteractionItem>::const_iterator;
 
-	//InteractionMessage(void);
-
 	InteractionMessage(
 		unsigned int senderAgentIndex,
 		unsigned int receiverAgentIndex,
 		const CommunicationMedium* _medium,
 		const std::vector<InteractionItem>& interactionItems = std::vector<InteractionItem>());
+
+	InteractionMessage(
+		unsigned int senderAgentIndex,
+		unsigned int receiverAgentIndex,
+		const CommunicationMedium* _medium,
+		std::vector<InteractionItem>&& interactionItems);
+
+	InteractionMessage(const InteractionMessage& message) noexcept : 
+		sender(message.sender),
+		receiver(message.receiver),
+		time_to_send(message.time_to_send),
+		valid(message.valid),
+		medium(message.medium),
+		items(message.items) {}
+
+	InteractionMessage& operator=(const InteractionMessage& message) noexcept {
+		sender = message.sender;
+		receiver = message.receiver;
+		time_to_send = message.time_to_send;
+		valid = message.time_to_send;
+		medium = message.medium;
+		items = message.items;
+		return *this;
+	}
+		
+
+	InteractionMessage(InteractionMessage&& message) noexcept :
+		sender(message.sender),
+		receiver(message.receiver),
+		time_to_send(message.time_to_send),
+		valid(message.valid),
+		medium(message.medium),
+		items(std::move(message.items)) {}
+
+	InteractionMessage& operator=(InteractionMessage&& message) noexcept {
+		sender = message.sender;
+		receiver = message.receiver;
+		time_to_send = message.time_to_send;
+		valid = message.time_to_send;
+		medium = message.medium;
+		items = std::move(message.items);
+		return *this;
+	}
 
 
 	iterator begin(void) noexcept { return items.begin(); }
@@ -732,6 +806,8 @@ public:
 	iterator erase(iterator itr) noexcept;
 
 	bool add_item(const InteractionItem& item) noexcept;
+
+	bool add_item(InteractionItem&& item) noexcept;
 
 	bool add_knowledge_item(unsigned int knowledge_index) noexcept;
 
@@ -776,9 +852,13 @@ public:
 
 	void clear(void) noexcept { _queue.clear(); }
 
-	void addMessage(const InteractionMessage& msg);
+	void addMessage(const InteractionMessage& msg) noexcept;
+
+	void addMessage(InteractionMessage&& msg) noexcept;
 
 	iterator erase(iterator itr) noexcept;
+	
+	//iterator erase(iterator start, iterator finish) noexcept;
 };
 
 
@@ -846,45 +926,6 @@ public:
 	//whether the data for each row is stored in an array or tree
 	const bool row_dense;
 };
-
-
-//constexpr const char* get_type_name(Typeless_Graph::edge_types edge_type) noexcept {
-//	switch (edge_type)
-//	{
-//	case Typeless_Graph::edge_types::dbool:
-//		return "bool";
-//	case Typeless_Graph::edge_types::dint:
-//		return "int";
-//	case Typeless_Graph::edge_types::duint:
-//		return "unsigned int";
-//	case Typeless_Graph::edge_types::dfloat:
-//		return "float";
-//	case Typeless_Graph::edge_types::dstring:
-//		return "string";
-//	case Typeless_Graph::edge_types::vbool:
-//		return "vector<bool>";
-//	case Typeless_Graph::edge_types::vint:
-//		return "vector<int>";
-//	case Typeless_Graph::edge_types::vuint:
-//		return "vector<unsigned int>";
-//	case Typeless_Graph::edge_types::vfloat:
-//		return "vector<float>";
-//	case Typeless_Graph::edge_types::vstring:
-//		return "vector<string>";
-//	case Typeless_Graph::edge_types::mbool:
-//		return "map<bool>";
-//	case Typeless_Graph::edge_types::mint:
-//		return "map<int>";
-//	case Typeless_Graph::edge_types::muint:
-//		return "map<unsigned int>";
-//	case Typeless_Graph::edge_types::mfloat:
-//		return "map<float>";
-//	case Typeless_Graph::edge_types::mstring:
-//		return "map<string>";
-//	default:
-//		return "unknown";
-//	}
-//}
 
 
 
@@ -1017,8 +1058,6 @@ namespace graph_utils {
 			typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<link_type>*>(parent)) {}
 
 		virtual const link_type& examine(void) const = 0;
-
-
 	};
 
 
@@ -1269,6 +1308,20 @@ namespace graph_utils {
 				}
 			}
 			while (rit != ret.end()) rit = ret.erase(rit);
+
+			return ret;
+		}
+
+		template<typename other, class output = decltype(other()* link_type())>
+		std::vector<output> ewise_division(const std::vector<other>& vec) const {
+			assert(vec.size() == this->_parent->row_size);
+			std::vector<output> ret;
+
+			for (auto it = full_begin(); it != end(); ++it) {
+				// can't divide by zero
+				assert(vec[it.col()] != 0);
+				ret[it.col()] = *it / vec[it.col()];
+			}
 
 			return ret;
 		}
@@ -1634,6 +1687,7 @@ struct Graph_Intermediary {
 	Typeless_Graph* ptr;
 
 	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
+
 	void check_ptr() const;
 
 	template<typename T>
@@ -3813,7 +3867,7 @@ protected:
 	// indicates the next time index that output should be recorded
 	std::vector<int>::const_iterator _next_output_time;
 public:
-
+	
 	// Constructor will setup a time system controlled by Output::should_process.
 	Output(const dynet::ParameterMap& params, Construct* construct) {
 		output_times = get_output_timeperiods(params, construct);
@@ -3840,6 +3894,7 @@ public:
 	// called by Output to set output_times
 	// uses the "timeperiods" key from params to inform the structure of the returned vector
 	// replace this to function customize when the Output should be processed
+
 	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct* construct);
 
 	//this function should be replaced by classes that inheriet from Output
@@ -3863,17 +3918,25 @@ public:
 };
 
 
+struct InteractionMessageParser {
+	const std::string name;
+	InteractionMessageParser(const std::string& name) : name(name) {}
+	virtual void parse(const InteractionMessage& msg) = 0;
+};
+
+
 #include <ctime>
 
 class Construct {
 	time_t begTim;
 public:
 
-	static constexpr const char* version = "5.4.0";
+	static constexpr const char* version = "5.4.1";
+	~Construct() {}
 
 	Construct();
 
-	~Construct() {}
+	
 
 	void load_from_xml(const std::string& fname);
 	
@@ -3894,6 +3957,13 @@ public:
 	// The manager that holds all outputs.
 	OutputManager output_manager;
 
+	// Holds all parsers that parse messages before models.
+	std::set<InteractionMessageParser*> message_parsers;
+
+	bool contains_parser(const std::string& name) {
+		for (auto parser : message_parsers) if (parser->name == name) return true;
+		return false;
+	}
 	
 	// central message queue for messages waiting to be dispersed.
 	InteractionMessageQueue interaction_message_queue;
@@ -3922,4 +3992,19 @@ private:
 	bool running = false;
 };
 
+
+
+struct Knowledge_Parser : public InteractionMessageParser {
+
+	Graph<bool>& knowledge_net;
+
+	Knowledge_Parser(Graph<bool>& knowledge_net) : InteractionMessageParser("knowledge"), knowledge_net(knowledge_net) {}
+
+	void parse(const InteractionMessage& msg) {
+		for (auto& item : msg) {
+			unsigned int k;
+			if (item.get_knowledge_item(k)) knowledge_net.add_delta(msg.receiver, k, true);
+		}
+	}
+};
 

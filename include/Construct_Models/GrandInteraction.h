@@ -26,15 +26,15 @@ class GrandInteraction : public StandardInteraction
 	};
 
 public:
-
 	KnowledgeTransactiveMemory* TMK = 0;
 
 	Beliefs* BM = 0;
 
+	Tasks* TASK = 0;
+
 	//the following is for belief transactive memory
 	//for more information on btm see DOI : 10.1109 / TSMCC.2012.2230255
-
-	bool _btm_enabled = false;
+	bool btm_enabled = false;
 
 	//graph name - "belief message complexity network"
 	//agent x timeperiod
@@ -54,12 +54,7 @@ public:
 
 	float alpha = 0;
 
-	Tasks* TASK = 0;
-
-
-
 	std::vector<float> generalized_other_beliefs;
-	std::vector<float> generalized_other_tasks;
 	std::vector<unsigned int> group_sizes;
 
 
@@ -69,21 +64,25 @@ public:
 	Graph<bool>* group_membership = 0;
 
 
-
 	GrandInteraction(const dynet::ParameterMap& parameters, Construct* construct);
+
 	void initialize(void) override;
+
 	void communicate(const InteractionMessage& msg) override;
+
 	void cleanup(void) override;
 
-	//see Beliefs::think for why these functions are here
 	float get_k_sim(unsigned int initiator, unsigned int receiver) override;
+
 	float get_k_exp(unsigned int initiator, unsigned int receiver) override;
+
 	float get_belief_sim(unsigned int initiator, unsigned int receiver);
+
 	float get_additions(unsigned int agent_i, unsigned int agent_j) override;
+
 	std::vector<InteractionItem> get_interaction_items(unsigned int initiator, unsigned int receiver, const CommunicationMedium* comm) override;
 
-	void update_group_belief(void);
-	unsigned int get_k_intersect(unsigned int initiator, unsigned int receiver);
+	virtual void update_group_belief(void);
 };
 #endif
 

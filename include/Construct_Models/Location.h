@@ -41,7 +41,7 @@ public:
 
 	// graph name - "knowledge network"
 	// agent x knowledge
-	const Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
+	Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
 
 	//graph name - "interaction knowledge weight network"
 	//agent x knowledge

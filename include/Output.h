@@ -207,9 +207,7 @@ struct Output_dynetml : public Output {
 		}
 	}
 
-	Output_dynetml(const dynet::ParameterMap& params, Construct* construct) {
-
-		if (!params.contains("timeperiods")) throw dynet::could_not_find_parameter("timeperiods");
+	Output_dynetml(const dynet::ParameterMap& params, Construct* construct) : Output(params, construct) {
 
 		//names of required parameteres
 		const char* network_name = "network names";

@@ -32,19 +32,25 @@ public:
 	const Nodeset* agents;
 
 	std::vector<unsigned int> group_size;
+
 	std::vector<float> generalized_other;
 	
 
 	KnowledgeTransactiveMemory(const dynet::ParameterMap& parameters, Construct* construct);
 	
 	void initialize(void) override;
+
 	void communicate(const InteractionMessage& msg) override;
+
 	void cleanup() override;
 
 	std::vector<InteractionItem> get_interaction_items(unsigned int sndr, unsigned int recv, const CommunicationMedium* comm) override;
-	float get_k_sim(unsigned int agent_i,unsigned int agent_j) override;
+
+	float get_k_sim(unsigned int agent_i, unsigned int agent_j) override;
+
 	float get_k_exp(unsigned int agent_i, unsigned int agent_j) override;
-	void update_group_knowledge(void);
+
+	virtual void update_group_knowledge(void);
 };
 #endif
 

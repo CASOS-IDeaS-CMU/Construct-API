@@ -122,30 +122,18 @@ Output* dynet::create_output(const std::string& output_name, const ParameterMap&
 }
 
 
-void dynet::load_users(Social_Media_no_followers* media) {
-	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
-		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_no_followers::default_media_user(media, *node);
-	}
+Social_Media_no_followers::media_user* Social_Media_no_followers::load_user(const Node& node) {
+		return new Social_Media_no_followers::default_media_user(this, node);
 }
 
-void dynet::load_users(Social_Media_with_followers* media) {
-	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
-		//custom users should be added at the vector index instead of the default user
-		media->users[node->index] = new Social_Media_with_followers::default_media_user(media, *node);
-		media->Social_Media_no_followers::users[node->index] = media->users[node->index];
-	}
+Social_Media_with_followers::media_user* Social_Media_with_followers::load_user(const Node& node) {
+	return new Social_Media_with_followers::default_media_user(this, node);
 }
 
-void dynet::load_users(SM_nf_emotions* media) {
-	for (auto node = media->agents->begin(); node != media->agents->end(); ++node) {
-		media->users[node->index] = new SM_nf_emotions::default_media_user(media, *node);
-	}
+SM_nf_emotions::media_user* SM_nf_emotions::load_user(const Node& node) {
+	return new SM_nf_emotions::default_media_user(this, node);
 }
 
-void dynet::load_users(SM_wf_emotions* media) {
-	for (auto node = media->Social_Media_no_followers::agents->begin(); node != media->Social_Media_no_followers::agents->end(); ++node) {
-		media->Social_Media_with_followers::users[node->index] = new SM_wf_emotions::default_media_user(media, *node);
-		media->Social_Media_no_followers::users[node->index] = media->Social_Media_with_followers::users[node->index];
-	}
+SM_wf_emotions::media_user* SM_wf_emotions::load_user(const Node& node) {
+	return new SM_wf_emotions::default_media_user(this, node);
 }

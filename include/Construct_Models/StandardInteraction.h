@@ -8,17 +8,20 @@ public:
 
 	StandardInteraction(const dynet::ParameterMap& parameters, Construct* construct);
 
+	
 	//adds the knowledge parsing model to the models list
 	virtual void initialize(void) override;
 
 	//sets interaction probabilities, creates messages, and adds them to construct's interaction queue
 	virtual void think(void) override;
 
+	
 	//creates all the communication mediums based on the medium nodeset
 	void initialize_communication_mediums();
 
 	//sets all interaction probability network links
 	virtual void set_probabilities(void);
+
 
 	//forms interaction pairs based on the interaction probability network, mediums, and available knowledge.
 	virtual void add_messages(void);
@@ -30,6 +33,7 @@ public:
 	// Grabs the send_msg_queue and decrements all of their time_to_live values
 	// any msg that has gotten to zero gets added to the private message queue
 	// this should be called before populating the send_msg_queue during interactions
+
 	virtual void update_send_msg_queue();
 	
 	// generates a vector of paired values with first being the agent index
@@ -172,9 +176,6 @@ public:
 	unsigned int interaction_rejection_limit;
 
 	const unsigned int& t;
-
-	//used to prevent multiple instances of rejection limit being printed
-	static bool needs_printing;
 };
 #endif
 

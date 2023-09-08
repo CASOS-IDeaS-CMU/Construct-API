@@ -17,6 +17,7 @@ public:
 	std::vector<InteractionMessageQueue> mailboxes = std::vector<InteractionMessageQueue>(mail_pref.source_nodeset->size());
 
 	Mail(Construct* _construct) : Model(_construct, model_names::MAIL) {};
+
 	void update(void) override;
 };
 #endif

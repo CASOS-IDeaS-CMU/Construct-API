@@ -8,7 +8,8 @@
 class Beliefs : public StandardInteraction {
 public:
 
-	Beliefs(const dynet::ParameterMap& parameters, Construct* construct);
+	Beliefs(const dynet::ParameterMap& parameters, Construct* _construct) :
+		Model(_construct, model_names::BELIEF), StandardInteraction(parameters, _construct) {}
 
 	//graph name - "belief network"
 	//agent x belief
@@ -22,13 +23,20 @@ public:
 	//agent - timeperiod
 	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, sparse, time, sparse);
 
+	// checks for mutually exlusive models
 	void initialize(void) override;
+
+	// updates everyone's beliefs
 	void cleanup(void) override;
 
+	// get_belief_sim * agent_i's belief_sim_weight
 	float get_additions(unsigned int agent_i, unsigned int agent_j) override;
-	float get_belief_sim(unsigned int agent_i, unsigned int agent_j);
 
-	float get_belief_value(unsigned int agent_i, unsigned int belief);
+	// gets belief cosine similarity between two agents
+	virtual float get_belief_sim(unsigned int agent_i, unsigned int agent_j);
+
+	// agent_i's knowledge_net row * the belief index's belief_weight row
+	virtual float get_belief_value(unsigned int agent_i, unsigned int belief);
 };
 
 // BELIEFS_H_HH_CONSTRUCT_H
