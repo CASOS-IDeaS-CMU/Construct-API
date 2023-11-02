@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "json.hpp"
 
-struct Social_Media_no_followers : public virtual Model
+struct Social_Media_no_followers : public Model
 {
     //model parameter name who's value gets entered into Social_Media_with_followers::dt
     const std::string interval_time_duration = "interval time duration";
@@ -239,6 +239,9 @@ struct Social_Media_no_followers : public virtual Model
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct media_user {
+        Social_Media_no_followers* media_ptr;
+
+        media_user(Social_Media_no_followers* media) : media_ptr(media) {}
 
         virtual ~media_user() { ; }
 
@@ -261,12 +264,17 @@ struct Social_Media_no_followers : public virtual Model
         virtual unsigned int get_read_count(void) = 0;
     };
 
-    struct default_media_user : public virtual media_user {
+    struct default_media_user : public media_user {
 
         default_media_user(Social_Media_no_followers* _media, const Node& node);
 
-        //the social media that this user is interacting with
-        Social_Media_no_followers& media;
+        Social_Media_no_followers& media() {
+            Social_Media_no_followers* temp = dynamic_cast<Social_Media_no_followers*>(media_ptr);
+            // if the media couldn't be up casted the desired class this assertion will be raised.
+            // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+            assert(temp);
+            return *temp;
+        }
 
         //this user's agent index
         unsigned int id;
@@ -363,7 +371,7 @@ struct Social_Media_no_followers : public virtual Model
         media_event& new_post = list_of_events.front();
         new_post.type = media_event::event_type::post;
         new_post.user = id;
-        new_post.time_stamp = construct->current_time * dt;
+        new_post.time_stamp = construct.current_time * dt;
         new_post.last_used = new_post.time_stamp;
         new_post.set_knowledge_item(knowledge_index);
         return &new_post;
@@ -375,7 +383,7 @@ struct Social_Media_no_followers : public virtual Model
         new_post.user = id;
         new_post.parent_event = parent;
         new_post.root_event = parent->root_event;
-        new_post.time_stamp = construct->current_time * dt;
+        new_post.time_stamp = construct.current_time * dt;
         new_post.last_used = new_post.time_stamp;
         new_post.root_event->update_last_used(new_post.time_stamp);
         new_post.set_knowledge_item(parent->indexes[InteractionItem::item_keys::knowledge]);
@@ -405,9 +413,8 @@ struct Social_Media_no_followers : public virtual Model
 
     void check_list_order() const;
 
-    //pointer to the "agent" nodeset
-    const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
-    const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
+    const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
+    const Nodeset* knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
 
     //graph name - "knowledge trust network"
     //agent x knowledge
@@ -448,19 +455,27 @@ struct Social_Media_no_followers : public virtual Model
 
     //graph name - "knowledge network"
     //agent x knowledge
-    Graph<bool>& knowledge_net = graph_manager->load_required(graph_names::knowledge, agents, knowledge);
+    Graph<bool>& knowledge_net = graph_manager.load_required(graph_names::knowledge, agents, knowledge);
 
     //graph name - "agent active time network"
     //agent x timeperiod
-    const Graph<bool>& active = graph_manager->load_optional(graph_names::active, true, agents, sparse, ns_manager->get_nodeset(nodeset_names::time), sparse);
+    const Graph<bool>& active = graph_manager.load_optional(graph_names::active, true, agents, sparse, ns_manager.get_nodeset(nodeset_names::time), sparse);
 
     //list of users
     std::vector<media_user*> users;
 
+    Social_Media_no_followers::media_user& user(unsigned int index) {
+        Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
+        // if the media couldn't be up casted the desired class this assertion will be raised.
+        // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+        assert(temp);
+        return *temp;
+    }
+
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-    Social_Media_no_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct* _construct);
+    Social_Media_no_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
 
     //delete all pointers in stored in the Social_Media_with_followers::users data structure
     virtual ~Social_Media_no_followers();
@@ -513,7 +528,7 @@ struct Social_Media_no_followers : public virtual Model
 };
 
 
-struct Social_Media_with_followers : public virtual Social_Media_no_followers
+struct Social_Media_with_followers : virtual public Social_Media_no_followers
 {
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct media_user {
@@ -534,12 +549,17 @@ struct Social_Media_with_followers : public virtual Social_Media_no_followers
         virtual float get_charisma() = 0;
     };
 
-    struct default_media_user : public Social_Media_no_followers::default_media_user, public media_user  {
+    struct default_media_user : virtual public Social_Media_no_followers::default_media_user, public media_user  {
 
         default_media_user(Social_Media_with_followers* _media, const Node& node);
 
-        //the social media that this user is interacting with
-        Social_Media_with_followers& media;
+        Social_Media_with_followers& media() {
+            Social_Media_with_followers* temp = dynamic_cast<Social_Media_with_followers*>(media_ptr);
+            // if the media couldn't be up casted the desired class this assertion will be raised.
+            // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+            assert(temp);
+            return *temp;
+        }
 
         //probability density to recommend followers (time in hours) pdaf * dt = average number of recommendations in a time period.
         float pdaf;
@@ -572,22 +592,26 @@ struct Social_Media_with_followers : public virtual Social_Media_no_followers
         float get_charisma() override;
     };
 
+    Social_Media_with_followers::media_user& user(unsigned int index) {
+        Social_Media_with_followers::media_user* temp = dynamic_cast<Social_Media_with_followers::media_user*>(users[index]);
+        // if the media couldn't be up casted the desired class this assertion will be raised.
+        // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+        assert(temp);
+        return *temp;
+    }
+
     std::vector < std::vector<unsigned int> > responses;
 
     //graph name - deteremined by the media
     //agent x agent
     // if (follower_net->examine(i,j)) // agent i is following agent j
     Graph<bool>* follower_net = nullptr;
-
-    //list of users
-    std::vector<media_user*> users;
-
     bool disable_follower_recommendations = false;
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-	Social_Media_with_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct* _construct);
+	Social_Media_with_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
 
 #ifdef CUSTOM_MEDIA_USERS
     media_user* load_user(const Node& node);
@@ -625,7 +649,7 @@ struct Social_Media_with_followers : public virtual Social_Media_no_followers
 };
 
 struct Facebook_wf : public virtual Social_Media_with_followers {
-    Facebook_wf(const dynet::ParameterMap& parameters, Construct* construct);
+    Facebook_wf(const dynet::ParameterMap& parameters, Construct& construct);
 
     void initialize() override {
         add_base_model_to_model_manager(model_names::FB_nf);
@@ -635,7 +659,7 @@ struct Facebook_wf : public virtual Social_Media_with_followers {
 
 
 struct Twitter_wf : public virtual Social_Media_with_followers {
-    Twitter_wf(const dynet::ParameterMap& parameters, Construct* construct);
+    Twitter_wf(const dynet::ParameterMap& parameters, Construct& construct);
 
     void initialize() override {
         add_base_model_to_model_manager(model_names::TWIT_nf);
@@ -644,12 +668,12 @@ struct Twitter_wf : public virtual Social_Media_with_followers {
 };
 
 struct Facebook_nf : public virtual Social_Media_no_followers {
-    Facebook_nf(const dynet::ParameterMap& parameters, Construct* construct);
+    Facebook_nf(const dynet::ParameterMap& parameters, Construct& construct);
 };
 
 
 struct Twitter_nf : public virtual Social_Media_no_followers {
-    Twitter_nf(const dynet::ParameterMap& parameters, Construct* construct);
+    Twitter_nf(const dynet::ParameterMap& parameters, Construct& construct);
 };
 
 // TWITTER_SIM_HH_H

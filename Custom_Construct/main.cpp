@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "Output.h"
 #include "StandardInteraction.h"
+#include "test.h"
 
 int main() {
+
+	test();
+
 	Construct construct;
 
 	// Construct parameters used by various components of Construct
@@ -72,8 +76,8 @@ int main() {
 
 	// Models can be created outside of Construct, but still require the construct pointer.
 	// Once models are created they must be added to the model manager so it can participate in the simulation.
-	auto SIM = new StandardInteraction(dynet::ParameterMap(), &construct);
-	construct.model_manager.add_model(SIM);
+	auto SIM = new StandardInteraction(dynet::ParameterMap(), construct);
+	construct.model_manager.add_model(model_names::SIM, SIM);
 
 	// Outputs are similar to models in that they can be created outside of Construct and require import into its own Manager.
 	// Outputs can not be recovered after given to the output manager. This is because there is no uniqueness requirement for outputs.
@@ -82,7 +86,7 @@ int main() {
 	output_params["network name"] = graph_names::knowledge;
 	output_params["timeperiods"] = "all";
 	output_params["output file"] = "my_output.csv";
-	auto kout = new Output_Graph(output_params, &construct);
+	auto kout = new Output_Graph(output_params, construct);
 	construct.output_manager.add_output(kout);
 
 	// Runs the main Construct simulation starting with initialization which happens once at the beginning of the run function.

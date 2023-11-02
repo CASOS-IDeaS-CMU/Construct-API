@@ -7,21 +7,16 @@
 
 class Beliefs : public StandardInteraction {
 public:
-
-	Beliefs(const dynet::ParameterMap& parameters, Construct* _construct) :
-		Model(_construct, model_names::BELIEF), StandardInteraction(parameters, _construct) {}
-
+	Beliefs(const dynet::ParameterMap& parameters, Construct& construct) : StandardInteraction(parameters, construct) {}
 	//graph name - "belief network"
 	//agent x belief
-	Graph<float>& beliefs = graph_manager->load_required(graph_names::beliefs, nodeset_names::agents, nodeset_names::belief);
-
+	Graph<float>& beliefs = graph_manager.load_required(graph_names::beliefs, nodeset_names::agents, nodeset_names::belief);
 	//graph name - "belief knowledge weight network"
 	//belief x knowledge
-	const Graph<float>& belief_weights = graph_manager->load_optional(graph_names::b_k_wgt, 1.0f, nodeset_names::belief, dense, nodeset_names::knowledge, sparse);
-
+	const Graph<float>& belief_weights = graph_manager.load_optional(graph_names::b_k_wgt, 1.0f, nodeset_names::belief, dense, nodeset_names::knowledge, sparse);
 	//graph name - "belief similarity weight network"
 	//agent - timeperiod
-	const Graph<float>& belief_sim_weight = graph_manager->load_optional(graph_names::b_sim_wgt, 1.0f, agents, sparse, time, sparse);
+	const Graph<float>& belief_sim_weight = graph_manager.load_optional(graph_names::b_sim_wgt, 1.0f, agents, sparse, time, sparse);
 
 	// checks for mutually exlusive models
 	void initialize(void) override;

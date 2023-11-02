@@ -3,23 +3,23 @@
 
 
 
-Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Model(_construct, model_names::TEMP)
+Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model(construct)
 {
 #ifndef DO_NOT_FLAG
 	//this section goes over a few examples
 	//none of the following examples will be compiled or affect runtime
 
 	//getting the current time period
-	construct->current_time;
+	construct.current_time;
 
 	//other important parameters are
-	construct->verbose_initialization;
-	construct->verbose_runtime;
+	construct.verbose_initialization;
+	construct.verbose_runtime;
 
 
 	//getting the pointer to a nodeset, node, and accessing an attribute of that node
 	//all nodeset names are held in the "nodes" namespace defined in NodesetManager.h
-	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
+	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
 	//All nodesets are constant. Their names, indexes, and attributes are unmutable by models
 	const Node* phil = agents->get_node_by_name("phil");
 	std::string phil_gender = phil->get_attribute("gender");
@@ -40,8 +40,8 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	in addition the object can be assigned to either a Graph pointer or a reference
 	*/
 
-	Graph<bool>* interaction_network_ptr = graph_manager->load_required(graph_names::interact, agents, agents);
-	Graph<bool>& interaction_network_ref = graph_manager->load_required(graph_names::interact, agents, agents);
+	Graph<bool>* interaction_network_ptr = graph_manager.load_required(graph_names::interact, agents, agents);
+	Graph<bool>& interaction_network_ref = graph_manager.load_required(graph_names::interact, agents, agents);
 
 	/*
 	If the network is not found, an exception is thrown
@@ -51,7 +51,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	ensure that the value type entered match the data type of the graph you wish to create
 	*/
 
-	Graph<float>& my_network = graph_manager->load_optional("my network", 1.0f, agents, dense, agents, sparse);
+	Graph<float>& my_network = graph_manager.load_optional("my network", 1.0f, agents, dense, agents, sparse);
 
 	//to access an element without creating a link you can directly examine an entry
 	//when examining an element it can not be modified
@@ -144,9 +144,9 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//to do operations such as the overlap between two rows or a column and a row of the same or different graphs
 	//iterators can be aligned using the graph_utils namespace
 
-	auto rit = interaction_network_ptr->full_row_begin(row);
-	auto cit = interaction_network_ptr->sparse_col_begin(col, false);
-	std::vector<typeless_graph_iterator*> it_list = { &rit, &cit };
+	//auto rit = interaction_network_ptr->full_row_begin(row);
+	//auto cit = interaction_network_ptr->sparse_col_begin(col, false);
+	//std::vector<typeless_graph_iterator*> it_list = { &rit, &cit };
 
 	//to align the iterators without first incrementing them use init_align
 	//to advance to the next alignment of iterators use it_align
@@ -156,7 +156,8 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	unsigned int count = 0;
 	unsigned int count2 = 0;
 
-	for (graph_utils::init_align(it_list); rit != interaction_network_ptr->row_end(row); graph_utils::it_align(it_list)) {
+	for (auto& [rit, _] : graph_utils::it_align(interaction_network_ptr->full_row_begin(row), interaction_network_ptr->sparse_col_begin(col, false))) {
+	//for (graph_utils::init_align(it_list); rit != interaction_network_ptr->row_end(row); graph_utils::it_align(it_list)) {
 		count++;
 		if (*rit) count2++;
 	}
@@ -165,13 +166,15 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//with alignment, order in the vector of iterators is irrelevant
 	//in these functions iterators are advanced such that the first iterator is always ahead of all other iterators in the list
 
-	auto it1 = interaction_network_ptr->sparse_row_begin(row, false);
-	auto it2 = interaction_network_ptr->sparse_row_begin(row + 1, false);
-	std::vector<typeless_graph_iterator*> it_list2 = { &it1, &it2 };
+	//auto it1 = interaction_network_ptr->sparse_row_begin(row, false);
+	//auto it2 = interaction_network_ptr->sparse_row_begin(row + 1, false);
+	//std::vector<typeless_graph_iterator*> it_list2 = { &it1, &it2 };
 
 	count = 0;
-
-	for (graph_utils::init_align_before_first(it_list2); it1 != interaction_network_ptr->row_end(row); graph_utils::it_align_before_first(it_list2)) {
+	for (auto& [_, __] : graph_utils::it_misalign(
+		interaction_network_ptr->sparse_row_begin(row, false), 
+		interaction_network_ptr->sparse_row_begin(row + 1, false))) {
+	//for (graph_utils::init_align_before_first(it_list2); it1 != interaction_network_ptr->row_end(row); graph_utils::it_align_before_first(it_list2)) {
 		count++;
 	}
 
@@ -190,7 +193,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 
 	//Transposes can be taken of a Graph and similar behavior can be expected
 
-	Graph<float>& distance_network = graph_manager->load_optional("distance network", 1.0f, agents, sparse, agents, dense);
+	Graph<float>& distance_network = graph_manager.load_optional("distance network", 1.0f, agents, sparse, agents, dense);
 	Temporary_Graph<float> distance_interaction = distance_network * interaction_network_ref.T();
 
 	//vectors and maps can be applied to Graphs
@@ -269,7 +272,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//many models via the exchange of messages
 	//Construct will automatically disperse messages to be parsed in the communicate function of models
 	//These messages are dispersed from the private message queue and they are erased after the clean up function
-	auto interaction_queue = &construct->interaction_message_queue;
+	auto interaction_queue = &construct.interaction_message_queue;
 
 	//When distributing messages for parsing, construct will distribute from the private messages
 	//To add messages one must add items into a message.
@@ -292,8 +295,8 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//communication medium's information is stored in communication nodes
 	//an iterator pointing to a communication node can be used to create a CommunicationMedium class
 	
-	const Nodeset* agent = ns_manager->get_nodeset(nodeset_names::agents);
-	const Nodeset* comms = ns_manager->get_nodeset(nodeset_names::comm);
+	const Nodeset* agent = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset* comms = ns_manager.get_nodeset(nodeset_names::comm);
 
 	comms->check_attributes<float>(comms_att::percent_learnable);
 	comms->check_attributes<unsigned int>(comms_att::msg_complex);
@@ -325,7 +328,7 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//this manager is not pre loaded as it has a limited applications
 	//models can be queried for their pointers. This is primarily to check if a model exists though other applications may be useful
 
-	if (construct->model_manager.get_model_by_name(model_names::SIM)) {
+	if (construct.model_manager.contains(model_names::SIM)) {
 		std::cout << "Standard Interaction Model is active." << std::endl;
 	}
 
@@ -333,40 +336,40 @@ Template::Template(dynet::ParameterMap parameters, Construct* _construct) : Mode
 	//To avoid potential conflicts and double parsing that model may not be directly loaded in the model manager
 	//If two or more models use seperately the same model internally they can communicate their usage through a placeholder model
 
-	construct->model_manager.add_model(new Inheritence_Wrapper(this, name));
+	construct.model_manager.add_model(model_names::TEMP, new Inheritence_Wrapper(this));
 
 	//now when all other models query for the Standard Interaction Model, they will see the model as currently active
 	//importantly the PlaceHolder model does not perform any operations when called by the model manager
 	//lastly it is important that other entities know if this model is a real model or a placeholder
 	//all models have the variable valid which will be false if created using the PlaceHolder class
 
-	if (!construct->model_manager.get_model_by_name(name)->valid) {
-		std::cout << "The " << name << " loaded as a placeholder." << std::endl;
+	if (!construct.model_manager.get_model(model_names::TEMP)->valid) {
+		std::cout << "The " << model_names::TEMP << " loaded as a placeholder." << std::endl;
 	}
 
 	//by having a central random generation we can reliably reproduce results
 	//if a seed is not given in the input xml, the random chosen seed value is printed at the beginning of the command line output
 	//many of the usual distributions are available
 
-	random->uniform();
-	random->uniform(-1, 1);
-	random->integer(10);
-	random->exponential(0.5f);
-	random->poisson_number(4.2f);
-	random->randombool();
+	random.uniform();
+	random.uniform(-1, 1);
+	random.integer(10);
+	random.exponential(0.5f);
+	random.poisson_number(4.2f);
+	random.randombool();
 
 	//in addition there are an assortment of additional function that operate on and give results based on pdfs or cdfs
 	std::vector<float> pdf;
 	for (float i = 1; i < 10; i++) pdf.push_back(i);
 
 	//swaps elements such that each element is in a random position
-	random->vector_shuffle(pdf);
+	random.vector_shuffle(pdf);
 
 	//selects an index based on the weights in the pdf
-	unsigned int selection = random->find_dist_index(pdf);
+	unsigned int selection = random.find_dist_index(pdf);
 
 	//creates a list of indexes in the pdf with the index corresponding to the largest weight being most likely to be at the beginning of the vector
-	std::vector<unsigned int> ordered_list = random->order_by_pdf(pdf);
+	std::vector<unsigned int> ordered_list = random.order_by_pdf(pdf);
 
 
 #endif // DO_NOT_FLAG

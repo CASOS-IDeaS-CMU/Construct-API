@@ -4,31 +4,35 @@
 
 struct Emotions : public Model
 {
-	Emotions(Construct* _construct);
+	Emotions(Construct& construct);
 	
+	~Emotions(void) {
+		for (auto& node : *emotions)
+			InteractionItem::item_names.erase((InteractionItem::item_keys)(emot_itemkey_block + node.index));
+	}
+
 	// defines the start of indexes reserved for emotion InteractionItem::item_keys
 	static constexpr char emot_itemkey_block = 100;
-
-	const Nodeset* agents = ns_manager->get_nodeset(nodeset_names::agents);
-	const Nodeset* emotions = ns_manager->get_nodeset(nodeset_names::emotions);
-	const Nodeset* knowledge = ns_manager->get_nodeset(nodeset_names::knowledge);
+	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset* emotions = ns_manager.get_nodeset(nodeset_names::emotions);
+	const Nodeset* knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
 
 	//graph name: "emotion network"
 	//agent x emotion
 	//contains each agents current emotional state
-	Graph<float>& emotion_net = graph_manager->load_required(graph_names::emotion_net, agents, emotions);
+	Graph<float>& emotion_net = graph_manager.load_required(graph_names::emotion_net, agents, emotions);
 
 	//graph name: "emotion broadcast bias network"
 	//agent x emotion
 	//the base probability that an agent attaches an emotion independent of their currrent emotional state
-	const Graph<float>& emot_broadcast_bias = graph_manager->load_optional(graph_names::emot_broad_bias, 1.0f, agents, false, emotions, false);
+	const Graph<float>& emot_broadcast_bias = graph_manager.load_optional(graph_names::emot_broad_bias, 1.0f, agents, false, emotions, false);
 
 	//graph name: "emotion broadcast first order network"
 	//emotion x emotion
 	//the first order dependence for the probability that an agent attaches an emotion
 	//the source dimension correspondes to the emotion being attached 
 	//the target dimension corresponds to the emotional state of an agent
-	const Graph<float>& emot_broadcast_first = graph_manager->load_optional(graph_names::emot_broad_first, 0.0f, emotions, false, emotions, false);
+	const Graph<float>& emot_broadcast_first = graph_manager.load_optional(graph_names::emot_broad_first, 0.0f, emotions, false, emotions, false);
 
 	//graph name: "emotion broadcast second order network"
 	//emotion x emotion x emotion
@@ -36,14 +40,14 @@ struct Emotions : public Model
 	//the source dimension corresponds to the emotion being attached
 	//the target and slice dimension corresponds to combinations of emotional states of an agent
 	const Graph<std::map<unsigned int, float> >& emot_broadcast_second = 
-		graph_manager->load_optional(graph_names::emot_broad_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
+		graph_manager.load_optional(graph_names::emot_broad_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
 
 	//graph name: "emotion reading first order network"
 	//emotion x emotion
 	//the first order dependence for the emotional deflection of reading a message with emotions
 	//the source dimension corresponds to the emotion being deflected
 	//the target dimension corresponds to the emotions attached in a read message
-	const Graph<float>& emot_reading_first = graph_manager->load_required(graph_names::emot_read_first, emotions, emotions);
+	const Graph<float>& emot_reading_first = graph_manager.load_required(graph_names::emot_read_first, emotions, emotions);
 
 	//graph name: "emotion reading second order network"
 	//emotion x emotion x emotion
@@ -51,19 +55,19 @@ struct Emotions : public Model
 	//the source dimension corresponds to the emotion being deflected
 	//the target and slice dimension correspond to combinations of emotional states of an agent
 	const Graph<std::map<unsigned int, float> >& emot_reading_second =
-		graph_manager->load_optional(graph_names::emot_read_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
+		graph_manager.load_optional(graph_names::emot_read_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
 
 	//graph name: "emotion regulation bias network"
 	//agent x emotion
 	//the base value that an agent's emotions will tend toward independent of the agent's current emotional state
-	const Graph<float>& emot_regulation_bias = graph_manager->load_required(graph_names::emot_reg_bias, agents, emotions);
+	const Graph<float>& emot_regulation_bias = graph_manager.load_required(graph_names::emot_reg_bias, agents, emotions);
 
 	//graph name: "emotion regulation first order network"
 	//emotion x emotion
 	//the first order dependence for the self-regulation of an emotion
 	//the source dimension corresponds to the emotion being regulated
 	//the target dimension corresponds to the emotional state of an agent
-	const Graph<float>& emot_regulation_first = graph_manager->load_required(graph_names::emot_reg_first, emotions, emotions);
+	const Graph<float>& emot_regulation_first = graph_manager.load_required(graph_names::emot_reg_first, emotions, emotions);
 
 	//graph name: "emotion regulation second order network"
 	//emotion x emotion x emotion
@@ -71,7 +75,7 @@ struct Emotions : public Model
 	//the source dimension corresponds to the emotion being regulated
 	//the target and slice dimension corresponds to combinations of emotional states of an agent
 	const Graph<std::map<unsigned int, float> >& emot_regulation_second =
-		graph_manager->load_optional(graph_names::emot_reg_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
+		graph_manager.load_optional(graph_names::emot_reg_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
 
 	//emotions are selected probabilistically to be attached to a message
 	//map pairs corresponds to an emotional index and that emotion's value for the agent_index
@@ -113,22 +117,13 @@ struct Emotions : public Model
 };
 
 #include "SocialMedia.h"
-struct SM_nf_emotions : public virtual Social_Media_no_followers {
-
-	SM_nf_emotions(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& params, Construct* _construct) : 
-		Social_Media_no_followers(_media_name, event_key, params, _construct), Model(_construct,"") {}
-
-	const Nodeset* emotions = ns_manager->get_nodeset(nodeset_names::emotions);
-
+struct SM_nf_emotions : virtual public Social_Media_no_followers {
+	SM_nf_emotions(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& params, Construct& construct) : 
+		Social_Media_no_followers(_media_name, event_key, params, construct) {}
+	const Nodeset* emotions = ns_manager.get_nodeset(nodeset_names::emotions);
 	Emotions* emotM = 0;
-
 	void initialize() override {
-		Model* result = construct->model_manager.get_model_by_name(model_names::EMOT);
-		if (!result) {
-			emotM = new Emotions(construct);
-			construct->model_manager.add_model(emotM);
-		}
-		else emotM = dynamic_cast<Emotions*>(result);
+		emotM = dynamic_cast<Emotions*>(construct.model_manager.get_model(model_names::EMOT));
 		Social_Media_no_followers::initialize();
 	}
 
@@ -151,11 +146,17 @@ struct SM_nf_emotions : public virtual Social_Media_no_followers {
 	}
 
 	// implements a user whose actions are dependent on their emotional state
-	struct default_media_user : public Social_Media_no_followers::default_media_user {
-
+	struct default_media_user : virtual public Social_Media_no_followers::default_media_user {
 		default_media_user(SM_nf_emotions* media, const Node& node) : 
-			Social_Media_no_followers::default_media_user(media, node), media(*media) {}
-		SM_nf_emotions& media;
+			Social_Media_no_followers::default_media_user(media, node) {}
+
+		SM_nf_emotions& media() {
+			SM_nf_emotions* temp = dynamic_cast<SM_nf_emotions*>(media_ptr);
+			// if the media couldn't be up casted the desired class this assertion will be raised.
+			// If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+			assert(temp);
+			return *temp;
+		}
 
 		void reply(media_event* _event) override;
 
@@ -171,26 +172,31 @@ struct SM_nf_emotions : public virtual Social_Media_no_followers {
 
 		virtual void add_emotions(media_event* _event);
 	};
-
+	Social_Media_no_followers::media_user& user(unsigned int index) {
+		Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
+		// if the media couldn't be up casted the desired class this assertion will be raised.
+		// If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+		assert(temp);
+		return *temp;
+	}
 	// reimplements Social_Media_no_followers to include an Emotions::attach_emotions call on the returned item
 	virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
-
 	//graph name: "emotion network"
 	//agent x emotion
 	//holds the emotional state of each agent
-	const Graph<float>& emotion_net = graph_manager->load_required(graph_names::emotion_net, agents, emotions);
+	const Graph<float>& emotion_net = graph_manager.load_required(graph_names::emotion_net, agents, emotions);
 
 	//graph name: "emotion broadcast bias network"
 	//agent x emotion
 	//the base probability that an agent attaches an emotion independent of their currrent emotional state
-	const Graph<float>& emot_broadcast_bias = graph_manager->load_optional(graph_names::emot_broad_bias, 1.0f, agents, false, emotions, false);
+	const Graph<float>& emot_broadcast_bias = graph_manager.load_optional(graph_names::emot_broad_bias, 1.0f, agents, false, emotions, false);
 
 	//graph name: "first order emotion broadcast network"
 	//emotion x emotion
 	//the first order dependence for the probability that an agent attaches an emotion
 	//the source dimension correspondes to the emotion being attached 
 	//the target dimension corresponds to the emotional state of an agent
-	const Graph<float>& emot_broadcast_first = graph_manager->load_optional(graph_names::emot_broad_first, 0.0f, emotions, false, emotions, false);
+	const Graph<float>& emot_broadcast_first = graph_manager.load_optional(graph_names::emot_broad_first, 0.0f, emotions, false, emotions, false);
 
 	//graph name: "second order emotion broadcast network"
 	//emotion x emotion x emotion
@@ -198,94 +204,93 @@ struct SM_nf_emotions : public virtual Social_Media_no_followers {
 	//the source dimension corresponds to the emotion being attached
 	//the target and slice dimension corresponds to combinations of emotional states of an agent
 	const Graph<std::map<unsigned int, float> >& emot_broadcast_second =
-		graph_manager->load_optional(graph_names::emot_broad_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
+		graph_manager.load_optional(graph_names::emot_broad_second, std::map<unsigned int, float>(), emotions, false, emotions, false, emotions);
 	//graph name: "first order post density emotion network"
 	//agent x emotion
 	//the first order emotional dependence for the probability density for how many posts an agent will make
 	//the source dimension corresponds to the agent making the posts
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& pd_emotion_first = graph_manager->load_optional("first order post density emotion network", 0.0f, agents, false, emotions, false);
+	const Graph<float>& pd_emotion_first = graph_manager.load_optional("first order post density emotion network", 0.0f, agents, false, emotions, false);
 
 	//graph name: "second order post density emotion network"
 	//emotion x emotion
 	//the second order emotional dependence for the probability density for how many posts an agent will make
 	//the source and target dimensions corresponds to the combinations of emotional states of the agent
-	const Graph<float>& pd_emotion_second = graph_manager->load_optional("second order post density emotion network", 0.0f, emotions, false, emotions, false);
+	const Graph<float>& pd_emotion_second = graph_manager.load_optional("second order post density emotion network", 0.0f, emotions, false, emotions, false);
 
 	//graph name: "first order reply probability emotion network"
 	//agent x emotion
 	//the first order emotional dependence for the probability an agent will reply to an event when reading it
 	//the source dimension corresponds to the agent reading the event
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& pr_emotion_first = graph_manager->load_optional("first order reply probability emotion network", 0.0f, agents, false, emotions, false);
+	const Graph<float>& pr_emotion_first = graph_manager.load_optional("first order reply probability emotion network", 0.0f, agents, false, emotions, false);
 
 	//graph name: "second order reply probability emotion network"
 	//emotion x emotion
 	//the second order emotional dependence for the probability an agent will reply to an event when reading it
 	//the source and target dimensions corresponds to the combinations of emotional states of the agent
-	const Graph<float>& pr_emotion_second = graph_manager->load_optional("second order reply probability emotion network", 0.0f, emotions, false, emotions, false);
+	const Graph<float>& pr_emotion_second = graph_manager.load_optional("second order reply probability emotion network", 0.0f, emotions, false, emotions, false);
 
 	//graph name: "first order repost probability emotion network"
 	//agent x emotion
 	//the first order emotional dependence for the probability an agent will repost an event when reading it
 	//the source dimension corresponds to the agent reading the event
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& prp_emotion_first = graph_manager->load_optional("first order repost probability emotion network", 0.0f, agents, false, emotions, false);
+	const Graph<float>& prp_emotion_first = graph_manager.load_optional("first order repost probability emotion network", 0.0f, agents, false, emotions, false);
 
 	//graph name: "second order repost probability emotion network"
 	//emotion x emotion
 	//the second order emotional dependence for the probability an agent will repost an event when reading it
 	//the source and target dimensions corresponds to the combinations of emotional states of the agent
-	const Graph<float>& prp_emotion_second = graph_manager->load_optional("second order repost probability emotion network", 0.0f, emotions, false, emotions, false);
+	const Graph<float>& prp_emotion_second = graph_manager.load_optional("second order repost probability emotion network", 0.0f, emotions, false, emotions, false);
 
 	//graph name: "first order quote probability emotion network"
 	//agent x emotion
 	//the first order emotional dependence for the probability an agent will quote an event when reading it
 	//the source dimension corresponds to the agent reading the event
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& pq_emotion_first = graph_manager->load_optional("first order quote probability emotion network", 0.0f, agents, false, emotions, false);
+	const Graph<float>& pq_emotion_first = graph_manager.load_optional("first order quote probability emotion network", 0.0f, agents, false, emotions, false);
 
 	//graph name: "second order repost probability emotion network"
 	//emotion x emotion
 	//the second order emotional dependence for the probability an agent will repost an event when reading it
 	//the source and target dimensions corresponds to the combinations of emotional states of the agent
-	const Graph<float>& pq_emotion_second = graph_manager->load_optional("second order quote probability emotion network", 0.0f, emotions, false, emotions, false);
+	const Graph<float>& pq_emotion_second = graph_manager.load_optional("second order quote probability emotion network", 0.0f, emotions, false, emotions, false);
 
 	//graph name: "first order read density emotion network"
 	//agent x emotion
 	//the first order emotional dependence for the probability density for how many events the agent reads each time step
 	//the source dimension corresponds to the agent reading the event
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& pread_emotion_first = graph_manager->load_optional("first order read density emotion network", 0.0f, agents, false, emotions, false);
+	const Graph<float>& pread_emotion_first = graph_manager.load_optional("first order read density emotion network", 0.0f, agents, false, emotions, false);
 
 	//graph name: "second order read density emotion network"
 	//emotion x emotion
 	//the second order emotional dependence for the probability density for how many events the agent reads each time step
 	//the source and target dimensions corresponds to the combinations of emotional states of the agent
-	const Graph<float>& pread_emotion_second = graph_manager->load_optional("second order read density emotion network", 0.0f, emotions, false, emotions, false);
+	const Graph<float>& pread_emotion_second = graph_manager.load_optional("second order read density emotion network", 0.0f, emotions, false, emotions, false);
 
 	//graph name: "knowledge select emotion network"
 	//knowledge x emotion
 	//the emotional dependence of the probability that a knowledge bit is used to create a post
 	//the source dimension corresponds to knowledge bits the agent knows
 	//the target dimension corresponds to the emotional state of the agent
-	const Graph<float>& kselect_emotion = graph_manager->load_optional("knowledge select emotion network", 0.0f, knowledge, false, emotions, false);
+	const Graph<float>& kselect_emotion = graph_manager.load_optional("knowledge select emotion network", 0.0f, knowledge, false, emotions, false);
 
 	//graph name: "knowledge select trust network"
 	//agent x knowledge
 	//the knowledge trust dependence of the probability that a knowledge bit is used to create a post
 	//the source dimension corresponds to the agent creating the post
 	//the target dimension corresponds to the knowledge trust the agent has
-	const Graph<float>& kselect_trust = graph_manager->load_optional("knowledge select trust network", 0.0f, agents, false, knowledge, false);
+	const Graph<float>& kselect_trust = graph_manager.load_optional("knowledge select trust network", 0.0f, agents, false, knowledge, false);
 
 	//graph name: "knowledge select bias network"
 	//agent x knowledge
 	//the base proability that an agent will select a knowledge bit for creating a post
-	const Graph<float>& kselect = graph_manager->load_optional("knowledge select bias network", 1.0f, agents, false, knowledge, false);
+	const Graph<float>& kselect = graph_manager.load_optional("knowledge select bias network", 1.0f, agents, false, knowledge, false);
 };
 
-struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf_emotions {
-	
+struct SM_wf_emotions : public Social_Media_with_followers, public SM_nf_emotions {
 	void initialize(void) override { SM_nf_emotions::initialize(); }
 	void communicate(const InteractionMessage& msg) override { Social_Media_with_followers::communicate(msg); }
 	void cleanup() override { Social_Media_with_followers::cleanup(); }
@@ -293,13 +298,12 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 		{ return SM_nf_emotions::convert_to_InteractionItem(_event, sender_index, receiver_index); }
 	int get_feed_priority(const media_event& _event, unsigned int user) override { return Social_Media_with_followers::get_feed_priority(_event, user); }
 
-	SM_wf_emotions(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& params, Construct* _construct) :
-		Social_Media_with_followers(_media_name, event_key, params, _construct),
-		Social_Media_with_followers::Social_Media_no_followers(_media_name, event_key, params, _construct),
-		SM_nf_emotions(_media_name, event_key, params, _construct),
-		Model(_construct, "") {}
+	SM_wf_emotions(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& params, Construct& construct) :
+		Social_Media_no_followers(_media_name, event_key, params, construct),
+		Social_Media_with_followers(_media_name, event_key, params, construct),
+		SM_nf_emotions(_media_name, event_key, params, construct) {}
 
-	struct default_media_user : public Social_Media_with_followers::default_media_user, virtual public SM_nf_emotions::default_media_user {
+	struct default_media_user : public Social_Media_with_followers::default_media_user, public SM_nf_emotions::default_media_user {
 	private:
 		typedef Social_Media_with_followers::default_media_user sm_follow;
 		typedef SM_nf_emotions::default_media_user sm_e;
@@ -319,6 +323,7 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 		float get_charisma() override { return sm_follow::get_charisma(); }
 
 		default_media_user(SM_wf_emotions* _media, const Node& node) :
+			Social_Media_no_followers::default_media_user(_media, node),
 			Social_Media_with_followers::default_media_user(_media, node), 
 			SM_nf_emotions::default_media_user(_media, node) {}
 	};
@@ -330,7 +335,7 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 	virtual void load_users(const std::string& version) override {
 		assert(Construct::version == version);
 
-		for (auto& node : *agents) {
+		for (auto& node : *Social_Media_with_followers::agents) {
 			Social_Media_with_followers::users[node.index] =
 #ifdef CUSTOM_MEDIA_USERS
 				load_user(node);
@@ -342,8 +347,8 @@ struct SM_wf_emotions : public Social_Media_with_followers, public virtual SM_nf
 	}
 };
 
-struct Facebook_nf_emotions : public virtual SM_nf_emotions {
-	Facebook_nf_emotions(const dynet::ParameterMap& parameters, Construct* _construct);
+struct Facebook_nf_emotions : public SM_nf_emotions {
+	Facebook_nf_emotions(const dynet::ParameterMap& parameters, Construct& construct);
 
 	void initialize() override {
 		add_base_model_to_model_manager(model_names::FB_nf);
@@ -352,8 +357,8 @@ struct Facebook_nf_emotions : public virtual SM_nf_emotions {
 };
 
 
-struct Twitter_nf_emotions : public virtual SM_nf_emotions {
-	Twitter_nf_emotions(const dynet::ParameterMap& parameters, Construct* _construct);
+struct Twitter_nf_emotions : public SM_nf_emotions {
+	Twitter_nf_emotions(const dynet::ParameterMap& parameters, Construct& construct);
 
 	void initialize() override {
 		add_base_model_to_model_manager(model_names::TWIT_nf);
@@ -361,24 +366,24 @@ struct Twitter_nf_emotions : public virtual SM_nf_emotions {
 	}
 };
 
-struct Facebook_wf_emotions : public virtual SM_wf_emotions {
-	Facebook_wf_emotions(const dynet::ParameterMap& parameters, Construct* _construct);
+struct Facebook_wf_emotions : public SM_wf_emotions {
+	Facebook_wf_emotions(const dynet::ParameterMap& parameters, Construct& construct);
 
 	void initialize() override {
-		add_base_model_to_model_manager(model_names::FB_nf);
-		add_base_model_to_model_manager(model_names::FB_wf);
-		add_base_model_to_model_manager(model_names::FB_nf_emot);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::FB_nf);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::FB_wf);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::FB_nf_emot);
 		SM_wf_emotions::initialize();
 	}
 };
 
-struct Twitter_wf_emotions : public virtual SM_wf_emotions {
-	Twitter_wf_emotions(const dynet::ParameterMap& parameters, Construct* _construct);
+struct Twitter_wf_emotions : public SM_wf_emotions {
+	Twitter_wf_emotions(const dynet::ParameterMap& parameters, Construct& construct);
 
 	void initialize() override {
-		add_base_model_to_model_manager(model_names::TWIT_nf);
-		add_base_model_to_model_manager(model_names::TWIT_wf);
-		add_base_model_to_model_manager(model_names::TWIT_nf_emot);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::TWIT_nf);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::TWIT_wf);
+		Social_Media_with_followers::add_base_model_to_model_manager(model_names::TWIT_nf_emot);
 		SM_wf_emotions::initialize();
 	}
 };

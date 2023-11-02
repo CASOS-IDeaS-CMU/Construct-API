@@ -25,7 +25,7 @@
 //It is expected that models and output will take in a ParameterMap and the Construct pointer, however it is not strictly required.
 //Models will require the Construct pointer in order to have access to the loaded nodes, networks/graphs, and the interaction queue.
 
-Model * dynet::create_model(const std::string & model_name, const ParameterMap& parameters, Construct * construct, const std::string& version) {
+Model * dynet::create_model(const std::string & model_name, const ParameterMap& parameters, Construct& construct, const std::string& version) {
 
 	assert(std::string(Construct::version) == version);
 
@@ -100,7 +100,7 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	return NULL;
 }
 
-Output* dynet::create_output(const std::string& output_name, const ParameterMap& parameters, Construct* construct, const std::string& version) {
+Output* dynet::create_output(const std::string& output_name, const ParameterMap& parameters, Construct& construct, const std::string& version) {
 
 	assert(std::string(Construct::version) == version);
 

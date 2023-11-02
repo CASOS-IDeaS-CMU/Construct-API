@@ -63,6 +63,7 @@ namespace dynet
 
 	struct construct_exception : public std::runtime_error {
 		construct_exception(const std::string& message) : std::runtime_error(message) {}
+
 		std::string string(void) const { return std::string(what()); }
 	};
 
@@ -191,6 +192,18 @@ namespace dynet
 	struct model_multually_exclusive : public construct_exception {
 		model_multually_exclusive(const std::string& model_name) :
 			construct_exception("This model is mutually exclusive with the " + model_name) {}
+	};
+
+
+	struct model_not_found : public construct_exception {
+		model_not_found(const std::string& model_name) :
+			construct_exception(model_name + " could not be found") {}
+	};
+
+
+	struct model_already_exists : public construct_exception {
+		model_already_exists(const std::string& model_name) :
+			construct_exception(model_name + " already exists") {}
 	};
 
 
@@ -475,6 +488,10 @@ struct Node {
 	const unsigned int index;
 
 	const std::string& get_attribute(const std::string& attribute_name) const;
+
+	const std::string& operator[](const std::string& attribute_name) const {
+		return get_attribute(attribute_name);
+	}
 };
 
 
@@ -505,6 +522,18 @@ public:
 	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
 
 	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
+
+	const Node& operator[](unsigned int index) const {
+		assert(index < _nodes.size());
+		return _nodes[index];
+	}
+
+	const Node& operator[](const std::string& name) const {
+		for (auto& node : _nodes) if (node.name == name) return node;
+		throw dynet::could_not_find_node(name, this->name);
+		//@todo replace this with std::unreachable in c++23
+		return _nodes.front();
+	}
 
 	const Node* get_node_by_index(unsigned int index) const;
 
@@ -540,7 +569,6 @@ class NodesetManager
 	~NodesetManager(void);
 
 	friend class Construct;
-
 	std::unordered_map<std::string, const Nodeset*> _nodesets;
 public:
 
@@ -623,7 +651,6 @@ struct InteractionItem
 	}
 #endif
 	;
-
 	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
 
 	static const std::string& get_item_name(InteractionItem::item_keys key);
@@ -680,26 +707,21 @@ struct InteractionItem
 	//store any relevant attributes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
 	std::unordered_set<item_keys> attributes;
-
 	InteractionItem() noexcept {}
-
 	InteractionItem(const InteractionItem& item) noexcept :
 		attributes(item.attributes),
 		indexes(item.indexes),
 		values(item.values) {}
-
 	InteractionItem& operator=(const InteractionItem& item) noexcept {
 		attributes = item.attributes;
 		indexes = item.indexes;
 		values = item.values;
 		return *this;
 	}
-
 	InteractionItem(InteractionItem&& item) noexcept :
 		attributes(std::move(item.attributes)),
 		indexes(std::move(item.indexes)),
 		values(std::move(item.values)) {}
-
 	InteractionItem& operator=(InteractionItem&& item) noexcept {
 		attributes = std::move(item.attributes);
 		indexes = std::move(item.indexes);
@@ -744,13 +766,11 @@ public:
 		unsigned int receiverAgentIndex,
 		const CommunicationMedium* _medium,
 		const std::vector<InteractionItem>& interactionItems = std::vector<InteractionItem>());
-
 	InteractionMessage(
 		unsigned int senderAgentIndex,
 		unsigned int receiverAgentIndex,
 		const CommunicationMedium* _medium,
 		std::vector<InteractionItem>&& interactionItems);
-
 	InteractionMessage(const InteractionMessage& message) noexcept : 
 		sender(message.sender),
 		receiver(message.receiver),
@@ -758,7 +778,6 @@ public:
 		valid(message.valid),
 		medium(message.medium),
 		items(message.items) {}
-
 	InteractionMessage& operator=(const InteractionMessage& message) noexcept {
 		sender = message.sender;
 		receiver = message.receiver;
@@ -769,7 +788,6 @@ public:
 		return *this;
 	}
 		
-
 	InteractionMessage(InteractionMessage&& message) noexcept :
 		sender(message.sender),
 		receiver(message.receiver),
@@ -777,7 +795,6 @@ public:
 		valid(message.valid),
 		medium(message.medium),
 		items(std::move(message.items)) {}
-
 	InteractionMessage& operator=(InteractionMessage&& message) noexcept {
 		sender = message.sender;
 		receiver = message.receiver;
@@ -828,7 +845,6 @@ class InteractionMessageQueue
 	//constant insert and erase are more important
 	std::list<InteractionMessage> _queue;
 public:
-
 	using iterator = std::list<InteractionMessage>::iterator;
 	using const_iterator = std::list<InteractionMessage>::const_iterator;
 	using reverse_iterator = std::list<InteractionMessage>::reverse_iterator;
@@ -932,12 +948,10 @@ public:
 
 
 struct typeless_graph_iterator {
-
 	//the graph will know how to cast this value to the correct type
 	mutable void* _ptr;
 	mutable unsigned int _row;
 	mutable unsigned int _col;
-
 
 	typeless_graph_iterator(unsigned int row = 0, unsigned int col = 0, void* ptr = NULL);
 	virtual ~typeless_graph_iterator() {}
@@ -960,7 +974,6 @@ struct typeless_graph_iterator {
 
 template<typename link_type>
 class Graph;
-
 template<typename T>
 std::vector<T> operator+(const std::vector<T>& left, const std::vector<T>& right) {
 	assert(left.size() == right.size());
@@ -970,7 +983,6 @@ std::vector<T> operator+(const std::vector<T>& left, const std::vector<T>& right
 	}
 	return ret;
 }
-
 template<typename T>
 std::map<unsigned int, T> operator+(const std::map<unsigned int, T>& left, const std::map<unsigned int, T>& right) {
 	std::map<unsigned int, T> ret;
@@ -1011,13 +1023,11 @@ struct Transpose {
 	const Graph<link_type>& graph(void) const { return *g; }
 };
 
-
 template<typename link_type>
 class Temporary_Graph {
 	Graph<link_type>* g;
 public:
 	Temporary_Graph() : g(nullptr) {}
-
 	Temporary_Graph(const link_type& vals, const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense);
 
 	Temporary_Graph(Graph<link_type>* _g) : g(_g) {}
@@ -1043,17 +1053,18 @@ public:
 
 namespace graph_utils {
 
-	void it_align(std::vector<typeless_graph_iterator*>& it_list);
-
-	void init_align(std::vector<typeless_graph_iterator*>& it_list);
-
-	void it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
-
-	void init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+//	void it_align(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void init_align(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 
 	template<typename link_type>
 	struct graph_iterator : public typeless_graph_iterator {
 		Graph<link_type>* _parent = NULL;
+
 		graph_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr) :
 			typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<link_type>*>(parent)) {}
 
@@ -1064,6 +1075,7 @@ namespace graph_utils {
 	template<typename link_type>
 	struct sparse_graph_iterator {
 		const link_type _skip;
+
 		sparse_graph_iterator(const link_type& skip_data) : _skip(skip_data) {}
 	};
 
@@ -1684,8 +1696,8 @@ public:
 
 
 struct Graph_Intermediary {
-	Typeless_Graph* ptr;
 
+	Typeless_Graph* ptr;
 	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
 
 	void check_ptr() const;
@@ -1724,6 +1736,125 @@ struct Graph_Intermediary {
 
 namespace graph_utils {
 	
+	template<typename it1, typename it2, typename... its>
+	struct align_zip_gits {
+		std::tuple<it1, it2, its...> iterators;
+
+		std::tuple<it1, it2, its...>& operator*() {
+			return iterators;
+		}
+
+		template<typename T>
+		bool align_step(T& it) {
+			unsigned int index = std::get<0>(iterators).index();
+			if (it.index() > index) ++std::get<0>(iterators);
+			else if (it.index() < index && it.index() < it.max()) ++it;
+			else return true;
+			return false;
+		}
+
+		void align() {
+			align(std::index_sequence_for<its...>());
+		}
+
+		template <size_t... Indices>
+		void increment_all(std::index_sequence<Indices...> seq) {
+			(++std::get<Indices>(iterators), ...);
+			align();
+		}
+
+		template<size_t... Indicies>
+		void align(std::index_sequence<Indicies...>) {
+			while (std::get<0>(iterators).max() > std::get<0>(iterators).index()) {
+				bool temp = (align_step(std::get<Indicies + 2>(iterators)) && ...);
+				if (align_step(std::get<1>(iterators)) && temp) break;
+			}
+		}
+
+		void operator++() {
+			increment_all(std::index_sequence_for<it1, it2, its...>());
+		}
+
+		bool operator!=(const align_zip_gits&) const {
+			return std::get<0>(iterators).index() < std::get<0>(iterators).max();
+		}
+
+		auto begin() {
+			align();
+			return *this;
+		}
+		auto end() { return *this; }
+
+		template<size_t... Indicies>
+		bool check_size(std::index_sequence<Indicies...>) {
+			bool temp = ((std::get<0>(iterators).max() == std::get<Indicies + 2>(iterators).max()) && ...);
+			return std::get<0>(iterators).max() == std::get<1>(iterators).max() && temp;
+		}
+
+		align_zip_gits(it1 first_iterator, it2 second_iterator, its... extra_iterators) :
+			iterators(std::make_tuple(first_iterator, second_iterator, extra_iterators...)) {
+			//checks to see if all iterators have the same dimension
+			assert(check_size(std::index_sequence_for<its...>()));
+		}
+
+
+	};
+
+
+	template<typename it1, typename it2, typename... its>
+	struct misalign_zip_gits : public align_zip_gits<it1, it2, its...> {
+		using align_zip_gits<it1, it2, its...>::iterators;
+		using align_zip_gits<it1, it2, its...>::align_zip_gits;
+
+		template<typename T>
+		bool align_step(T& it) {
+			unsigned int index = std::get<0>(iterators).index();
+			if (it.index() > index) return true;
+			else if (it.index() < index) ++it;
+			else {
+				++std::get<0>(iterators);
+				++it;
+			}
+			return false;
+		}
+
+		void align() {
+			align(std::index_sequence_for<its...>());
+		}
+
+		template<size_t... Indicies>
+		void align(std::index_sequence<Indicies...>) {
+			while (std::get<0>(iterators).max() > std::get<0>(iterators).index()) {
+				bool temp = (align_step(std::get<Indicies + 2>(iterators)) && ...);
+				if (align_step(std::get<1>(iterators)) && temp) break;
+			}
+		}
+
+		void operator++() {
+			++std::get<0>(iterators);
+			align();
+		}
+
+		auto begin() {
+			align();
+			return *this;
+		}
+		auto end() { return *this; }
+	};
+
+
+	template<typename it1, typename it2, typename... its>
+	//auto it_align(graph_iterator& first_iterator, graph_iterator& second_iterator) {
+	auto it_align(it1 first_iterator, it2 second_iterator, its... extra_iterators) {
+		//return graph_align_zip_iterator<graph_iterators...>(first_iterator, second_iterator);
+		return align_zip_gits(first_iterator, second_iterator, extra_iterators...);
+	}
+
+	template<typename it1, typename it2, typename... its>
+	auto it_misalign(it1 misaligned_iterator, it2 second_iterator, its... extra_iterators) {
+		return misalign_zip_gits(misaligned_iterator, second_iterator, extra_iterators...);
+	}
+
 	template<typename T>
 	void check_range(const Graph<T>& graph, const T& lower_bound, const T& upper_bound) {
 		for (auto row = graph.begin_rows(); row != graph.end_rows(); ++row) {
@@ -1739,7 +1870,6 @@ namespace graph_utils {
 			}
 		}
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1770,21 +1900,16 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs) {
 		return ewise_product(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_product(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs); }
-
 	template<typename left, typename right>
 	auto ewise_product(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs, rhs.graph()); }
-
 	template<typename left, typename right>
 	auto ewise_product(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.target_nodeset);
@@ -1815,15 +1940,12 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_product(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_product(const Transpose<left>& lhs, const Graph<right>& rhs) { return ewise_product(rhs, lhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1854,12 +1976,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-	
 	template<typename left, typename right>
 	auto ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs) { 
 		return ewise_product(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense); 
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1891,21 +2011,16 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs); }
-
 	template<typename left, typename right>
 	auto ewise_divide(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs, rhs.graph()); }
-
 	template<typename left, typename right>
 	auto ewise_divide(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.graph().target_nodeset);
@@ -1937,12 +2052,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.graph().source_nodeset == rhs.target_nodeset);
@@ -1974,12 +2087,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs) { 
 		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.row_dense, lhs.graph().row_dense || rhs.col_dense); 
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -2010,13 +2121,11 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense);
 	}
 }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -2036,7 +2145,6 @@ std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
@@ -2053,19 +2161,14 @@ std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs; }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.source_nodeset);
@@ -2074,13 +2177,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
-		auto temp = lhs;
-		auto it = col.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = col.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, col.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2089,7 +2192,6 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
@@ -2098,13 +2200,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
-		auto temp = lhs;
-		auto it = row.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = row.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, row.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2113,19 +2215,14 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -2145,7 +2242,6 @@ std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
@@ -2162,19 +2258,14 @@ std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.source_nodeset);
@@ -2183,13 +2274,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
-		auto temp = lhs;
-		auto it = col.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = col.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, col.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2198,7 +2289,6 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
@@ -2207,13 +2297,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
-		auto temp = lhs;
-		auto it = row.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = row.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, row.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2222,19 +2312,14 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 
 
 template<typename left, typename right>
@@ -2252,10 +2337,8 @@ auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 
@@ -2276,10 +2359,8 @@ auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2295,10 +2376,8 @@ auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2320,64 +2399,59 @@ auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
-
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
-
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
 
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -2414,7 +2488,6 @@ Temporary_Graph<output> operator+(const Graph<left>& lhs, const Graph<right>& rh
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Graph<left>& lhs, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -2450,7 +2523,6 @@ Temporary_Graph<output> operator+(const Graph<left>& lhs, const Transpose<right>
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Graph<right>& rhs) {
 	const Graph<left>& lhs = lhsT.graph();
@@ -2486,7 +2558,6 @@ Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Graph<right
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
 	const Graph<left>& lhs = lhsT.graph();
@@ -2523,16 +2594,12 @@ Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Transpose<r
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs + rhs.graph(); }
-
 template<typename left, typename right>
 auto operator+(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() + rhs; }
-
 template<typename left, typename right>
 auto operator+(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() + rhs.graph(); }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->col_size);
@@ -2542,10 +2609,8 @@ std::vector<output> operator+(const graph_utils::const_row_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2568,10 +2633,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_row_begin_iter
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2581,10 +2644,8 @@ std::vector<output> operator+(const graph_utils::const_col_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2608,10 +2669,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_col_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right>
 auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2629,7 +2688,6 @@ std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2647,10 +2705,8 @@ std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2668,7 +2724,6 @@ std::vector<output> operator+(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2696,7 +2751,6 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2724,10 +2778,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2757,7 +2809,6 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_col_ite
 }
 
 
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->col_size);
@@ -2767,7 +2818,6 @@ std::vector<output> operator-(const graph_utils::const_row_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { 
 	assert(lhs.size() == rhs._parent->col_size);
@@ -2777,7 +2827,6 @@ std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::c
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2804,7 +2853,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_row_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 auto operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
 	std::map<unsigned int, output> ret = lhs;
@@ -2827,7 +2875,6 @@ auto operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2837,7 +2884,6 @@ std::vector<output> operator-(const graph_utils::const_col_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs.size() == rhs._parent->row_size);
@@ -2847,7 +2893,6 @@ std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::c
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2874,7 +2919,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_col_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	std::map<unsigned int, output> ret = lhs;
@@ -2898,7 +2942,6 @@ std::map<unsigned int, output> operator-(const std::map<unsigned int, left>& lhs
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2916,7 +2959,6 @@ std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2934,7 +2976,6 @@ std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
@@ -2952,7 +2993,6 @@ std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2970,7 +3010,6 @@ std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2998,7 +3037,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -3026,7 +3064,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
@@ -3054,7 +3091,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -3082,7 +3118,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Graph<left>& lhs, const Graph<right>& rhs) {
 	assert(rhs.source_nodeset == lhs.source_nodeset);
@@ -3116,7 +3151,6 @@ Temporary_Graph<output> operator-(const Graph<left>& lhs, const Graph<right>& rh
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Graph<left>& lhs, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -3152,7 +3186,6 @@ Temporary_Graph<output> operator-(const Graph<left>& lhs, const Transpose<right>
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Graph<right>& rhs) {
 	const Graph<right>& lhs = lhsT.graph();
@@ -3188,7 +3221,6 @@ Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Graph<right
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -3225,13 +3257,10 @@ Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Transpose<r
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator-(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs - rhs.graph(); }
-
 template<typename left, typename right>
 auto operator-(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() - rhs; }
-
 template<typename left, typename right>
 auto operator-(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() - rhs.graph(); }
 
@@ -3269,7 +3298,6 @@ namespace graph_utils {
 		3
 	};
 
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
 		// target dimension of the left_rhs and source dimension of right_rhs must match
@@ -3297,7 +3325,6 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Transpose<right>& rhsT, bool output_row_dense, bool output_col_dense) {
 		const Graph<right>& rhs = rhsT.graph();
@@ -3328,7 +3355,6 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Transpose<left>& lhsT, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
 		const Graph<left>& lhs = lhsT.graph();
@@ -3362,7 +3388,6 @@ namespace graph_utils {
 
 }
 
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Graph<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
@@ -3370,16 +3395,12 @@ auto operator*(const Graph<left>& lhs, const Graph<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const Temporary_Graph<left>& rhs) { return lhs.graph() * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Transpose<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.graph().col_dense + 2 * rhs.graph().row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
@@ -3387,7 +3408,6 @@ auto operator*(const Graph<left>& lhs, const Transpose<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const Graph<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.graph().col_dense + 8 * lhs.graph().row_dense];
@@ -3395,10 +3415,8 @@ auto operator*(const Transpose<left>& lhs, const Graph<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs.graph(); }
-
 
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const Graph<left>& lhs, const std::vector<right>& rhs) {
@@ -3410,7 +3428,6 @@ std::vector<output> operator*(const Graph<left>& lhs, const std::vector<right>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const std::vector<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs.size() == rhs.row_size);
@@ -3421,19 +3438,14 @@ std::vector<output> operator*(const std::vector<left>& lhs, const Graph<right>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const std::vector<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const std::vector<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const Graph<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret;
@@ -3445,7 +3457,6 @@ std::map<unsigned int, output> operator*(const Graph<left>& lhs, const std::map<
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const std::map<unsigned int, left>& lhs, const Graph<right>& rhs) {
 	std::map<unsigned int, output> ret;
@@ -3457,16 +3468,12 @@ std::map<unsigned int, output> operator*(const std::map<unsigned int, left>& lhs
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const std::map<unsigned int, right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const std::map<unsigned int, right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
 
@@ -3708,28 +3715,29 @@ public:
 
 struct Model
 {
-	Construct* const construct;
-	GraphManager* const graph_manager;
-	NodesetManager* const ns_manager;
-	Random* const random;
+	Construct& construct;
+	GraphManager& graph_manager;
+	NodesetManager& ns_manager;
+	Random& random;
 
-	Model(Construct* _construct, const std::string& name);
+	Model(Construct& _construct);
 
-	Model(const std::string& name);
+	virtual ~Model(void) {}
 
-	virtual ~Model(void) { ; }
+	virtual void initialize(void) {};
 
-	virtual void initialize(void);
 
-	virtual void think(void);
+	virtual void think(void) {};
 
-	virtual void update(void);
 
-	virtual void communicate(const InteractionMessage& msg);
+	virtual void update(void) {};
 
-	virtual void cleanup(void);
 
-	const std::string name;
+	virtual void communicate(const InteractionMessage& msg) {};
+
+
+	virtual void cleanup(void) {};
+
 
 	bool valid;
 
@@ -3740,12 +3748,11 @@ struct Model
 };
 
 
-
-struct Inheritence_Wrapper : virtual public Model {
+struct Inheritence_Wrapper : public Model {
 	Model* wrapped_model;
-
-	Inheritence_Wrapper(Model* model, const std::string& model_name) : Model(model_name) {
+	Inheritence_Wrapper(Model* model) : Model(model->construct) {
 		wrapped_model = model;
+		valid = false;
 	}
 };
 
@@ -3813,38 +3820,49 @@ namespace model_names {
 	
 }
 
-class ModelManager
+struct ModelManager
 {
+	std::unordered_map<std::string, Model*> _models;
+	std::unordered_map<std::string, Model*> queued_models;
+
 	ModelManager(void) { ; }
-	~ModelManager(void);
-	
-	std::vector<Model*> models;
+	~ModelManager(void) {
+		for (auto& model : _models) delete model.second;
+	}
 
-	friend class Construct;
+	bool contains(const std::string& name) const noexcept { return _models.contains(name); }
 
-	bool can_models_be_reorganized = true;	
+	Model* get_model(const std::string& name) {
+		if (contains(name)) {
+			Model* ret = _models[name];
+			Inheritence_Wrapper* temp = dynamic_cast<Inheritence_Wrapper*>(ret);
+			if (temp)
+				return temp->wrapped_model;
+			else
+				ret;
+		}
+		else throw dynet::model_not_found(name);
+		//@todo replace these with std::unreachable when msvc implements it in c++23
+		return NULL;
+	}
 
-	void InitializeAllModels(bool verbose_runtime);
+	const Model* get_model(const std::string& name) const {
+		if (contains(name)) {
+			const Model* ret = _models.at(name);
+			const Inheritence_Wrapper* temp = dynamic_cast<const Inheritence_Wrapper*>(ret);
+			if (temp)
+				return temp->wrapped_model;
+			else
+				ret;
+		}
+		else throw dynet::model_not_found(name);
+		return NULL;
+	}
 
-	void ThinkAllModels(bool verbose_runtime);
-
-	void UpdateAllModels(bool verbose_runtime);
-
-	void CommunicateAllModels(const InteractionMessage& msg);
-
-	void CleanUpAllModels(bool verbose_runtime);
-
-public:
-
-	void move_model_to_front(Model* model);
-
-	Model* get_model_by_name(const std::string &model_name) noexcept;
-
-	const Model* get_model_by_name(const std::string &model_name) const noexcept;
-
-	void add_model(Model* model) noexcept;
-		
-
+	void add_model(const std::string& name, Model* model) {
+		if (contains(name)) throw dynet::model_already_exists(name);
+		_models[name] = model;
+	}
 };
 
 #include <fstream>
@@ -3869,7 +3887,7 @@ protected:
 public:
 	
 	// Constructor will setup a time system controlled by Output::should_process.
-	Output(const dynet::ParameterMap& params, Construct* construct) {
+	Output(const dynet::ParameterMap& params, Construct& construct) {
 		output_times = get_output_timeperiods(params, construct);
 		_next_output_time = output_times.begin();
 	}
@@ -3895,7 +3913,7 @@ public:
 	// uses the "timeperiods" key from params to inform the structure of the returned vector
 	// replace this to function customize when the Output should be processed
 
-	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct* construct);
+	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct& construct);
 
 	//this function should be replaced by classes that inheriet from Output
 	virtual void process(unsigned int t) = 0;
@@ -3930,8 +3948,7 @@ struct InteractionMessageParser {
 class Construct {
 	time_t begTim;
 public:
-
-	static constexpr const char* version = "5.4.1";
+	static constexpr const char* version = "5.4.2";
 	~Construct() {}
 
 	Construct();

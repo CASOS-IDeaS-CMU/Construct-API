@@ -6,7 +6,7 @@ class Template : public Model
 {
 public:
 
-	Template(dynet::ParameterMap parameters, Construct* construct);
+	Template(dynet::ParameterMap parameters, Construct& construct);
 	void initialize(void) override;
 	void think(void) override;
 	void update(void) override;
