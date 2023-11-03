@@ -523,7 +523,7 @@ public:
 
 	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
 
-	const Node& operator[](unsigned int index) const {
+	const Node& operator[](unsigned int index) const noexcept {
 		assert(index < _nodes.size());
 		return _nodes[index];
 	}
@@ -1804,7 +1804,9 @@ namespace graph_utils {
 	template<typename it1, typename it2, typename... its>
 	struct misalign_zip_gits : public align_zip_gits<it1, it2, its...> {
 		using align_zip_gits<it1, it2, its...>::iterators;
-		using align_zip_gits<it1, it2, its...>::align_zip_gits;
+
+		misalign_zip_gits(it1 misalign_iterator, it2 second_iterator, its... extra_iterators) : 
+			align_zip_gits<it1, it2, its...>(misalign_iterator, second_iterator, extra_iterators...) {}
 
 		template<typename T>
 		bool align_step(T& it) {
