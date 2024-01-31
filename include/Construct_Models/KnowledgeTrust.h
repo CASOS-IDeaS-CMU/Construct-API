@@ -10,12 +10,11 @@ struct trust_parser : public InteractionMessageParser {
 
 	void parse(const InteractionMessage& msg) override {
 		for (auto& item : msg) {
-			unsigned int k;
-			float trust;
 			unsigned int j = msg.sender;
 			auto alter = item.indexes.find(InteractionItem::item_keys::alter);
 			if (alter != item.indexes.end()) j = alter->second;
-			if (item.get_knowledge_trust_item(k, trust)) {
+			if (item.contains(InteractionItem::item_keys::ktrust)) {
+				auto [k, trust] = item.get_knowledge_trust();
 				kttm.at(msg.receiver, j).insert(std::pair(k, trust));
 			}
 		}

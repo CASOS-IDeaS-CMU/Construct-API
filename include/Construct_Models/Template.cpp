@@ -19,10 +19,10 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 
 	//getting the pointer to a nodeset, node, and accessing an attribute of that node
 	//all nodeset names are held in the "nodes" namespace defined in NodesetManager.h
-	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
 	//All nodesets are constant. Their names, indexes, and attributes are unmutable by models
-	const Node* phil = agents->get_node_by_name("phil");
-	std::string phil_gender = phil->get_attribute("gender");
+	const Node& phil = agents["phil"];
+	std::string phil_gender = phil["gender"];
 
 	/*
 	graphs are the primary data storage in construct
@@ -201,7 +201,7 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 	//a matrix * vector will return a vector and a matrix * map will return a map
 	//as above the data type is deduced based on the data type of the components
 
-	std::vector<float> dense_vector(agents->size(), 2.5f);
+	std::vector<float> dense_vector(agents.size(), 2.5f);
 	std::map<unsigned int, float> sparse_vector = { {1,3.5f}, {3,0.2f} };
 
 	//auto result1 = interaction_network_ref * dense_vector;
@@ -295,15 +295,15 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 	//communication medium's information is stored in communication nodes
 	//an iterator pointing to a communication node can be used to create a CommunicationMedium class
 	
-	const Nodeset* agent = ns_manager.get_nodeset(nodeset_names::agents);
-	const Nodeset* comms = ns_manager.get_nodeset(nodeset_names::comm);
+	const Nodeset& agent = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset& comms = ns_manager.get_nodeset(nodeset_names::comm);
 
-	comms->check_attributes<float>(comms_att::percent_learnable);
-	comms->check_attributes<unsigned int>(comms_att::msg_complex);
-	comms->check_attributes<unsigned int>(comms_att::tts);
-	auto medium_node = comms->begin();
+	comms.check_attributes<float>(comms_att::percent_learnable);
+	comms.check_attributes<unsigned int>(comms_att::msg_complex);
+	comms.check_attributes<unsigned int>(comms_att::tts);
+	auto& medium_node = comms[0];
 
-	CommunicationMedium medium(*medium_node);
+	CommunicationMedium medium(medium_node);
 
 	//A custom CommunicationMedium can be created with all the relevant attribute information
 	std::string comm_name = "medium name";

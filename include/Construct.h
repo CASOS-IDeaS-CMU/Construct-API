@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <float.h>
 #include <fstream>
+#include <functional>
 
 //Loading all of c++ standard library containers
 
@@ -375,7 +376,7 @@ inline std::ostream& operator<<(std::ostream& os, const dynet::datetime& val) {
 
 class Random
 {
-	friend class Construct;
+	friend struct Construct;
 
 	//Constructor is kept private so that only Construct has access to it.
 	//This will prevent models from creating their own instance.
@@ -422,6 +423,13 @@ public:
 		}
 	}
 
+	//selects a random element from the vector
+	template<typename T>
+	T& select(std::vector<T>& vec) {
+		assert(vec.size());
+		return vec[integer((unsigned int)vec.size())];
+	}
+
 	//chooses an index based on the submitted pdf
 	unsigned int find_dist_index(std::vector<float>& pdf);
 
@@ -433,55 +441,60 @@ public:
 
 //names of nodesets used in Construct
 namespace nodeset_names {
-	const std::string agents		= "agent";			//"agent"
-	const std::string knowledge		= "knowledge";		//"knowledge"
-	const std::string time			= "time";			//"time"
-	const std::string belief		= "belief";			//"belief"
-	const std::string comm			= "medium";			//"medium"
-	const std::string loc			= "location";		//"location"
-	const std::string task			= "task";			//"task"
-	const std::string agent_group	= "agent group";	//"agent group"
-	const std::string emotions		= "emotion";		//"emotions"
+	const std::string agents = "agent";			//"agent"
+	const std::string knowledge = "knowledge";		//"knowledge"
+	const std::string time = "time";			//"time"
+	const std::string belief = "belief";			//"belief"
+	const std::string comm = "medium";			//"medium"
+	const std::string loc = "location";		//"location"
+	const std::string task = "task";			//"task"
+	const std::string agent_group = "agent group";	//"agent group"
+	const std::string emotions = "emotion";		//"emotions"
+	const std::string subreddits = "subreddit";		//"subreddits"
+	const std::string k_types = "knowledge type";	//"knowledge types"
 }
 
 //names of node attributes used in Construct
 namespace node_attributes {
-	
-	const std::string send_k			= "can send knowledge";			//"can send knowledge"
-	const std::string recv_k			= "can receive knowledge";		//"can receive knowledge"
-	const std::string send_t			= "can send knowledge trust";	//"can send knowledge trust"
-	const std::string recv_t			= "can receive knowledge trust";//"can receive knowledge trust"
-	const std::string learning_rate		= "learning rate";				//"learning rate"
-	const std::string send_beliefs		= "can send beliefs";			//"can send beliefs"
-	const std::string receive_beliefs	= "can receive beliefs";		//"can send beliefs"
-	const std::string send_beliefsTM	= "can send beliefTM";			//"can send beliefTM"
+
+	const std::string send_k = "can send knowledge";			//"can send knowledge"
+	const std::string recv_k = "can receive knowledge";		//"can receive knowledge"
+	const std::string send_t = "can send knowledge trust";	//"can send knowledge trust"
+	const std::string recv_t = "can receive knowledge trust";//"can receive knowledge trust"
+	const std::string learning_rate = "learning rate";				//"learning rate"
+	const std::string send_beliefs = "can send beliefs";			//"can send beliefs"
+	const std::string receive_beliefs = "can receive beliefs";		//"can send beliefs"
+	const std::string send_beliefsTM = "can send beliefTM";			//"can send beliefTM"
 	const std::string receive_beliefsTM = "can receive beliefTM";		//"can receive beliefTM"
-	const std::string influence			= "influence";					//"influence"
-	const std::string susceptiblity		= "susceptiblity";				//"susceptiblity"
-	const std::string send_e			= "can send emotion";			//"can send emotion"
-	const std::string recv_e			= "can receive emotion";		//"can receive emotion"
+	const std::string influence = "influence";					//"influence"
+	const std::string susceptiblity = "susceptiblity";				//"susceptiblity"
+	const std::string send_e = "can send emotion";			//"can send emotion"
+	const std::string recv_e = "can receive emotion";		//"can receive emotion"
 
 	//These node attributes have prefixes that precede their name
 	//See the class media_user
 
-	const std::string post_density	= " post density";					//" post density"
-	const std::string reply_prob	= " reply probability";				//" reply probability"
-	const std::string repost_prob	= " repost probability";			//" repost probability"
-	const std::string quote_prob	= " quote probability";				//" quote probability"
-	const std::string read_density	= " reading density";				//" reading density"
-	const std::string add_follow	= " add follower density";			//" add follower density"
+	const std::string post_density = " post density";					//" post density"
+	const std::string reply_prob = " reply probability";				//" reply probability"
+	const std::string repost_prob = " repost probability";			//" repost probability"
+	const std::string quote_prob = " quote probability";				//" quote probability"
+	const std::string read_density = " reading density";				//" reading density"
+	const std::string add_follow = " add follower density";			//" add follower density"
 	const std::string remove_follow = " remove follower scale factor";	//" remove follower scale factor"
-	const std::string auto_follow	= " auto follow";					//" auto follow"
-	const std::string charisma		= " charisma";						//" charisma"
+	const std::string auto_follow = " auto follow";					//" auto follow"
+	const std::string charisma = " charisma";						//" charisma"
+	const std::string post_probability = " post probability";			//" post probability"
+	const std::string upvote_probability = " upvote probability";			//" upvote probability"
+	const std::string downvote_probability = " downvote probability";			//" downvote probability"
 }
 
 //nodes are the endpoints of a network link
 //nodes also have constant attributes
 struct Node {
 
-	Node(const std::string& _name, unsigned int _index, const dynet::ParameterMap* atts) : attributes(atts), name(_name), index(_index) { ; }
+	Node(const std::string& _name, unsigned int _index, const dynet::ParameterMap& atts) : attributes(atts), name(_name), index(_index) { ; }
 
-	const dynet::ParameterMap* const attributes;
+	const dynet::ParameterMap& attributes;
 
 	const std::string name;
 
@@ -502,6 +515,8 @@ public:
 	Nodeset(const std::string& _name) : name(_name) { ; }
 
 	~Nodeset();
+
+	operator const Nodeset* () const { return this; }
 
 	const std::string name;
 
@@ -538,7 +553,7 @@ public:
 	const Node* get_node_by_index(unsigned int index) const;
 
 	const Node* get_node_by_name(const std::string& name) const noexcept;
-	
+
 	//checks to make sure the attribute once converted is in range [min,max]
 	template<typename T>
 	void check_attributes(std::string attribute, T min, T max) const;
@@ -568,7 +583,7 @@ class NodesetManager
 	NodesetManager(void) { ; }
 	~NodesetManager(void);
 
-	friend class Construct;
+	friend struct Construct;
 	std::unordered_map<std::string, const Nodeset*> _nodesets;
 public:
 
@@ -579,7 +594,7 @@ public:
 	Nodeset* create_nodeset(const std::string& name);
 
 	//can only find a nodeset if it has been turned to constant
-	const Nodeset* get_nodeset(const std::string& name) const;
+	const Nodeset& get_nodeset(const std::string& name) const;
 
 	//only checks nodesets that have been turned to constant
 	bool does_nodeset_exist(const std::string& name) const noexcept;
@@ -639,7 +654,13 @@ struct InteractionItem
 		twitter_event,
 		facebook_event,
 		feed_position,
-		emotion
+		emotion,
+		banned,
+		upvotes,
+		downvotes,
+		subreddit,
+		prev_banned,
+		reddit_event
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
 		//added items should be added to the item_names data structure
@@ -666,6 +687,10 @@ struct InteractionItem
 	using value_iterator = std::unordered_map<item_keys, float>::iterator;
 	using value_const_iterator = std::unordered_map<item_keys, float>::const_iterator;
 	
+	bool contains(item_keys key) const {
+		return attributes.contains(key);
+	}
+
 	InteractionItem& set_knowledge_item(unsigned int knowledge_index) noexcept;
 
 	InteractionItem& set_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent) noexcept;
@@ -686,15 +711,15 @@ struct InteractionItem
 
 	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
-	bool get_knowledge_item(unsigned int& knowledge_index) const;
+	unsigned int get_knowledge() const;
 
-	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent) const;
+	std::tuple<unsigned int, unsigned int> get_knowledgeTM() const;
 
-	bool get_belief_item(unsigned int& belief_index, float& belief_value) const;
+	std::tuple<unsigned int, float> get_belief() const;
 
-	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value) const;
+	std::tuple<unsigned int, unsigned int, float> get_beliefTM() const;
 
-	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust) const;
+	std::tuple<unsigned int, float> get_knowledge_trust() const;
 
 	void clear(void) noexcept;
 
@@ -1519,12 +1544,22 @@ public:
 
 	virtual const_row_begin_iterator get_row(unsigned int row_index) const = 0;
 
+	row_begin_iterator operator[](unsigned int row_index) { return get_row(row_index); }
+	const_row_begin_iterator operator[](unsigned int row_index) const { return get_row(row_index); }
+
 	const_row_begin_iterator cget_row(unsigned int row_index) const { return get_row(row_index); };
 
 
 	const typeless_graph_iterator row_end(unsigned int row_index) const;
 
 	const typeless_graph_iterator end_rows(void) const noexcept;
+
+	void set_row(unsigned int row_index, const link_type& value) {
+		row_begin_iterator row = get_row(row_index);
+		for (full_row_iterator it = row.begin(); it != row.end(); ++it) {
+			at(it, value);
+		}
+	}
 
 	virtual full_col_iterator full_col_begin(unsigned int col_index) = 0;
 
@@ -1553,6 +1588,13 @@ public:
 
 	const_col_begin_iterator cget_col(unsigned int col_index) const { return get_col(col_index); };
 
+
+	void set_col(unsigned int col_index, const link_type& value) {
+		col_begin_iterator col = get_col(col_index);
+		for (full_col_iterator it = col.begin(); it != col.end(); ++it) {
+			at(it, value);
+		}
+	}
 
 	const typeless_graph_iterator col_end(unsigned int col_index) const;
 
@@ -3484,78 +3526,81 @@ auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& 
 #define sparse false
 
 namespace graph_names {
-	const std::string active               = "agent active time network";					     // "agent active time network"
-	const std::string current_loc          = "agent current location network";                   // "agent current location network"
-	const std::string group_beliefs        = "agent group belief network";                       // "agent group belief network"
-	const std::string group_knowledge      = "agent group knowledge network";                    // "agent group knowledge network"
-	const std::string agent_groups         = "agent group membership network";                   // "agent group membership network"
-	const std::string init_count           = "agent initiation count network";                   // "agent initiation count network"
-	const std::string loc_learning_rate    = "agent location learning rate network";             // "agent location learning rate network"
-	const std::string loc_preference       = "agent location preference network";                // "agent location preference network"
-	const std::string mail_usage           = "agent mail usage by medium network";               // "agent mail usage by medium network"
-	const std::string recep_count          = "agent reception count network";                    // "agent reception count network"
-	const std::string agent_trust		   = "agent trust network";								 // "agent trust network"
-	const std::string b_k_wgt              = "belief knowledge weight network";                  // "belief knowledge weight network"
-	const std::string belief_msg_complex   = "belief message complexity network";                // "belief message complexity network"
-	const std::string beliefs              = "belief network";                                   // "belief network"
-	const std::string b_sim_wgt            = "belief similarity weight network";                 // "belief similarity weight network"
-	const std::string btm                  = "belief transactive memory network";                // "belief transactive memory network"
-	const std::string comm_access          = "communication medium access network";              // "communication medium access network"
-	const std::string comm_pref            = "communication medium preferences network";         // "communication medium preferences network"
-	const std::string fb_friend            = "facebook friend network";                          // "facebook friend network"
-	const std::string emotion_net		   = "emotion network";									 // "emotion network"
-	const std::string emot_broad_bias	   = "emotion broadcast bias network";					 // "emotion broadcast bias network"
-	const std::string emot_broad_first	   = "emotion broadcast first order network";			 // "emotion broadcast first order network"
-	const std::string emot_broad_second    = "emotion broadcast second order network";			 // "emotion broadcast second order network"
-	const std::string emot_read_first	   = "emotion reading first order network";				 // "emotion reading first order network"
-	const std::string emot_read_second     = "emotion reading second order network";			 // "emotion reading second order network"
-	const std::string emot_reg_bias		   = "emotion regulation bias network";					 // "emotion regulation bias network"
-	const std::string emot_reg_first	   = "emotion regulation first order network";			 // "emotion regulation first order network"
-	const std::string emot_reg_second	   = "emotion regulation second order network";			 // "emotion regulation second order network"
-	const std::string interact_k_wgt       = "interaction knowledge weight network";             // "interaction knowledge weight network"
-	const std::string interact             = "interaction network";                              // "interaction network"
-	const std::string interact_prob        = "interaction probability network";                  // "interaction probability network"
-	const std::string soi                  = "interaction sphere network";                       // "interaction sphere network"
-	const std::string k_exp_wgt            = "knowledge expertise weight network";               // "knowledge expertise weight network"
-	const std::string k_forget_prob        = "knowledge forgetting prob network";                // "knowledge forgetting prob network"
-	const std::string k_forget_rate        = "knowledge forgetting rate network";                // "knowledge forgetting rate network"
-	const std::string k_diff               = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
-	const std::string k_msg_complex        = "knowledge message complexity network";             // "knowledge message complexity network"
-	const std::string knowledge            = "knowledge network";                                // "knowledge network"
-	const std::string k_priority           = "knowledge priority network";                       // "knowledge priority network"
-	const std::string k_sim_wgt            = "knowledge similarity weight network";              // "knowledge similarity weight network"
-	const std::string k_strength           = "knowledge strength network";                       // "knowledge strength network"
-	const std::string ktm                  = "knowledge transactive memory network";			 // "knowledge transactive memory network"
-	const std::string k_trust			   = "knowledge trust network";							 // "knowledge trust network"
-	const std::string ktrust_resist		   = "knowledge trust resistance network";				 // "knowledge trust resistance network"
-	const std::string learnable_k          = "learnable knowledge network";                      // "learnable knowledge network"
-	const std::string loc_knowledge	       = "location knowledge network";                       // "location knowledge network"
-	const std::string loc_learning_limit   = "location learning limit network";                  // "location learning limit network"
-	const std::string loc_medium_access    = "location medium access network";                   // "location medium access network"
-	const std::string location_network     = "location network";                                 // "location network"
-	const std::string mail_check_prob      = "mail check probability network";                   // "mail check probability network"
-	const std::string medium_k_access      = "medium knowledge access network";                  // "medium knowledge access network"
-	const std::string kttm		           = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
-	const std::string phys_prox            = "physical proximity network";                       // "physical proximity network"
-	const std::string phys_prox_wgt        = "physical proximity weight network";                // "physical proximity weight network"
-	const std::string propensity           = "public propensity network";                        // "public propensity network"
-	const std::string soc_prox             = "social proximity network";                         // "social proximity network"
-	const std::string soc_prox_wgt         = "social proximity weight network";                  // "social proximity weight network"
-	const std::string dem_prox             = "sociodemographic proximity network";               // "sociodemographic proximity network"
-	const std::string dem_prox_wgt         = "sociodemographic proximity weight network";        // "sociodemographic proximity weight network"
-	const std::string subs                 = "subscription network";                             // "subscription network"
-	const std::string sub_probability      = "subscription probability network";                 // "subscription probability network"
-	const std::string target_info          = "target information network";                       // "target information network"
-	const std::string task_assignment      = "task assignment network";                          // "task assignment network"
-	const std::string task_availability    = "task availability network";                        // "task availability network"
-	const std::string task_completion      = "task completion network";                          // "task completion network"
-	const std::string task_guess_prob      = "task guess probability network";                   // "task guess probability network"
-	const std::string task_k_importance    = "task knowledge importance network";                // "task knowledge importance network"
-	const std::string task_k_req           = "task knowledge requirement network";               // "task knowledge requirement network"
-	const std::string btm_msg_complex      = "transactive belief message complexity network";    // "transactive belief message complexity network"
-	const std::string ktm_msg_complex      = "transactive knowledge message complexity network"; // "transactive knowledge message complexity network"
-	const std::string twit_follow          = "twitter follower network";                         // "twitter follower network"
-	const std::string unused               = "unused knowledge network";                         // "unused knowledge network"
+	const std::string active = "agent active time network";					     // "agent active time network"
+	const std::string current_loc = "agent current location network";                   // "agent current location network"
+	const std::string group_beliefs = "agent group belief network";                       // "agent group belief network"
+	const std::string group_knowledge = "agent group knowledge network";                    // "agent group knowledge network"
+	const std::string agent_groups = "agent group membership network";                   // "agent group membership network"
+	const std::string init_count = "agent initiation count network";                   // "agent initiation count network"
+	const std::string loc_learning_rate = "agent location learning rate network";             // "agent location learning rate network"
+	const std::string loc_preference = "agent location preference network";                // "agent location preference network"
+	const std::string mail_usage = "agent mail usage by medium network";               // "agent mail usage by medium network"
+	const std::string recep_count = "agent reception count network";                    // "agent reception count network"
+	const std::string agent_trust = "agent trust network";								 // "agent trust network"
+	const std::string b_k_wgt = "belief knowledge weight network";                  // "belief knowledge weight network"
+	const std::string belief_msg_complex = "belief message complexity network";                // "belief message complexity network"
+	const std::string beliefs = "belief network";                                   // "belief network"
+	const std::string b_sim_wgt = "belief similarity weight network";                 // "belief similarity weight network"
+	const std::string btm = "belief transactive memory network";                // "belief transactive memory network"
+	const std::string comm_access = "communication medium access network";              // "communication medium access network"
+	const std::string comm_pref = "communication medium preferences network";         // "communication medium preferences network"
+	const std::string fb_friend = "facebook friend network";                          // "facebook friend network"
+	const std::string emotion_net = "emotion network";									 // "emotion network"
+	const std::string emot_broad_bias = "emotion broadcast bias network";					 // "emotion broadcast bias network"
+	const std::string emot_broad_first = "emotion broadcast first order network";			 // "emotion broadcast first order network"
+	const std::string emot_broad_second = "emotion broadcast second order network";			 // "emotion broadcast second order network"
+	const std::string emot_read_first = "emotion reading first order network";				 // "emotion reading first order network"
+	const std::string emot_read_second = "emotion reading second order network";			 // "emotion reading second order network"
+	const std::string emot_reg_bias = "emotion regulation bias network";					 // "emotion regulation bias network"
+	const std::string emot_reg_first = "emotion regulation first order network";			 // "emotion regulation first order network"
+	const std::string emot_reg_second = "emotion regulation second order network";			 // "emotion regulation second order network"
+	const std::string interact_k_wgt = "interaction knowledge weight network";             // "interaction knowledge weight network"
+	const std::string interact = "interaction network";                              // "interaction network"
+	const std::string interact_prob = "interaction probability network";                  // "interaction probability network"
+	const std::string soi = "interaction sphere network";                       // "interaction sphere network"
+	const std::string k_exp_wgt = "knowledge expertise weight network";               // "knowledge expertise weight network"
+	const std::string k_forget_prob = "knowledge forgetting prob network";                // "knowledge forgetting prob network"
+	const std::string k_forget_rate = "knowledge forgetting rate network";                // "knowledge forgetting rate network"
+	const std::string k_diff = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
+	const std::string k_msg_complex = "knowledge message complexity network";             // "knowledge message complexity network"
+	const std::string knowledge = "knowledge network";                                // "knowledge network"
+	const std::string k_priority = "knowledge priority network";                       // "knowledge priority network"
+	const std::string k_sim_wgt = "knowledge similarity weight network";              // "knowledge similarity weight network"
+	const std::string k_strength = "knowledge strength network";                       // "knowledge strength network"
+	const std::string ktm = "knowledge transactive memory network";			 // "knowledge transactive memory network"
+	const std::string k_trust = "knowledge trust network";							 // "knowledge trust network"
+	const std::string ktrust_resist = "knowledge trust resistance network";				 // "knowledge trust resistance network"
+	const std::string learnable_k = "learnable knowledge network";                      // "learnable knowledge network"
+	const std::string loc_knowledge = "location knowledge network";                       // "location knowledge network"
+	const std::string loc_learning_limit = "location learning limit network";                  // "location learning limit network"
+	const std::string loc_medium_access = "location medium access network";                   // "location medium access network"
+	const std::string location_network = "location network";                                 // "location network"
+	const std::string mail_check_prob = "mail check probability network";                   // "mail check probability network"
+	const std::string medium_k_access = "medium knowledge access network";                  // "medium knowledge access network"
+	const std::string kttm = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
+	const std::string phys_prox = "physical proximity network";                       // "physical proximity network"
+	const std::string phys_prox_wgt = "physical proximity weight network";                // "physical proximity weight network"
+	const std::string propensity = "public propensity network";                        // "public propensity network"
+	const std::string subreddit_mem = "subreddit membership network";                     // "subreddit membership network"
+	const std::string soc_prox = "social proximity network";                         // "social proximity network"
+	const std::string soc_prox_wgt = "social proximity weight network";                  // "social proximity weight network"
+	const std::string dem_prox = "sociodemographic proximity network";               // "sociodemographic proximity network"
+	const std::string dem_prox_wgt = "sociodemographic proximity weight network";        // "sociodemographic proximity weight network"
+	const std::string subs = "subscription network";                             // "subscription network"
+	const std::string sub_probability = "subscription probability network";                 // "subscription probability network"
+	const std::string target_info = "target information network";                       // "target information network"
+	const std::string task_assignment = "task assignment network";                          // "task assignment network"
+	const std::string task_availability = "task availability network";                        // "task availability network"
+	const std::string task_completion = "task completion network";                          // "task completion network"
+	const std::string task_guess_prob = "task guess probability network";                   // "task guess probability network"
+	const std::string task_k_importance = "task knowledge importance network";                // "task knowledge importance network"
+	const std::string task_k_req = "task knowledge requirement network";               // "task knowledge requirement network"
+	const std::string btm_msg_complex = "transactive belief message complexity network";    // "transactive belief message complexity network"
+	const std::string ktm_msg_complex = "transactive knowledge message complexity network"; // "transactive knowledge message complexity network"
+	const std::string twit_follow = "twitter follower network";                         // "twitter follower network"
+	const std::string unused = "unused knowledge network";                         // "unused knowledge network"
+	const std::string banned_user = "banned user network";								// "banned user network"
+	const std::string k_type = "knowledge type network";							// "knowledge type network"
 }
 
 namespace generator_names {
@@ -3590,14 +3635,14 @@ namespace generator_names {
 
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
-class Construct;
+struct Construct;
 
-class GraphManager 
+class GraphManager
 {
 	GraphManager(Construct* _construct);
 	~GraphManager();
 
-	friend class Construct;
+	friend struct Construct;
 
 	Construct* construct;
 
@@ -3615,10 +3660,20 @@ public:
 	// gets a graph
 	// graph is required to already be loaded
 	Graph_Intermediary load_required(
-		const std::string& name, 
-		const Nodeset* src, 
-		const Nodeset* trg, 
+		const std::string& name,
+		const Nodeset* src,
+		const Nodeset* trg,
 		const Nodeset* slc = nullptr) const;
+
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg) {
+		return load_required(name, &src, &trg);
+	}
+
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) {
+		return load_required(name, &src, &trg, &slc);
+	}
 
 	// gets a graph
 	// graph is required to already be loaded
@@ -3628,13 +3683,30 @@ public:
 		const std::string& target_nodeset,
 		const std::string& slice_nodeset = "") const;
 
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const std::string&, const std::string&, const std::string&) </summary>*/
+	Graph_Intermediary load_required(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "");
+
 	// gets a graph
 	// returns a null pointer if the graph can't be found
 	Graph_Intermediary load_optional(
-		const std::string& name, 
-		const Nodeset* src, 
-		const Nodeset* trg, 
+		const std::string& name,
+		const Nodeset* src,
+		const Nodeset* trg,
 		const Nodeset* slc = nullptr) const;
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg) {
+		return load_optional(name, &src, &trg);
+	}
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) {
+		return load_optional(name, &src, &trg, &slc);
+	}
 
 	// gets a graph
 	// returns a null pointer if the graph can't be found
@@ -3644,13 +3716,34 @@ public:
 		const std::string& target_nodeset,
 		const std::string& slice_nodeset = "") const;
 
-	// gets a graph
-	// if the graph can't be found, one is created
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const std::string&, const std::string&, const std::string&) </summary>*/
+	Graph_Intermediary load_optional(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "");
+
+	 // gets a graph
+	 // if the graph can't be found, one is created
 	template<typename T>
 	Graph_Intermediary load_optional(const std::string& name, const T& vals,
 		const Nodeset* src, bool row_dense,
 		const Nodeset* trg, bool col_dense,
 		const Nodeset* slc = nullptr);
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const T&, const Nodeset*, bool, const Nodeset*, bool, const Nodeset*) </summary>*/
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense) {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense);
+	}
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const T&, const Nodeset*, bool, const Nodeset*, bool, const Nodeset*) </summary>*/
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense, const Nodeset& slc) {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense, &slc);
+	}
 
 	// gets a graph
 	// if the graph can't be found, one is created
@@ -3663,7 +3756,7 @@ public:
 	// gets a typeless graph
 	// if the graph can't be found, a null pointer is returned
 	Typeless_Graph* get_network(const std::string& name) noexcept;
-	
+
 	struct set_of_generators {
 		GraphManager* const graph_manager;
 		Random* const random;
@@ -3819,6 +3912,8 @@ namespace model_names {
 
 	//"Knowledge Parsing Model"
 	const std::string KPARSE	= "Knowledge Parsing Model";
+
+	const std::string REDDIT_mod = "Reddit Interaction Model";
 	
 }
 
@@ -3836,12 +3931,11 @@ struct ModelManager
 
 	Model* get_model(const std::string& name) {
 		if (contains(name)) {
-			Model* ret = _models[name];
-			Inheritence_Wrapper* temp = dynamic_cast<Inheritence_Wrapper*>(ret);
+			Inheritence_Wrapper* temp = dynamic_cast<Inheritence_Wrapper*>(_models[name]);
 			if (temp)
 				return temp->wrapped_model;
 			else
-				ret;
+				return _models[name];
 		}
 		else throw dynet::model_not_found(name);
 		//@todo replace these with std::unreachable when msvc implements it in c++23
@@ -3850,12 +3944,11 @@ struct ModelManager
 
 	const Model* get_model(const std::string& name) const {
 		if (contains(name)) {
-			const Model* ret = _models.at(name);
-			const Inheritence_Wrapper* temp = dynamic_cast<const Inheritence_Wrapper*>(ret);
+			const Inheritence_Wrapper* temp = dynamic_cast<const Inheritence_Wrapper*>(_models.at(name));
 			if (temp)
 				return temp->wrapped_model;
 			else
-				ret;
+				return _models.at(name);
 		}
 		else throw dynet::model_not_found(name);
 		return NULL;
@@ -3874,6 +3967,7 @@ namespace output_names {
 	const std::string output_dynetml = "dynetml"; //dynetml
 	const std::string output_messages = "messages"; //messages
 	const std::string output_media_events = "media events"; //media events
+	const std::string output_reddit_posts = "reddit posts"; //reddit posts
 }
 
 // output base class
@@ -3925,7 +4019,7 @@ public:
 class OutputManager {
 
 	std::vector<Output*> _output;
-	friend class Construct;
+	friend struct Construct;
 	void ProcessAllOutput(unsigned int t);
 
 	OutputManager(void) { ; };
@@ -3947,15 +4041,29 @@ struct InteractionMessageParser {
 
 #include <ctime>
 
-class Construct {
-	time_t begTim;
-public:
+struct Construct {
+	time_t begTim = 0;
+
+	time_t loadtime = 0;
+
+	time_t simulation_start = 0;
+
+	time_t cycle_start = 0;
+
+	time_t cycle_end = 0;
+
+	time_t simulation_end = 0;
+
 	static constexpr const char* version = "5.4.2";
 	~Construct() {}
 
 	Construct();
 
-	
+	static std::function<void(Construct&)> constructor_output;
+	static std::function<void(Construct&)> loading_complete_output;
+	static std::function<void(Construct&)> simulation_start_output;
+	static std::function<void(Construct&)> cycle_end_output;
+	static std::function<void(Construct&)> simulation_complete_output;
 
 	void load_from_xml(const std::string& fname);
 	
@@ -4021,8 +4129,8 @@ struct Knowledge_Parser : public InteractionMessageParser {
 
 	void parse(const InteractionMessage& msg) {
 		for (auto& item : msg) {
-			unsigned int k;
-			if (item.get_knowledge_item(k)) knowledge_net.add_delta(msg.receiver, k, true);
+			if (item.contains(InteractionItem::item_keys::knowledge)) 
+				knowledge_net.add_delta(msg.receiver, item.get_knowledge(), true);
 		}
 	}
 };

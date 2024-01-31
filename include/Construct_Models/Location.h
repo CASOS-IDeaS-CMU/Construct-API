@@ -6,9 +6,9 @@
 class Location : public Model
 {
 public:
-	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
-	const Nodeset* knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
-	const Nodeset* locations = ns_manager.get_nodeset(nodeset_names::loc);
+	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset& knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
+	const Nodeset& locations = ns_manager.get_nodeset(nodeset_names::loc);
 
 	// graph name - "location network"
 	// location x location 

@@ -62,10 +62,10 @@ public:
 	//given a sender, receiver, and medium, returns the vector of InteractionItems to be attached to an InteractionMessage
 	virtual std::vector<InteractionItem> get_interaction_items(unsigned int sender, unsigned int receiver, const CommunicationMedium* comm);
 
-	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
-	const Nodeset* knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
-	const Nodeset* comm = ns_manager.get_nodeset(nodeset_names::comm);
-	const Nodeset* time = ns_manager.get_nodeset(nodeset_names::time);
+	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset& knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
+	const Nodeset& comm = ns_manager.get_nodeset(nodeset_names::comm);
+	const Nodeset& time = ns_manager.get_nodeset(nodeset_names::time);
 
 	//The only required network
 	//graph name - "knowledge network"

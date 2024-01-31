@@ -1,17 +1,31 @@
 #include "pch.h" 
 #include "Supp_Library.h"
-#include "Output.h"
+
 #include "Template.h"
 #include "GrandInteraction.h"
 #include "Location.h"
-#include "SocialMedia.h"
 #include "Forget.h"
 #include "KnowledgeLearningDifficulty.h"
 #include "Mail.h"
 #include "Subscription.h"
 #include "KnowledgeTrust.h"
-#include "Emotions.h"
 
+// comment out this definition to disable custom media users for Social_Media_no_followers
+#define CUSTOM_MEDIA_USERS
+
+// comment out this definition to disable custom media users for Social_Media_with_followers
+#define CUSTOM_MEDIA_USERS_FOLLOWERS
+
+// uncomment this definition to enable custom media users for SM_nf_emotions
+//#define CUSTOM_MEDIA_USERS_EMOTIONS
+
+// uncomment this definition to enable custom media users for SM_wf_emotions
+//#define CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
+
+
+#include "SocialMedia.h"
+#include "Emotions.h"
+#include "Output.h"
 
 
 //only edit the contents of each function and include any extra files needed
@@ -22,8 +36,8 @@
 //once the pointer is passed through the this function the relevant managers will
 //take ownership and deconstruct the classes at the appropriate time
 	
-//It is expected that models and output will take in a ParameterMap and the Construct pointer, however it is not strictly required.
-//Models will require the Construct pointer in order to have access to the loaded nodes, networks/graphs, and the interaction queue.
+//It is expected that models and output will take in a ParameterMap and a Construct reference, however it is not strictly required.
+//Models will require a Construct reference in order to have access to the loaded nodes, networks/graphs, other models, and the interaction queue.
 
 Model * dynet::create_model(const std::string & model_name, const ParameterMap& parameters, Construct& construct, const std::string& version) {
 
@@ -97,6 +111,10 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	else if (model_name == model_names::LOC)
 		return new Location(construct);
 
+	//*************************************
+	//*    add your custom model here     *
+	//*************************************
+
 	return NULL;
 }
 
@@ -121,19 +139,30 @@ Output* dynet::create_output(const std::string& output_name, const ParameterMap&
 	return NULL;
 }
 
-
+// to disable custom media users for Social_Media_no_followers comment out the definition of "CUSTOM_MEDIA_USERS" at the top of this file
+#ifdef CUSTOM_MEDIA_USERS
 Social_Media_no_followers::media_user* Social_Media_no_followers::load_user(const Node& node) {
 		return new Social_Media_no_followers::default_media_user(this, node);
 }
+#endif
 
+// to disable custom media users for Social_Media_with_followers comment out the definition of "CUSTOM_MEDIA_USERS_FOLLOWERS" at the top of this file
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
 Social_Media_with_followers::media_user* Social_Media_with_followers::load_user(const Node& node) {
 	return new Social_Media_with_followers::default_media_user(this, node);
 }
+#endif
 
+// to enable custom media users for SM_nf_emotions uncomment the definition of "CUSTOM_MEDIA_USERS_EMOTIONS" at the top of this file
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
 SM_nf_emotions::media_user* SM_nf_emotions::load_user(const Node& node) {
 	return new SM_nf_emotions::default_media_user(this, node);
 }
+#endif
 
+// to enable custom media users for SM_nf_emotions uncomment the definition of "CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS" at the top of this file
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 SM_wf_emotions::media_user* SM_wf_emotions::load_user(const Node& node) {
 	return new SM_wf_emotions::default_media_user(this, node);
 }
+#endif

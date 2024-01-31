@@ -7,15 +7,14 @@ struct Emotions : public Model
 	Emotions(Construct& construct);
 	
 	~Emotions(void) {
-		for (auto& node : *emotions)
+		for (auto& node : emotions)
 			InteractionItem::item_names.erase((InteractionItem::item_keys)(emot_itemkey_block + node.index));
 	}
 
 	// defines the start of indexes reserved for emotion InteractionItem::item_keys
 	static constexpr char emot_itemkey_block = 100;
-	const Nodeset* agents = ns_manager.get_nodeset(nodeset_names::agents);
-	const Nodeset* emotions = ns_manager.get_nodeset(nodeset_names::emotions);
-	const Nodeset* knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
+	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
+	const Nodeset& emotions = ns_manager.get_nodeset(nodeset_names::emotions);
 
 	//graph name: "emotion network"
 	//agent x emotion
@@ -98,9 +97,9 @@ struct Emotions : public Model
 	void update_item_names(void) {
 		
 		//emotion nodeset can't exceed 100 to ensure no overflow on emot_itemkey_block
-		assert(emot_itemkey_block + emotions->size() <= 200);
-		for (auto node = emotions->begin(); node != emotions->end(); node++) {
-			auto insertion = InteractionItem::item_names.insert(std::pair((InteractionItem::item_keys)(emot_itemkey_block + node->index), node->name));
+		assert(emot_itemkey_block + emotions.size() <= 200);
+		for (auto& node : emotions) {
+			auto insertion = InteractionItem::item_names.insert(std::pair((InteractionItem::item_keys)(emot_itemkey_block + node.index), node.name));
 			//no item names with this index should be present in item_names
 			assert(insertion.second);
 		}
@@ -127,16 +126,16 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 		Social_Media_no_followers::initialize();
 	}
 
-#ifdef CUSTOM_MEDIA_USERS
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
 	media_user* load_user(const Node& node);
 #endif
 
 	virtual void load_users(const std::string& version) override {
 		assert(Construct::version == version);
 
-		for (auto& node : *agents) {
+		for (auto& node : agents) {
 			users[node.index] = 
-#ifdef CUSTOM_MEDIA_USERS
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
 				load_user(node);
 #else
 				new default_media_user(this, node);
@@ -322,22 +321,22 @@ struct SM_wf_emotions : public Social_Media_with_followers, public SM_nf_emotion
 		unsigned int consider_recommendations() override { return sm_follow::consider_recommendations(); }
 		float get_charisma() override { return sm_follow::get_charisma(); }
 
-		default_media_user(SM_wf_emotions* _media, const Node& node) :
-			Social_Media_no_followers::default_media_user(_media, node),
-			Social_Media_with_followers::default_media_user(_media, node), 
-			SM_nf_emotions::default_media_user(_media, node) {}
+		default_media_user(SM_wf_emotions* reddit, const Node& node) :
+			Social_Media_no_followers::default_media_user(reddit, node),
+			Social_Media_with_followers::default_media_user(reddit, node), 
+			SM_nf_emotions::default_media_user(reddit, node) {}
 	};
 
-#ifdef CUSTOM_MEDIA_USERS
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 	media_user* load_user(const Node& node);
 #endif
 
 	virtual void load_users(const std::string& version) override {
 		assert(Construct::version == version);
 
-		for (auto& node : *Social_Media_with_followers::agents) {
+		for (auto& node : Social_Media_with_followers::agents) {
 			Social_Media_with_followers::users[node.index] =
-#ifdef CUSTOM_MEDIA_USERS
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 				load_user(node);
 #else 
 				new default_media_user(this, node);

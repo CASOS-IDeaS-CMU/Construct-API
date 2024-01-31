@@ -7,7 +7,7 @@
 
 struct Tasks: public StandardInteraction
 {
-	const Nodeset* tasks = ns_manager.get_nodeset(nodeset_names::task);
+	const Nodeset& tasks = ns_manager.get_nodeset(nodeset_names::task);
 
 	// graph name - "task assignment network"
 	// agent x task

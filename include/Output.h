@@ -37,7 +37,7 @@ struct Output_Graph : public Output {
 
 		if (!params.contains("timeperiods")) throw dynet::could_not_find_parameter("timeperiods");
 
-		//names of required parameteres
+		//names of required parameters
 		const char* network_name = "network name";
 		const char* output_file = "output file";
 
@@ -203,7 +203,7 @@ struct Output_dynetml : public Output {
 
 	Output_dynetml(const dynet::ParameterMap& params, Construct& construct) : Output(params, construct) {
 
-		//names of required parameteres
+		//names of required parameters
 		const char* network_name = "network names";
 		const char* output_file = "output file";
 
@@ -342,7 +342,7 @@ struct Output_Events : public Output {
 
 	Output_Events(const dynet::ParameterMap& params, Construct& construct) {
 
-		//names of required parameteres
+		//names of required parameters
 		
 		const char* output_file = "output file";
 		const char* start_time = "start time";
@@ -477,6 +477,80 @@ struct Output_Events : public Output {
 		process(max_time, media_events);
 		_output_file << "]}";
 		_output_file.close();
+	}
+};
+
+#include "Reddit.h"
+
+struct Output_Reddit_Posts : public Output {
+	std::ofstream _output_file;
+	const Reddit::event_container* media_events;
+	int output_frequency;
+
+	virtual const Reddit::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
+		auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); \
+			return &media_ptr->list_of_events;
+	}
+
+	~Output_Reddit_Posts(void) {
+		_output_file.flush();
+		_output_file.close();
+	}
+
+	void msg_out(const Social_Media_no_followers::media_event& msg, const unsigned int current_timestep) {
+
+		static constexpr const char* tabs = "\t\t\t";
+		_output_file << "\"current timestep\", " << current_timestep << ", ";
+		_output_file << "\"timestep created\", " << msg.time_stamp << ", ";
+		_output_file << "\"user\", \"" << msg.user << "\", ";
+		_output_file << "\"last used\", " << msg.last_used << ", ";
+		_output_file << "\"prev banned\", " << msg.indexes.find(InteractionItem::item_keys::prev_banned)->second << ", ";
+		_output_file << "\"subreddit\", " << msg.indexes.find(InteractionItem::item_keys::subreddit)->second << ", ";
+		_output_file << "\"knowledge\", " << msg.indexes.find(InteractionItem::item_keys::knowledge)->second << ", ";
+		_output_file << "\"ktrust\", " << msg.values.find(InteractionItem::item_keys::ktrust)->second << ", ";
+		_output_file << "\"upvotes\", " << msg.indexes.find(InteractionItem::item_keys::upvotes)->second << ", ";
+		_output_file << "\"downvotes\", " << msg.indexes.find(InteractionItem::item_keys::downvotes)->second << ", ";
+		_output_file << "\"banned\", " << msg.indexes.find(InteractionItem::item_keys::banned)->second << ", ";
+
+		//_output_file << "\"type\" : " << (std::string)(msg->type) << ", ";
+		//_output_file << "\"child_size\" : " << msg->child_size() << ", ";
+		_output_file << "\"parent_event\", " << msg.parent_event << ", ";
+		_output_file << "\"root_event\", " << msg.root_event << ", ";
+		_output_file << "\"id\", " << &msg << std::endl;
+
+	}
+
+	void process(unsigned int t) {
+
+		if ((t + 1) % output_frequency == 0) {
+			for (auto& msg : *media_events) {
+				msg_out(msg, t);
+			}
+		}
+	}
+
+	Output_Reddit_Posts(const dynet::ParameterMap& params, Construct& construct) {
+
+		//name of required parameters
+		const char* output_file = "output file";
+		const char* frequency = "frequency";
+
+		media_events = get_event_list(params, construct);
+
+		std::string file = params.get_parameter(output_file);
+		if (file.size() <= 4 || ".csv" != file.substr(file.size() - 4, 4)) {
+			throw dynet::wrong_file_extension(output_file, ".csv");
+		}
+
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
+
+		_output_file.open(file);
+
+		if (!_output_file.is_open()) {
+			throw dynet::could_not_open_file(file);
+		}
+
+		output_frequency = std::stoi(params.get_parameter(frequency));
 	}
 };
 
