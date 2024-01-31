@@ -24,7 +24,7 @@ namespace model_names {
 struct Infection_v1 : public Model {
 
 	// all models require at a minimum the Construct pointer
-	Infection_v1(Construct* _construct);
+	Infection_v1(Construct& _construct);
 
 	// use the override qualifier to make sure your model functions will be called correctly
 	void think() override;
@@ -34,7 +34,7 @@ struct Infection_v1 : public Model {
 
 	// "infection network"
 	// agent x infection
-	Graph<bool>& infection_net = graph_manager->load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
+	Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
 };
 
 
@@ -59,7 +59,7 @@ struct Infection_v1 : public Model {
 
 // SI model that uses the InteractionMessage Model interface
 struct Infection_v2 : public Model {
-	Infection_v2(Construct* _construct);
+	Infection_v2(Construct& _construct);
 
 	void communicate(const InteractionMessage& msg) override;
 
@@ -73,7 +73,7 @@ struct Infection_v2 : public Model {
 
 	// "infection network"
 	// agent x infection
-	Graph<bool>& infection_net = graph_manager->load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
+	Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
 };
 
 
@@ -102,12 +102,12 @@ struct Infection_v2 : public Model {
 // cpp files simply make it easier to recompile or handle complex dependencies
 struct Infection_v3 : public StandardInteraction {
 
-	Infection_v3(const dynet::ParameterMap& params, Construct* _construct) :
-		StandardInteraction(params, _construct), Model(_construct, "Standard Interaction Infection Model") {}
+	Infection_v3(const dynet::ParameterMap& params, Construct& _construct) :
+		StandardInteraction(params, _construct) {}
 
-	const Graph<bool>& infection_net = graph_manager->load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
+	const Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
 
-	const Graph<float>& risk_aversion = graph_manager->load_optional("infection risk aversion network", 1.0f, nodeset_names::agents, sparse, nodeset_names::infections, dense);;
+	const Graph<float>& risk_aversion = graph_manager.load_optional("infection risk aversion network", 1.0f, nodeset_names::agents, sparse, nodeset_names::infections, dense);;
 
 	// this overrides StandardInteraction::get_additions
 	// this function will now be called when the parent class calls its get_additions function

@@ -1,0 +1,12 @@
+Allowed for the event count printed by Social_Media::cleanup to be disabled by setting Construct::verbose_runtime to false.
+Fixed a bug that was causing emotions to be driven to zero when reading emotions in Emotions::communicate.
+Fixed a bug where the "interval time duration" could not go below 1.0 in Social_Media_no_followers.
+Each model has had their name removed from the Model class. Model names are stored instead within the model manager.
+With name removal Model does not need to be inherieted virtually. Many models now no longer virtually inheriets.
+Default members of the Model class have been changed to references rather than pointers.
+Nodeset and Node now have bracket operators simplifying accessing nodes and node attributes. 
+Some functions in Nodeset and Node have been renamed to make it more clear what the functions do.
+Social_Media_no_followers::media_user now holds a Social_Media_no_followers pointer. Each class that derives from media_user has a function that casts Social_Media_no_followers pointer to the appropriate derived class.
+Social_Media_with_followers::users has been removed. Each class deriving from Social_Media_no_followers now casts Social_Media_no_followers::media_user to the appropriate derived class which should be an abstract class that inheriets from Social_Media_no_followers::media_user.
+Modified load_model and load_output to take a Construct reference rather than a pointer.
+Output and Output derived classes now use Construct references instead of pointers.

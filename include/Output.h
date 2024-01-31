@@ -33,23 +33,23 @@ struct Output_Graph : public Output {
 	const Typeless_Graph* _graph;
 	std::ofstream _output_file;
 
-	Output_Graph(const dynet::ParameterMap& params, Construct* construct) : Output(params, construct) {
+	Output_Graph(const dynet::ParameterMap& params, Construct& construct) : Output(params, construct) {
 
 		if (!params.contains("timeperiods")) throw dynet::could_not_find_parameter("timeperiods");
 
-		//names of required parameteres
+		//names of required parameters
 		const char* network_name = "network name";
 		const char* output_file = "output file";
 
 
-		_graph = construct->graph_manager.get_network(params.get_parameter(network_name));
+		_graph = construct.graph_manager.get_network(params.get_parameter(network_name));
 
 		std::string file = params.get_parameter(output_file);
 		if (file.size() <= 4 || ".csv" != file.substr(file.size() - 4, 4)) {
 			throw dynet::wrong_file_extension(output_file, ".csv");
 		}
 
-		if (construct->working_directory != "") file = construct->working_directory + dynet::seperator() + file;
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
 
 		_output_file.open(file);
 		if (!_output_file.is_open()) throw dynet::could_not_open_file(file);
@@ -75,7 +75,6 @@ struct Output_Graph : public Output {
 };
 
 struct Output_dynetml : public Output {
-
 	std::vector<const Typeless_Graph*> _graphs;
 	std::unordered_set<const Nodeset*> _nodesets;
 	std::unordered_map<const Nodeset*, const std::vector<dynet::ParameterMap>* > nodeset_attributes;
@@ -88,7 +87,6 @@ struct Output_dynetml : public Output {
 		_output_file << "</DynamicMetaNetwork>";
 		_output_file.close();
 	}
-
 	void process_nodesets() {
 		_output_file << "<nodes>";
 		for (auto n = _nodesets.cbegin(); n != _nodesets.cend(); ++n) {
@@ -118,7 +116,6 @@ struct Output_dynetml : public Output {
 		}
 		_output_file << "</nodes>";
 	}
-
 	void process(void) {
 
 		process_nodesets();
@@ -146,7 +143,6 @@ struct Output_dynetml : public Output {
 		}
 		_output_file << "</networks></MetaNetwork>";
 	}
-
 	inline void add_output(const Graph<bool>* g) {
 		_output_file << "<network ";
 		_output_file << "sourceType=\"" << g->source_nodeset->name << "\" ";
@@ -162,15 +158,14 @@ struct Output_dynetml : public Output {
 		for (auto rows = g->begin_rows(); rows != g->end_rows(); ++rows) {
 			for (auto row = rows.sparse_begin(false); row != rows.end(); ++row) {
 
-				_output_file << "<link source=\"" << g->source_nodeset->get_node_by_index(*rows)->name <<
-					"\" target=\"" << g->target_nodeset->get_node_by_index(row.col())->name << "\"/>";
+				_output_file << "<link source=\"" << (*g->source_nodeset)[*rows].name <<
+					"\" target=\"" << (*g->target_nodeset)[row.col()].name << "\"/>";
 
 			}
 		}
 		
 		_output_file << "</network>";
 	}
-
 	template<typename T>
 	void add_output(const Graph<T>* g) {
 
@@ -189,8 +184,8 @@ struct Output_dynetml : public Output {
 			for (auto row = rows.full_begin(); row != rows.end(); ++row) {
 				bool one = dynet::convert(*row);
 				if (one) {
-					_output_file << "<link source=\"" << g->source_nodeset->get_node_by_index(*rows)->name <<
-						"\" target=\"" << g->target_nodeset->get_node_by_index(row.col())->name <<
+					_output_file << "<link source=\"" << (*g->source_nodeset)[*rows].name <<
+						"\" target=\"" << (*g->target_nodeset)[row.col()].name <<
 						"\" value=\"" << *row << "\"/>";
 				}
 			}
@@ -198,7 +193,6 @@ struct Output_dynetml : public Output {
 
 		_output_file << "</network>";
 	}
-
 	void process(unsigned int t) override {
 
 		if (should_process(t)) {
@@ -207,17 +201,15 @@ struct Output_dynetml : public Output {
 		}
 	}
 
-	Output_dynetml(const dynet::ParameterMap& params, Construct* construct) {
+	Output_dynetml(const dynet::ParameterMap& params, Construct& construct) : Output(params, construct) {
 
-		if (!params.contains("timeperiods")) throw dynet::could_not_find_parameter("timeperiods");
-
-		//names of required parameteres
+		//names of required parameters
 		const char* network_name = "network names";
 		const char* output_file = "output file";
 
 		std::vector<std::string> network_names = dynet::split(params.get_parameter(network_name), ",");
 		for (unsigned int i = 0; i < network_names.size(); i++) {
-			const Typeless_Graph* g = construct->graph_manager.get_network(dynet::trim(network_names[i]));
+			const Typeless_Graph* g = construct.graph_manager.get_network(dynet::trim(network_names[i]));
 			if (!g) {
 				throw dynet::could_not_find_network(network_names[i]);
 			}
@@ -240,7 +232,7 @@ struct Output_dynetml : public Output {
 			throw dynet::wrong_file_extension(output_file, ".xml");
 		}
 		
-		if (construct->working_directory != "") file = construct->working_directory + dynet::seperator() + file;
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
 
 		_output_file.open(file);
 
@@ -257,7 +249,6 @@ struct Output_dynetml : public Output {
 };
 
 struct Output_Messages : public Output {
-
 	InteractionMessageQueue* queue;
 	std::ofstream _output_file;
 
@@ -265,7 +256,6 @@ struct Output_Messages : public Output {
 		_output_file << "]";
 		_output_file.close();
 	}
-
 	void process(unsigned int t) override {
 		
 		nlohmann::json timeperiod;
@@ -308,19 +298,19 @@ struct Output_Messages : public Output {
 	}
 
 
-	Output_Messages(const dynet::ParameterMap& params, Construct* construct) {
+	Output_Messages(const dynet::ParameterMap& params, Construct& construct) {
 
 		//name of required parameter
 		const char* output_file = "output file";
 
-		queue = &construct->interaction_message_queue;
+		queue = &construct.interaction_message_queue;
 
 		std::string file = params.get_parameter(output_file);
 		if (file.size() <= 5 || ".json" != file.substr(file.size() - 5, 5)) {
 			throw dynet::wrong_file_extension(output_file, ".json");
 		}
 
-		if (construct->working_directory != "") file = construct->working_directory + dynet::seperator() + file;
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
 
 		_output_file.open(file);
 
@@ -342,33 +332,32 @@ struct Output_Events : public Output {
 	unsigned int max_time;
 	bool first_event_printed = false;
 
-	virtual const Social_Media_no_followers::event_container* get_event_list(const dynet::ParameterMap& params, Construct* construct) {
+	virtual const Social_Media_no_followers::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
 		const char* model_name = "model name";
 
-		auto media_ptr = dynamic_cast<Social_Media_no_followers*>(construct->model_manager.get_model_by_name(params.get_parameter(model_name)));
-		assert(media_ptr);
+		auto media_ptr = dynamic_cast<Social_Media_no_followers*>(construct.model_manager.get_model(params.get_parameter(model_name)));\
 
 		return &media_ptr->list_of_events;
 	}
 
-	Output_Events(const dynet::ParameterMap& params, Construct* construct) {
+	Output_Events(const dynet::ParameterMap& params, Construct& construct) {
 
-		//names of required parameteres
+		//names of required parameters
 		
 		const char* output_file = "output file";
 		const char* start_time = "start time";
 		const char* time_conversion = "time conversion to seconds";
 
 		media_events = get_event_list(params, construct);
-		agents = construct->ns_manager.get_nodeset(nodeset_names::agents);
-		max_time = construct->time_count;
+		agents = construct.ns_manager.get_nodeset(nodeset_names::agents);
+		max_time = construct.time_count;
 
 		std::string file = params.get_parameter(output_file);
 		if (file.size() <= 5 || ".json" != file.substr(file.size() - 5, 5)) {
 			throw dynet::wrong_file_extension(output_file, ".json");
 		}
 
-		if (construct->working_directory != "") file = construct->working_directory + dynet::seperator() + file;
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
 
 		_output_file.open(file);
 
@@ -382,14 +371,13 @@ struct Output_Events : public Output {
 
 		tconvert = dynet::convert(params.get_parameter(time_conversion));
 	}
-
 	// adds indexes, mentions, and values for the media_event into the json node
 	virtual void add_entities(nlohmann::json& entities, const Social_Media_no_followers::media_event& _event) {
 		if (_event.mentions.size()) {
 			nlohmann::json mentions = nlohmann::json::array();
 			for (auto id : _event.mentions) {
 				nlohmann::json mention;
-				mention["id"] = agents->get_node_by_index(id)->name;
+				mention["id"] = (*agents)[id].name;
 				mentions.push_back(mention);
 			}
 			entities["mentions"] = mentions;
@@ -416,7 +404,6 @@ struct Output_Events : public Output {
 		}
 	}
 
-	
 	// process a specific list, usually this is Social_Media_no_followers::event_container::removed
 	// however at the last time step its instead Social_Media_no_followers::list_of_events
 	void process(unsigned int t, const std::list<Social_Media_no_followers::media_event>* container) {
@@ -436,7 +423,7 @@ struct Output_Events : public Output {
 
 			nlohmann::json json_event;
 			json_event["id"] = event_count;
-			json_event["author_id"] = agents->get_node_by_index(tweet->user)->name;
+			json_event["author_id"] = (*agents)[tweet->user].name;
 			json_event["created_at"] = dynet::convert_datetime(time_stamp);
 
 			nlohmann::json entities;
@@ -482,7 +469,6 @@ struct Output_Events : public Output {
 			++event_count;
 		}
 	}
-
 	void process(unsigned int t) override {
 		process(t, &media_events->removed_events);
 	}
@@ -491,6 +477,80 @@ struct Output_Events : public Output {
 		process(max_time, media_events);
 		_output_file << "]}";
 		_output_file.close();
+	}
+};
+
+#include "Reddit.h"
+
+struct Output_Reddit_Posts : public Output {
+	std::ofstream _output_file;
+	const Reddit::event_container* media_events;
+	int output_frequency;
+
+	virtual const Reddit::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
+		auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); \
+			return &media_ptr->list_of_events;
+	}
+
+	~Output_Reddit_Posts(void) {
+		_output_file.flush();
+		_output_file.close();
+	}
+
+	void msg_out(const Social_Media_no_followers::media_event& msg, const unsigned int current_timestep) {
+
+		static constexpr const char* tabs = "\t\t\t";
+		_output_file << "\"current timestep\", " << current_timestep << ", ";
+		_output_file << "\"timestep created\", " << msg.time_stamp << ", ";
+		_output_file << "\"user\", \"" << msg.user << "\", ";
+		_output_file << "\"last used\", " << msg.last_used << ", ";
+		_output_file << "\"prev banned\", " << msg.indexes.find(InteractionItem::item_keys::prev_banned)->second << ", ";
+		_output_file << "\"subreddit\", " << msg.indexes.find(InteractionItem::item_keys::subreddit)->second << ", ";
+		_output_file << "\"knowledge\", " << msg.indexes.find(InteractionItem::item_keys::knowledge)->second << ", ";
+		_output_file << "\"ktrust\", " << msg.values.find(InteractionItem::item_keys::ktrust)->second << ", ";
+		_output_file << "\"upvotes\", " << msg.indexes.find(InteractionItem::item_keys::upvotes)->second << ", ";
+		_output_file << "\"downvotes\", " << msg.indexes.find(InteractionItem::item_keys::downvotes)->second << ", ";
+		_output_file << "\"banned\", " << msg.indexes.find(InteractionItem::item_keys::banned)->second << ", ";
+
+		//_output_file << "\"type\" : " << (std::string)(msg->type) << ", ";
+		//_output_file << "\"child_size\" : " << msg->child_size() << ", ";
+		_output_file << "\"parent_event\", " << msg.parent_event << ", ";
+		_output_file << "\"root_event\", " << msg.root_event << ", ";
+		_output_file << "\"id\", " << &msg << std::endl;
+
+	}
+
+	void process(unsigned int t) {
+
+		if ((t + 1) % output_frequency == 0) {
+			for (auto& msg : *media_events) {
+				msg_out(msg, t);
+			}
+		}
+	}
+
+	Output_Reddit_Posts(const dynet::ParameterMap& params, Construct& construct) {
+
+		//name of required parameters
+		const char* output_file = "output file";
+		const char* frequency = "frequency";
+
+		media_events = get_event_list(params, construct);
+
+		std::string file = params.get_parameter(output_file);
+		if (file.size() <= 4 || ".csv" != file.substr(file.size() - 4, 4)) {
+			throw dynet::wrong_file_extension(output_file, ".csv");
+		}
+
+		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
+
+		_output_file.open(file);
+
+		if (!_output_file.is_open()) {
+			throw dynet::could_not_open_file(file);
+		}
+
+		output_frequency = std::stoi(params.get_parameter(frequency));
 	}
 };
 
