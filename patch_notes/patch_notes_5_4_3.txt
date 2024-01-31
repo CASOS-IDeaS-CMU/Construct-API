@@ -1,0 +1,12 @@
+Fixed a bug where ModelManager::get_model couldn't find models that were stored in the data structure.
+InteractionItem now returns tuples when returning multiple indexes or values. InteractionItem::contains has been added to check for keys before querying.
+[] operators have been added to graph that returns a const_row_begin_iterator or row_begin_iterator corresponding to the submitted index.
+Two functions set_row and set_col have been added that set all elements in a specific row/col to the specified value.
+Added a Reddit social media model. This comes with additional InteractionItem keys, an output named reddit posts, and the associated names for the model, output, networks, nodesets, and nodeset attributes.
+NodesetManager::get_nodeset now returns either a Nodeset pointer or Nodeset reference.
+Graphs can now be loaded using overloads of GraphManager::load_optional and GraphManager::load_required that take Nodeset references.
+Many instances of Nodeset pointers have been replaced by Nodeset references in various models.
+Added Random::select which randomly selects and returns an element of a vector or array.
+Created seperate compiler flags for loading in custom media users for each type of social media class.
+Added member lambda functions to Construct that are called during various parts of the simulation cycle to broadcast info to the console. By replacing these lambdas developers have better control over what gets printed to the console.
+Various time_t members have been added to Construct that keep track of various time values that are used by the lambdas mentioned above.

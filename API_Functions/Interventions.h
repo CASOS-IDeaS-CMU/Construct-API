@@ -20,7 +20,7 @@ struct Intervention1_nf : public Social_Media_no_followers::default_media_user
 
 struct Intervention1 : public Intervention1_nf, public virtual Social_Media_with_followers::default_media_user {
 	Intervention1(Social_Media_with_followers* _media, const Node& _node) : 
-		Intervention1_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
+		Intervention1_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node), Social_Media_no_followers::default_media_user(_media, _node) {}
 };
 
 // this user at the specified time must create a post with trust value of 0 for the specified knowledge
@@ -42,7 +42,7 @@ struct Intervention2_nf : public Social_Media_no_followers::default_media_user {
 
 struct Intervention2 : public Intervention2_nf, virtual public Social_Media_with_followers::default_media_user {
 	Intervention2(Social_Media_with_followers* _media, const Node& _node) : 
-		Intervention2_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
+		Intervention2_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node), Social_Media_no_followers::default_media_user(_media, _node) {}
 
 };
 
@@ -67,5 +67,5 @@ struct Intervention3_nf : public Social_Media_no_followers::default_media_user {
 
 struct Intervention3 : public Intervention3_nf, virtual public Social_Media_with_followers::default_media_user {
 	Intervention3(Social_Media_with_followers* _media, const Node& _node) :
-		Intervention3_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node) {}
+		Intervention3_nf(_media, _node), Social_Media_with_followers::default_media_user(_media, _node), Social_Media_no_followers::default_media_user(_media, _node) {}
 };

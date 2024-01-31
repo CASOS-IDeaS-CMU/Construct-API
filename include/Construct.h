@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <float.h>
 #include <fstream>
+#include <functional>
 
 //Loading all of c++ standard library containers
 
@@ -63,31 +64,33 @@ namespace dynet
 
 	struct construct_exception : public std::runtime_error {
 		construct_exception(const std::string& message) : std::runtime_error(message) {}
+
 		std::string string(void) const { return std::string(what()); }
 	};
 
 
 	struct could_not_convert :public construct_exception {
 		std::string type;
-		could_not_convert(const std::string& _type) : construct_exception("Could not convert value to " + _type), type(_type) {}
+		could_not_convert(const std::string& _type, const std::string& val) : construct_exception("Could not convert value \"" + val + "\" to " + _type), type(_type) {}
 	};
 
 
 	struct could_not_convert_value : public construct_exception {
 		could_not_convert_value(const could_not_convert& e, const std::string& ending = "") :
-			construct_exception("Could not convert value to " + e.type + ending) {}
+			construct_exception(e.what() + ending) {}
 	};
 
 
 	struct could_not_convert_parameter : public construct_exception {
 		could_not_convert_parameter(const could_not_convert& e, const std::string& param_name, const std::string& ending = "") :
-			construct_exception("Could not convert parameter \"" + param_name + "\" to " + e.type + ending) {}
+			construct_exception(e.what() + std::string("for parameter \"") + param_name + "\"" + ending) {}
+			//construct_exception("Could not convert parameter \"" + param_name + "\" to " + e.type + ending) {}
 	};
 
 
 	struct could_not_convert_attribute : public construct_exception {
 		could_not_convert_attribute(const could_not_convert& e, const std::string& att_name, const std::string& ending = "") :
-			construct_exception("Could not convert attribute \"" + att_name + "\" to " + e.type + ending) {}
+			construct_exception(e.what() + std::string("for attribute \"") + att_name + "\" " + ending) {}
 	};
 
 
@@ -152,8 +155,8 @@ namespace dynet
 
 
 	struct csv_too_many_cols : public construct_exception {
-		csv_too_many_cols(const std::string& fname) :
-			construct_exception("csv file \"" + fname + "\" has too many columns") {}
+		csv_too_many_cols(const std::string& fname, unsigned int row_number) :
+			construct_exception("csv file \"" + fname + "\" has too many columns at row " + std::to_string(row_number)) {}
 	};
 
 
@@ -190,6 +193,18 @@ namespace dynet
 	struct model_multually_exclusive : public construct_exception {
 		model_multually_exclusive(const std::string& model_name) :
 			construct_exception("This model is mutually exclusive with the " + model_name) {}
+	};
+
+
+	struct model_not_found : public construct_exception {
+		model_not_found(const std::string& model_name) :
+			construct_exception(model_name + " could not be found") {}
+	};
+
+
+	struct model_already_exists : public construct_exception {
+		model_already_exists(const std::string& model_name) :
+			construct_exception(model_name + " already exists") {}
 	};
 
 
@@ -315,6 +330,14 @@ namespace dynet
 
 	struct datetime {
 		time_t time;
+
+		friend bool operator==(const datetime& lhs, const datetime& rhs) { return lhs.time == rhs.time; }
+		friend bool operator!=(const datetime& lhs, const datetime& rhs) { return lhs.time != rhs.time; }
+		friend bool operator<(const datetime& lhs, const datetime& rhs) { return lhs.time < rhs.time; }
+		friend bool operator>(const datetime& lhs, const datetime& rhs) { return lhs.time > rhs.time; }
+		friend bool operator<=(const datetime& lhs, const datetime& rhs) { return lhs.time <= rhs.time; }
+		friend bool operator>=(const datetime& lhs, const datetime& rhs) { return lhs.time >= rhs.time; }
+
 		static constexpr const char* dateTimeFormat = "%Y-%m-%dT%H:%M:%S.000Z";
 
 		datetime(const std::string& input_time) {
@@ -353,14 +376,14 @@ inline std::ostream& operator<<(std::ostream& os, const dynet::datetime& val) {
 
 class Random
 {
-	friend class Construct;
+	friend struct Construct;
 
 	//Constructor is kept private so that only Construct has access to it.
 	//This will prevent models from creating their own instance.
 	Random() : generator(seed) { ; }
 	~Random() { ; }
 public:
-	unsigned int seed = time(nullptr);
+	unsigned int seed = static_cast<unsigned int>(time(nullptr));
 private:
 	std::default_random_engine generator;
 public:
@@ -400,6 +423,13 @@ public:
 		}
 	}
 
+	//selects a random element from the vector
+	template<typename T>
+	T& select(std::vector<T>& vec) {
+		assert(vec.size());
+		return vec[integer((unsigned int)vec.size())];
+	}
+
 	//chooses an index based on the submitted pdf
 	unsigned int find_dist_index(std::vector<float>& pdf);
 
@@ -411,61 +441,70 @@ public:
 
 //names of nodesets used in Construct
 namespace nodeset_names {
-	const std::string agents		= "agent";			//"agent"
-	const std::string knowledge		= "knowledge";		//"knowledge"
-	const std::string time			= "time";			//"time"
-	const std::string belief		= "belief";			//"belief"
-	const std::string comm			= "medium";			//"medium"
-	const std::string loc			= "location";		//"location"
-	const std::string task			= "task";			//"task"
-	const std::string agent_group	= "agent group";	//"agent group"
-	const std::string emotions		= "emotion";		//"emotions"
+	const std::string agents = "agent";			//"agent"
+	const std::string knowledge = "knowledge";		//"knowledge"
+	const std::string time = "time";			//"time"
+	const std::string belief = "belief";			//"belief"
+	const std::string comm = "medium";			//"medium"
+	const std::string loc = "location";		//"location"
+	const std::string task = "task";			//"task"
+	const std::string agent_group = "agent group";	//"agent group"
+	const std::string emotions = "emotion";		//"emotions"
+	const std::string subreddits = "subreddit";		//"subreddits"
+	const std::string k_types = "knowledge type";	//"knowledge types"
 }
 
 //names of node attributes used in Construct
 namespace node_attributes {
-	
-	const std::string send_k			= "can send knowledge";			//"can send knowledge"
-	const std::string recv_k			= "can receive knowledge";		//"can receive knowledge"
-	const std::string send_t			= "can send knowledge trust";	//"can send knowledge trust"
-	const std::string recv_t			= "can receive knowledge trust";//"can receive knowledge trust"
-	const std::string learning_rate		= "learning rate";				//"learning rate"
-	const std::string send_beliefs		= "can send beliefs";			//"can send beliefs"
-	const std::string receive_beliefs	= "can receive beliefs";		//"can send beliefs"
-	const std::string send_beliefsTM	= "can send beliefTM";			//"can send beliefTM"
+
+	const std::string send_k = "can send knowledge";			//"can send knowledge"
+	const std::string recv_k = "can receive knowledge";		//"can receive knowledge"
+	const std::string send_t = "can send knowledge trust";	//"can send knowledge trust"
+	const std::string recv_t = "can receive knowledge trust";//"can receive knowledge trust"
+	const std::string learning_rate = "learning rate";				//"learning rate"
+	const std::string send_beliefs = "can send beliefs";			//"can send beliefs"
+	const std::string receive_beliefs = "can receive beliefs";		//"can send beliefs"
+	const std::string send_beliefsTM = "can send beliefTM";			//"can send beliefTM"
 	const std::string receive_beliefsTM = "can receive beliefTM";		//"can receive beliefTM"
-	const std::string influence			= "influence";					//"influence"
-	const std::string susceptiblity		= "susceptiblity";				//"susceptiblity"
-	const std::string send_e			= "can send emotion";			//"can send emotion"
-	const std::string recv_e			= "can receive emotion";		//"can receive emotion"
+	const std::string influence = "influence";					//"influence"
+	const std::string susceptiblity = "susceptiblity";				//"susceptiblity"
+	const std::string send_e = "can send emotion";			//"can send emotion"
+	const std::string recv_e = "can receive emotion";		//"can receive emotion"
 
 	//These node attributes have prefixes that precede their name
 	//See the class media_user
 
-	const std::string post_density	= " post density";					//" post density"
-	const std::string reply_prob	= " reply probability";				//" reply probability"
-	const std::string repost_prob	= " repost probability";			//" repost probability"
-	const std::string quote_prob	= " quote probability";				//" quote probability"
-	const std::string read_density	= " reading density";				//" reading density"
-	const std::string add_follow	= " add follower density";			//" add follower density"
+	const std::string post_density = " post density";					//" post density"
+	const std::string reply_prob = " reply probability";				//" reply probability"
+	const std::string repost_prob = " repost probability";			//" repost probability"
+	const std::string quote_prob = " quote probability";				//" quote probability"
+	const std::string read_density = " reading density";				//" reading density"
+	const std::string add_follow = " add follower density";			//" add follower density"
 	const std::string remove_follow = " remove follower scale factor";	//" remove follower scale factor"
-	const std::string auto_follow	= " auto follow";					//" auto follow"
-	const std::string charisma		= " charisma";						//" charisma"
+	const std::string auto_follow = " auto follow";					//" auto follow"
+	const std::string charisma = " charisma";						//" charisma"
+	const std::string post_probability = " post probability";			//" post probability"
+	const std::string upvote_probability = " upvote probability";			//" upvote probability"
+	const std::string downvote_probability = " downvote probability";			//" downvote probability"
 }
 
 //nodes are the endpoints of a network link
 //nodes also have constant attributes
 struct Node {
 
-	Node(const std::string& _name, unsigned int _index, const dynet::ParameterMap* atts) : attributes(atts), name(_name), index(_index) { ; }
+	Node(const std::string& _name, unsigned int _index, const dynet::ParameterMap& atts) : attributes(atts), name(_name), index(_index) { ; }
 
-	const dynet::ParameterMap* const attributes;
+	const dynet::ParameterMap& attributes;
 
 	const std::string name;
 
 	const unsigned int index;
 
 	const std::string& get_attribute(const std::string& attribute_name) const;
+
+	const std::string& operator[](const std::string& attribute_name) const {
+		return get_attribute(attribute_name);
+	}
 };
 
 
@@ -476,6 +515,8 @@ public:
 	Nodeset(const std::string& _name) : name(_name) { ; }
 
 	~Nodeset();
+
+	operator const Nodeset* () const { return this; }
 
 	const std::string name;
 
@@ -493,14 +534,26 @@ public:
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes);
+	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
 
-	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes);
+	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
+
+	const Node& operator[](unsigned int index) const noexcept {
+		assert(index < _nodes.size());
+		return _nodes[index];
+	}
+
+	const Node& operator[](const std::string& name) const {
+		for (auto& node : _nodes) if (node.name == name) return node;
+		throw dynet::could_not_find_node(name, this->name);
+		//@todo replace this with std::unreachable in c++23
+		return _nodes.front();
+	}
 
 	const Node* get_node_by_index(unsigned int index) const;
 
 	const Node* get_node_by_name(const std::string& name) const noexcept;
-	
+
 	//checks to make sure the attribute once converted is in range [min,max]
 	template<typename T>
 	void check_attributes(std::string attribute, T min, T max) const;
@@ -530,19 +583,18 @@ class NodesetManager
 	NodesetManager(void) { ; }
 	~NodesetManager(void);
 
-	friend class Construct;
-
+	friend struct Construct;
 	std::unordered_map<std::string, const Nodeset*> _nodesets;
 public:
 
 	//Creates a mutable nodeset.
-	//This nodeset can become immutable after calling turn_to_const
+	//This nodeset can become immutable after calling Nodeset::turn_to_const
 	//only immutable nodesets can be found by get_nodeset or does_nodeset_exist
 	//the pointer returned is still owned by the ns_manager
 	Nodeset* create_nodeset(const std::string& name);
 
 	//can only find a nodeset if it has been turned to constant
-	const Nodeset* get_nodeset(const std::string& name) const;
+	const Nodeset& get_nodeset(const std::string& name) const;
 
 	//only checks nodesets that have been turned to constant
 	bool does_nodeset_exist(const std::string& name) const noexcept;
@@ -588,9 +640,6 @@ struct CommunicationMedium
 };
 
 
-
-
-
 struct InteractionItem
 {
 	enum class item_keys : char
@@ -605,7 +654,13 @@ struct InteractionItem
 		twitter_event,
 		facebook_event,
 		feed_position,
-		emotion
+		emotion,
+		banned,
+		upvotes,
+		downvotes,
+		subreddit,
+		prev_banned,
+		reddit_event
 		//ordering of the above items shall not be modified
 		//new items can be added after the above list
 		//added items should be added to the item_names data structure
@@ -617,10 +672,10 @@ struct InteractionItem
 	}
 #endif
 	;
-
 	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
 
 	static const std::string& get_item_name(InteractionItem::item_keys key);
+
 	static InteractionItem::item_keys get_item_key(const std::string& name);
 
 	using attribute_iterator = std::unordered_set<item_keys>::iterator;
@@ -632,6 +687,10 @@ struct InteractionItem
 	using value_iterator = std::unordered_map<item_keys, float>::iterator;
 	using value_const_iterator = std::unordered_map<item_keys, float>::const_iterator;
 	
+	bool contains(item_keys key) const {
+		return attributes.contains(key);
+	}
+
 	InteractionItem& set_knowledge_item(unsigned int knowledge_index) noexcept;
 
 	InteractionItem& set_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter_agent) noexcept;
@@ -652,15 +711,15 @@ struct InteractionItem
 
 	static InteractionItem create_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
 
-	bool get_knowledge_item(unsigned int& knowledge_index) const;
+	unsigned int get_knowledge() const;
 
-	bool get_knowledgeTM_item(unsigned int& knowledge_index, unsigned int& alter_agent) const;
+	std::tuple<unsigned int, unsigned int> get_knowledgeTM() const;
 
-	bool get_belief_item(unsigned int& belief_index, float& belief_value) const;
+	std::tuple<unsigned int, float> get_belief() const;
 
-	bool get_beliefTM_item(unsigned int& belief_index, unsigned int& alter_agent, float& belief_value) const;
+	std::tuple<unsigned int, unsigned int, float> get_beliefTM() const;
 
-	bool get_knowledge_trust_item(unsigned int& knowledge_index, float& ktrust) const;
+	std::tuple<unsigned int, float> get_knowledge_trust() const;
 
 	void clear(void) noexcept;
 
@@ -673,6 +732,27 @@ struct InteractionItem
 	//store any relevant attributes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
 	std::unordered_set<item_keys> attributes;
+	InteractionItem() noexcept {}
+	InteractionItem(const InteractionItem& item) noexcept :
+		attributes(item.attributes),
+		indexes(item.indexes),
+		values(item.values) {}
+	InteractionItem& operator=(const InteractionItem& item) noexcept {
+		attributes = item.attributes;
+		indexes = item.indexes;
+		values = item.values;
+		return *this;
+	}
+	InteractionItem(InteractionItem&& item) noexcept :
+		attributes(std::move(item.attributes)),
+		indexes(std::move(item.indexes)),
+		values(std::move(item.values)) {}
+	InteractionItem& operator=(InteractionItem&& item) noexcept {
+		attributes = std::move(item.attributes);
+		indexes = std::move(item.indexes);
+		values = std::move(item.values);
+		return *this;
+	}
 
 	
 };
@@ -706,13 +786,49 @@ public:
 	using iterator = std::vector<InteractionItem>::iterator;
 	using const_iterator = std::vector<InteractionItem>::const_iterator;
 
-	//InteractionMessage(void);
-
 	InteractionMessage(
 		unsigned int senderAgentIndex,
 		unsigned int receiverAgentIndex,
 		const CommunicationMedium* _medium,
 		const std::vector<InteractionItem>& interactionItems = std::vector<InteractionItem>());
+	InteractionMessage(
+		unsigned int senderAgentIndex,
+		unsigned int receiverAgentIndex,
+		const CommunicationMedium* _medium,
+		std::vector<InteractionItem>&& interactionItems);
+	InteractionMessage(const InteractionMessage& message) noexcept : 
+		sender(message.sender),
+		receiver(message.receiver),
+		time_to_send(message.time_to_send),
+		valid(message.valid),
+		medium(message.medium),
+		items(message.items) {}
+	InteractionMessage& operator=(const InteractionMessage& message) noexcept {
+		sender = message.sender;
+		receiver = message.receiver;
+		time_to_send = message.time_to_send;
+		valid = message.time_to_send;
+		medium = message.medium;
+		items = message.items;
+		return *this;
+	}
+		
+	InteractionMessage(InteractionMessage&& message) noexcept :
+		sender(message.sender),
+		receiver(message.receiver),
+		time_to_send(message.time_to_send),
+		valid(message.valid),
+		medium(message.medium),
+		items(std::move(message.items)) {}
+	InteractionMessage& operator=(InteractionMessage&& message) noexcept {
+		sender = message.sender;
+		receiver = message.receiver;
+		time_to_send = message.time_to_send;
+		valid = message.time_to_send;
+		medium = message.medium;
+		items = std::move(message.items);
+		return *this;
+	}
 
 
 	iterator begin(void) noexcept { return items.begin(); }
@@ -733,6 +849,8 @@ public:
 
 	bool add_item(const InteractionItem& item) noexcept;
 
+	bool add_item(InteractionItem&& item) noexcept;
+
 	bool add_knowledge_item(unsigned int knowledge_index) noexcept;
 
 	bool add_knowledgeTM_item(unsigned int knowledge_index, unsigned int alter) noexcept;
@@ -752,7 +870,6 @@ class InteractionMessageQueue
 	//constant insert and erase are more important
 	std::list<InteractionMessage> _queue;
 public:
-
 	using iterator = std::list<InteractionMessage>::iterator;
 	using const_iterator = std::list<InteractionMessage>::const_iterator;
 	using reverse_iterator = std::list<InteractionMessage>::reverse_iterator;
@@ -776,9 +893,13 @@ public:
 
 	void clear(void) noexcept { _queue.clear(); }
 
-	void addMessage(const InteractionMessage& msg);
+	void addMessage(const InteractionMessage& msg) noexcept;
+
+	void addMessage(InteractionMessage&& msg) noexcept;
 
 	iterator erase(iterator itr) noexcept;
+	
+	//iterator erase(iterator start, iterator finish) noexcept;
 };
 
 
@@ -848,55 +969,14 @@ public:
 };
 
 
-//constexpr const char* get_type_name(Typeless_Graph::edge_types edge_type) noexcept {
-//	switch (edge_type)
-//	{
-//	case Typeless_Graph::edge_types::dbool:
-//		return "bool";
-//	case Typeless_Graph::edge_types::dint:
-//		return "int";
-//	case Typeless_Graph::edge_types::duint:
-//		return "unsigned int";
-//	case Typeless_Graph::edge_types::dfloat:
-//		return "float";
-//	case Typeless_Graph::edge_types::dstring:
-//		return "string";
-//	case Typeless_Graph::edge_types::vbool:
-//		return "vector<bool>";
-//	case Typeless_Graph::edge_types::vint:
-//		return "vector<int>";
-//	case Typeless_Graph::edge_types::vuint:
-//		return "vector<unsigned int>";
-//	case Typeless_Graph::edge_types::vfloat:
-//		return "vector<float>";
-//	case Typeless_Graph::edge_types::vstring:
-//		return "vector<string>";
-//	case Typeless_Graph::edge_types::mbool:
-//		return "map<bool>";
-//	case Typeless_Graph::edge_types::mint:
-//		return "map<int>";
-//	case Typeless_Graph::edge_types::muint:
-//		return "map<unsigned int>";
-//	case Typeless_Graph::edge_types::mfloat:
-//		return "map<float>";
-//	case Typeless_Graph::edge_types::mstring:
-//		return "map<string>";
-//	default:
-//		return "unknown";
-//	}
-//}
-
-
 
 
 
 struct typeless_graph_iterator {
-
 	//the graph will know how to cast this value to the correct type
 	mutable void* _ptr;
 	mutable unsigned int _row;
 	mutable unsigned int _col;
-
 
 	typeless_graph_iterator(unsigned int row = 0, unsigned int col = 0, void* ptr = NULL);
 	virtual ~typeless_graph_iterator() {}
@@ -919,7 +999,6 @@ struct typeless_graph_iterator {
 
 template<typename link_type>
 class Graph;
-
 template<typename T>
 std::vector<T> operator+(const std::vector<T>& left, const std::vector<T>& right) {
 	assert(left.size() == right.size());
@@ -929,7 +1008,6 @@ std::vector<T> operator+(const std::vector<T>& left, const std::vector<T>& right
 	}
 	return ret;
 }
-
 template<typename T>
 std::map<unsigned int, T> operator+(const std::map<unsigned int, T>& left, const std::map<unsigned int, T>& right) {
 	std::map<unsigned int, T> ret;
@@ -970,13 +1048,11 @@ struct Transpose {
 	const Graph<link_type>& graph(void) const { return *g; }
 };
 
-
 template<typename link_type>
 class Temporary_Graph {
 	Graph<link_type>* g;
 public:
 	Temporary_Graph() : g(nullptr) {}
-
 	Temporary_Graph(const link_type& vals, const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense);
 
 	Temporary_Graph(Graph<link_type>* _g) : g(_g) {}
@@ -1002,29 +1078,29 @@ public:
 
 namespace graph_utils {
 
-	void it_align(std::vector<typeless_graph_iterator*>& it_list);
-
-	void init_align(std::vector<typeless_graph_iterator*>& it_list);
-
-	void it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
-
-	void init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+//	void it_align(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void init_align(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void it_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
+//
+//	void init_align_before_first(std::vector<typeless_graph_iterator*>& it_list);
 
 	template<typename link_type>
 	struct graph_iterator : public typeless_graph_iterator {
 		Graph<link_type>* _parent = NULL;
+
 		graph_iterator(unsigned int row, unsigned int col, const Graph<link_type>* parent, void* ptr) :
 			typeless_graph_iterator(row, col, ptr), _parent(const_cast<Graph<link_type>*>(parent)) {}
 
 		virtual const link_type& examine(void) const = 0;
-
-
 	};
 
 
 	template<typename link_type>
 	struct sparse_graph_iterator {
 		const link_type _skip;
+
 		sparse_graph_iterator(const link_type& skip_data) : _skip(skip_data) {}
 	};
 
@@ -1273,6 +1349,20 @@ namespace graph_utils {
 			return ret;
 		}
 
+		template<typename other, class output = decltype(other()* link_type())>
+		std::vector<output> ewise_division(const std::vector<other>& vec) const {
+			assert(vec.size() == this->_parent->row_size);
+			std::vector<output> ret;
+
+			for (auto it = full_begin(); it != end(); ++it) {
+				// can't divide by zero
+				assert(vec[it.col()] != 0);
+				ret[it.col()] = *it / vec[it.col()];
+			}
+
+			return ret;
+		}
+
 		template<class output = decltype(link_type() + link_type())>
 		output sum() const {
 			output ret = 0;
@@ -1454,12 +1544,22 @@ public:
 
 	virtual const_row_begin_iterator get_row(unsigned int row_index) const = 0;
 
+	row_begin_iterator operator[](unsigned int row_index) { return get_row(row_index); }
+	const_row_begin_iterator operator[](unsigned int row_index) const { return get_row(row_index); }
+
 	const_row_begin_iterator cget_row(unsigned int row_index) const { return get_row(row_index); };
 
 
 	const typeless_graph_iterator row_end(unsigned int row_index) const;
 
 	const typeless_graph_iterator end_rows(void) const noexcept;
+
+	void set_row(unsigned int row_index, const link_type& value) {
+		row_begin_iterator row = get_row(row_index);
+		for (full_row_iterator it = row.begin(); it != row.end(); ++it) {
+			at(it, value);
+		}
+	}
 
 	virtual full_col_iterator full_col_begin(unsigned int col_index) = 0;
 
@@ -1488,6 +1588,13 @@ public:
 
 	const_col_begin_iterator cget_col(unsigned int col_index) const { return get_col(col_index); };
 
+
+	void set_col(unsigned int col_index, const link_type& value) {
+		col_begin_iterator col = get_col(col_index);
+		for (full_col_iterator it = col.begin(); it != col.end(); ++it) {
+			at(it, value);
+		}
+	}
 
 	const typeless_graph_iterator col_end(unsigned int col_index) const;
 
@@ -1631,9 +1738,10 @@ public:
 
 
 struct Graph_Intermediary {
-	Typeless_Graph* ptr;
 
+	Typeless_Graph* ptr;
 	Graph_Intermediary(Typeless_Graph* _ptr) : ptr(_ptr) {}
+
 	void check_ptr() const;
 
 	template<typename T>
@@ -1670,6 +1778,127 @@ struct Graph_Intermediary {
 
 namespace graph_utils {
 	
+	template<typename it1, typename it2, typename... its>
+	struct align_zip_gits {
+		std::tuple<it1, it2, its...> iterators;
+
+		std::tuple<it1, it2, its...>& operator*() {
+			return iterators;
+		}
+
+		template<typename T>
+		bool align_step(T& it) {
+			unsigned int index = std::get<0>(iterators).index();
+			if (it.index() > index) ++std::get<0>(iterators);
+			else if (it.index() < index && it.index() < it.max()) ++it;
+			else return true;
+			return false;
+		}
+
+		void align() {
+			align(std::index_sequence_for<its...>());
+		}
+
+		template <size_t... Indices>
+		void increment_all(std::index_sequence<Indices...> seq) {
+			(++std::get<Indices>(iterators), ...);
+			align();
+		}
+
+		template<size_t... Indicies>
+		void align(std::index_sequence<Indicies...>) {
+			while (std::get<0>(iterators).max() > std::get<0>(iterators).index()) {
+				bool temp = (align_step(std::get<Indicies + 2>(iterators)) && ...);
+				if (align_step(std::get<1>(iterators)) && temp) break;
+			}
+		}
+
+		void operator++() {
+			increment_all(std::index_sequence_for<it1, it2, its...>());
+		}
+
+		bool operator!=(const align_zip_gits&) const {
+			return std::get<0>(iterators).index() < std::get<0>(iterators).max();
+		}
+
+		auto begin() {
+			align();
+			return *this;
+		}
+		auto end() { return *this; }
+
+		template<size_t... Indicies>
+		bool check_size(std::index_sequence<Indicies...>) {
+			bool temp = ((std::get<0>(iterators).max() == std::get<Indicies + 2>(iterators).max()) && ...);
+			return std::get<0>(iterators).max() == std::get<1>(iterators).max() && temp;
+		}
+
+		align_zip_gits(it1 first_iterator, it2 second_iterator, its... extra_iterators) :
+			iterators(std::make_tuple(first_iterator, second_iterator, extra_iterators...)) {
+			//checks to see if all iterators have the same dimension
+			assert(check_size(std::index_sequence_for<its...>()));
+		}
+
+
+	};
+
+
+	template<typename it1, typename it2, typename... its>
+	struct misalign_zip_gits : public align_zip_gits<it1, it2, its...> {
+		using align_zip_gits<it1, it2, its...>::iterators;
+
+		misalign_zip_gits(it1 misalign_iterator, it2 second_iterator, its... extra_iterators) : 
+			align_zip_gits<it1, it2, its...>(misalign_iterator, second_iterator, extra_iterators...) {}
+
+		template<typename T>
+		bool align_step(T& it) {
+			unsigned int index = std::get<0>(iterators).index();
+			if (it.index() > index) return true;
+			else if (it.index() < index) ++it;
+			else {
+				++std::get<0>(iterators);
+				++it;
+			}
+			return false;
+		}
+
+		void align() {
+			align(std::index_sequence_for<its...>());
+		}
+
+		template<size_t... Indicies>
+		void align(std::index_sequence<Indicies...>) {
+			while (std::get<0>(iterators).max() > std::get<0>(iterators).index()) {
+				bool temp = (align_step(std::get<Indicies + 2>(iterators)) && ...);
+				if (align_step(std::get<1>(iterators)) && temp) break;
+			}
+		}
+
+		void operator++() {
+			++std::get<0>(iterators);
+			align();
+		}
+
+		auto begin() {
+			align();
+			return *this;
+		}
+		auto end() { return *this; }
+	};
+
+
+	template<typename it1, typename it2, typename... its>
+	//auto it_align(graph_iterator& first_iterator, graph_iterator& second_iterator) {
+	auto it_align(it1 first_iterator, it2 second_iterator, its... extra_iterators) {
+		//return graph_align_zip_iterator<graph_iterators...>(first_iterator, second_iterator);
+		return align_zip_gits(first_iterator, second_iterator, extra_iterators...);
+	}
+
+	template<typename it1, typename it2, typename... its>
+	auto it_misalign(it1 misaligned_iterator, it2 second_iterator, its... extra_iterators) {
+		return misalign_zip_gits(misaligned_iterator, second_iterator, extra_iterators...);
+	}
+
 	template<typename T>
 	void check_range(const Graph<T>& graph, const T& lower_bound, const T& upper_bound) {
 		for (auto row = graph.begin_rows(); row != graph.end_rows(); ++row) {
@@ -1685,7 +1914,6 @@ namespace graph_utils {
 			}
 		}
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1716,21 +1944,16 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Graph<right>& rhs) {
 		return ewise_product(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_product(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs); }
-
 	template<typename left, typename right>
 	auto ewise_product(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs, rhs.graph()); }
-
 	template<typename left, typename right>
 	auto ewise_product(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_product(lhs.graph(), rhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.target_nodeset);
@@ -1761,15 +1984,12 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Graph<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_product(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_product(const Transpose<left>& lhs, const Graph<right>& rhs) { return ewise_product(rhs, lhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1800,12 +2020,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-	
 	template<typename left, typename right>
 	auto ewise_product(const Transpose<left>& lhs, const Transpose<right>& rhs) { 
 		return ewise_product(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense); 
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1837,21 +2055,16 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Graph<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.row_dense, lhs.col_dense || rhs.col_dense);
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs); }
-
 	template<typename left, typename right>
 	auto ewise_divide(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs, rhs.graph()); }
-
 	template<typename left, typename right>
 	auto ewise_divide(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return ewise_divide(lhs.graph(), rhs.graph()); }
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.graph().target_nodeset);
@@ -1883,12 +2096,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Graph<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.row_dense || rhs.col_dense, lhs.col_dense || rhs.row_dense);
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.graph().source_nodeset == rhs.target_nodeset);
@@ -1920,12 +2131,10 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Transpose<left>& lhs, const Graph<right>& rhs) { 
 		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.row_dense, lhs.graph().row_dense || rhs.col_dense); 
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs, bool row_dense, bool col_dense) {
 		assert(lhs.source_nodeset == rhs.source_nodeset);
@@ -1956,13 +2165,11 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right>
 	auto ewise_divide(const Transpose<left>& lhs, const Transpose<right>& rhs) {
 		return ewise_divide(lhs, rhs, lhs.graph().col_dense || rhs.graph().col_dense, lhs.graph().row_dense || rhs.graph().row_dense);
 	}
 }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -1982,7 +2189,6 @@ std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
@@ -1999,19 +2205,14 @@ std::vector<output> operator*(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_full_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs; }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.source_nodeset);
@@ -2020,13 +2221,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
-		auto temp = lhs;
-		auto it = col.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = col.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, col.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2035,7 +2236,6 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs.graph().target_nodeset);
@@ -2044,13 +2244,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
-		auto temp = lhs;
-		auto it = row.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = row.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, row.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2059,19 +2259,14 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_sparse_row_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -2091,7 +2286,6 @@ std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
@@ -2108,19 +2302,14 @@ std::vector<output> operator*(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_full_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.source_nodeset);
@@ -2129,13 +2318,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto col = rhs.begin_cols(); col != rhs.end_cols(); ++col) {
-		auto temp = lhs;
-		auto it = col.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = col.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, col.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != col.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2144,7 +2333,6 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Transpose<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs.graph().target_nodeset);
@@ -2153,13 +2341,13 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 	std::map<unsigned int, output> ret;
 
 	for (auto row = rhs.graph().begin_rows(); row != rhs.graph().end_rows(); ++row) {
-		auto temp = lhs;
-		auto it = row.sparse_begin(0);
-		std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
+		//auto temp = lhs;
+		//auto it = row.sparse_begin(0);
+		//std::vector<typeless_graph_iterator*> it_list = { &temp, &it };
 
 		output val = 0;
-
-		for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
+		for (auto& [temp, it] : graph_utils::it_align(lhs, row.sparse_begin(0))) {
+		//for (graph_utils::init_align(it_list); it != row.end(); graph_utils::it_align(it_list)) {
 			val += (*it) * (*temp);
 		}
 
@@ -2168,19 +2356,14 @@ std::map<unsigned int, output> operator*(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_sparse_col_iterator<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.T(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) { return lhs.graph() * rhs; }
-
 
 
 template<typename left, typename right>
@@ -2198,10 +2381,8 @@ auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 
@@ -2222,10 +2403,8 @@ auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2241,10 +2420,8 @@ auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2266,64 +2443,59 @@ auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const std
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
-
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
-
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_row_begin_iterator<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
 	decltype(left() * right()) ret = 0;
 
-	auto lit = lhs.sparse_begin(0);
-	auto rit = rhs.sparse_begin(0);
-	std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
+	//auto lit = lhs.sparse_begin(0);
+	//auto rit = rhs.sparse_begin(0);
+	//std::vector<typeless_graph_iterator*> it_list = { &lit, &rit };
 
 
-	for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
+	for (auto& [lit, rit] : graph_utils::it_align(lhs.sparse_begin(0), rhs.sparse_begin(0))) {
+	//for (graph_utils::init_align(it_list); lit != lhs.end(); graph_utils::it_align(it_list)) {
 		ret += (*lit) * (*rit);
 	}
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const graph_utils::const_col_begin_iterator<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs * lhs; }
-
 
 
 template<typename left, typename right, class output = decltype(left()* right())>
@@ -2360,7 +2532,6 @@ Temporary_Graph<output> operator+(const Graph<left>& lhs, const Graph<right>& rh
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Graph<left>& lhs, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -2396,7 +2567,6 @@ Temporary_Graph<output> operator+(const Graph<left>& lhs, const Transpose<right>
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Graph<right>& rhs) {
 	const Graph<left>& lhs = lhsT.graph();
@@ -2432,7 +2602,6 @@ Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Graph<right
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
 	const Graph<left>& lhs = lhsT.graph();
@@ -2469,16 +2638,12 @@ Temporary_Graph<output> operator+(const Transpose<left>& lhsT, const Transpose<r
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs + rhs.graph(); }
-
 template<typename left, typename right>
 auto operator+(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() + rhs; }
-
 template<typename left, typename right>
 auto operator+(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() + rhs.graph(); }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->col_size);
@@ -2488,10 +2653,8 @@ std::vector<output> operator+(const graph_utils::const_row_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2514,10 +2677,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_row_begin_iter
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2527,10 +2688,8 @@ std::vector<output> operator+(const graph_utils::const_col_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2554,10 +2713,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_col_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right>
 auto operator+(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2575,7 +2732,6 @@ std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2593,10 +2749,8 @@ std::vector<output> operator+(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator+(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2614,7 +2768,6 @@ std::vector<output> operator+(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2642,7 +2795,6 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2670,10 +2822,8 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) { return rhs + lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator+(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2703,7 +2853,6 @@ std::map<unsigned int, output> operator+(const graph_utils::const_sparse_col_ite
 }
 
 
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->col_size);
@@ -2713,7 +2862,6 @@ std::vector<output> operator-(const graph_utils::const_row_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) { 
 	assert(lhs.size() == rhs._parent->col_size);
@@ -2723,7 +2871,6 @@ std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::c
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_row_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2750,7 +2897,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_row_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 auto operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_row_begin_iterator<right>& rhs) {
 	std::map<unsigned int, output> ret = lhs;
@@ -2773,7 +2919,6 @@ auto operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::vector<right>& rhs) {
 	assert(rhs.size() == lhs._parent->row_size);
@@ -2783,7 +2928,6 @@ std::vector<output> operator-(const graph_utils::const_col_begin_iterator<left>&
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	assert(lhs.size() == rhs._parent->row_size);
@@ -2793,7 +2937,6 @@ std::vector<output> operator-(const std::vector<left>& lhs, const graph_utils::c
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_col_begin_iterator<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret = rhs;
@@ -2820,7 +2963,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_col_begin_iter
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const std::map<unsigned int, left>& lhs, const graph_utils::const_col_begin_iterator<right>& rhs) {
 	std::map<unsigned int, output> ret = lhs;
@@ -2844,7 +2986,6 @@ std::map<unsigned int, output> operator-(const std::map<unsigned int, left>& lhs
 	return ret;
 
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2862,7 +3003,6 @@ std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2880,7 +3020,6 @@ std::vector<output> operator-(const graph_utils::const_full_row_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_row_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
@@ -2898,7 +3037,6 @@ std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& lhs, const graph_utils::const_full_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -2916,7 +3054,6 @@ std::vector<output> operator-(const graph_utils::const_full_col_iterator<left>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->target_nodeset);
@@ -2944,7 +3081,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->target_nodeset == rhs._parent->source_nodeset);
@@ -2972,7 +3108,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_row_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_row_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->target_nodeset);
@@ -3000,7 +3135,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_iterator<left>& lhs, const graph_utils::const_sparse_col_iterator<right>& rhs) {
 	assert(lhs._parent->source_nodeset == rhs._parent->source_nodeset);
@@ -3028,7 +3162,6 @@ std::map<unsigned int, output> operator-(const graph_utils::const_sparse_col_ite
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Graph<left>& lhs, const Graph<right>& rhs) {
 	assert(rhs.source_nodeset == lhs.source_nodeset);
@@ -3062,7 +3195,6 @@ Temporary_Graph<output> operator-(const Graph<left>& lhs, const Graph<right>& rh
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Graph<left>& lhs, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -3098,7 +3230,6 @@ Temporary_Graph<output> operator-(const Graph<left>& lhs, const Transpose<right>
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Graph<right>& rhs) {
 	const Graph<right>& lhs = lhsT.graph();
@@ -3134,7 +3265,6 @@ Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Graph<right
 	}
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Transpose<right>& rhsT) {
 	const Graph<right>& rhs = rhsT.graph();
@@ -3171,13 +3301,10 @@ Temporary_Graph<output> operator-(const Transpose<left>& lhsT, const Transpose<r
 	}
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator-(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs - rhs.graph(); }
-
 template<typename left, typename right>
 auto operator-(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() - rhs; }
-
 template<typename left, typename right>
 auto operator-(const Temporary_Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs.graph() - rhs.graph(); }
 
@@ -3215,7 +3342,6 @@ namespace graph_utils {
 		3
 	};
 
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
 		// target dimension of the left_rhs and source dimension of right_rhs must match
@@ -3243,7 +3369,6 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Graph<left>& lhs, const Transpose<right>& rhsT, bool output_row_dense, bool output_col_dense) {
 		const Graph<right>& rhs = rhsT.graph();
@@ -3274,7 +3399,6 @@ namespace graph_utils {
 
 		return ret;
 	}
-
 	template<typename left, typename right, class output = decltype(left()* right())>
 	Temporary_Graph<output> dot_product(const Transpose<left>& lhsT, const Graph<right>& rhs, bool output_row_dense, bool output_col_dense) {
 		const Graph<left>& lhs = lhsT.graph();
@@ -3308,7 +3432,6 @@ namespace graph_utils {
 
 }
 
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Graph<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
@@ -3316,16 +3439,12 @@ auto operator*(const Graph<left>& lhs, const Graph<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const Graph<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const Temporary_Graph<left>& rhs) { return lhs.graph() * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Graph<left>& lhs, const Transpose<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.graph().col_dense + 2 * rhs.graph().row_dense + 4 * lhs.col_dense + 8 * lhs.row_dense];
@@ -3333,7 +3452,6 @@ auto operator*(const Graph<left>& lhs, const Transpose<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const Graph<right>& rhs) {
 	const char& t = graph_utils::transform[rhs.col_dense + 2 * rhs.row_dense + 4 * lhs.graph().col_dense + 8 * lhs.graph().row_dense];
@@ -3341,10 +3459,8 @@ auto operator*(const Transpose<left>& lhs, const Graph<right>& rhs) {
 	bool new_col_dim = t & 1;
 	return graph_utils::dot_product(lhs, rhs, new_row_dim, new_col_dim);
 }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs.graph(); }
-
 
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const Graph<left>& lhs, const std::vector<right>& rhs) {
@@ -3356,7 +3472,6 @@ std::vector<output> operator*(const Graph<left>& lhs, const std::vector<right>& 
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::vector<output> operator*(const std::vector<left>& lhs, const Graph<right>& rhs) {
 	assert(lhs.size() == rhs.row_size);
@@ -3367,19 +3482,14 @@ std::vector<output> operator*(const std::vector<left>& lhs, const Graph<right>& 
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const std::vector<right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const std::vector<right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const std::vector<left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const Graph<left>& lhs, const std::map<unsigned int, right>& rhs) {
 	std::map<unsigned int, output> ret;
@@ -3391,7 +3501,6 @@ std::map<unsigned int, output> operator*(const Graph<left>& lhs, const std::map<
 
 	return ret;
 }
-
 template<typename left, typename right, class output = decltype(left()* right())>
 std::map<unsigned int, output> operator*(const std::map<unsigned int, left>& lhs, const Graph<right>& rhs) {
 	std::map<unsigned int, output> ret;
@@ -3403,16 +3512,12 @@ std::map<unsigned int, output> operator*(const std::map<unsigned int, left>& lhs
 
 	return ret;
 }
-
 template<typename left, typename right>
 auto operator*(const Temporary_Graph<left>& lhs, const std::map<unsigned int, right>& rhs) { return lhs.graph() * rhs; }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const Temporary_Graph<right>& rhs) { return lhs * rhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const Transpose<left>& lhs, const std::map<unsigned int, right>& rhs) { return rhs * lhs.graph(); }
-
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
 
@@ -3421,78 +3526,81 @@ auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& 
 #define sparse false
 
 namespace graph_names {
-	const std::string active               = "agent active time network";					     // "agent active time network"
-	const std::string current_loc          = "agent current location network";                   // "agent current location network"
-	const std::string group_beliefs        = "agent group belief network";                       // "agent group belief network"
-	const std::string group_knowledge      = "agent group knowledge network";                    // "agent group knowledge network"
-	const std::string agent_groups         = "agent group membership network";                   // "agent group membership network"
-	const std::string init_count           = "agent initiation count network";                   // "agent initiation count network"
-	const std::string loc_learning_rate    = "agent location learning rate network";             // "agent location learning rate network"
-	const std::string loc_preference       = "agent location preference network";                // "agent location preference network"
-	const std::string mail_usage           = "agent mail usage by medium network";               // "agent mail usage by medium network"
-	const std::string recep_count          = "agent reception count network";                    // "agent reception count network"
-	const std::string agent_trust		   = "agent trust network";								 // "agent trust network"
-	const std::string b_k_wgt              = "belief knowledge weight network";                  // "belief knowledge weight network"
-	const std::string belief_msg_complex   = "belief message complexity network";                // "belief message complexity network"
-	const std::string beliefs              = "belief network";                                   // "belief network"
-	const std::string b_sim_wgt            = "belief similarity weight network";                 // "belief similarity weight network"
-	const std::string btm                  = "belief transactive memory network";                // "belief transactive memory network"
-	const std::string comm_access          = "communication medium access network";              // "communication medium access network"
-	const std::string comm_pref            = "communication medium preferences network";         // "communication medium preferences network"
-	const std::string fb_friend            = "facebook friend network";                          // "facebook friend network"
-	const std::string emotion_net		   = "emotion network";									 // "emotion network"
-	const std::string emot_broad_bias	   = "emotion broadcast bias network";					 // "emotion broadcast bias network"
-	const std::string emot_broad_first	   = "emotion broadcast first order network";			 // "emotion broadcast first order network"
-	const std::string emot_broad_second    = "emotion broadcast second order network";			 // "emotion broadcast second order network"
-	const std::string emot_read_first	   = "emotion reading first order network";				 // "emotion reading first order network"
-	const std::string emot_read_second     = "emotion reading second order network";			 // "emotion reading second order network"
-	const std::string emot_reg_bias		   = "emotion regulation bias network";					 // "emotion regulation bias network"
-	const std::string emot_reg_first	   = "emotion regulation first order network";			 // "emotion regulation first order network"
-	const std::string emot_reg_second	   = "emotion regulation second order network";			 // "emotion regulation second order network"
-	const std::string interact_k_wgt       = "interaction knowledge weight network";             // "interaction knowledge weight network"
-	const std::string interact             = "interaction network";                              // "interaction network"
-	const std::string interact_prob        = "interaction probability network";                  // "interaction probability network"
-	const std::string soi                  = "interaction sphere network";                       // "interaction sphere network"
-	const std::string k_exp_wgt            = "knowledge expertise weight network";               // "knowledge expertise weight network"
-	const std::string k_forget_prob        = "knowledge forgetting prob network";                // "knowledge forgetting prob network"
-	const std::string k_forget_rate        = "knowledge forgetting rate network";                // "knowledge forgetting rate network"
-	const std::string k_diff               = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
-	const std::string k_msg_complex        = "knowledge message complexity network";             // "knowledge message complexity network"
-	const std::string knowledge            = "knowledge network";                                // "knowledge network"
-	const std::string k_priority           = "knowledge priority network";                       // "knowledge priority network"
-	const std::string k_sim_wgt            = "knowledge similarity weight network";              // "knowledge similarity weight network"
-	const std::string k_strength           = "knowledge strength network";                       // "knowledge strength network"
-	const std::string ktm                  = "knowledge transactive memory network";			 // "knowledge transactive memory network"
-	const std::string k_trust			   = "knowledge trust network";							 // "knowledge trust network"
-	const std::string ktrust_resist		   = "knowledge trust resistance network";				 // "knowledge trust resistance network"
-	const std::string learnable_k          = "learnable knowledge network";                      // "learnable knowledge network"
-	const std::string loc_knowledge	       = "location knowledge network";                       // "location knowledge network"
-	const std::string loc_learning_limit   = "location learning limit network";                  // "location learning limit network"
-	const std::string loc_medium_access    = "location medium access network";                   // "location medium access network"
-	const std::string location_network     = "location network";                                 // "location network"
-	const std::string mail_check_prob      = "mail check probability network";                   // "mail check probability network"
-	const std::string medium_k_access      = "medium knowledge access network";                  // "medium knowledge access network"
-	const std::string kttm		           = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
-	const std::string phys_prox            = "physical proximity network";                       // "physical proximity network"
-	const std::string phys_prox_wgt        = "physical proximity weight network";                // "physical proximity weight network"
-	const std::string propensity           = "public propensity network";                        // "public propensity network"
-	const std::string soc_prox             = "social proximity network";                         // "social proximity network"
-	const std::string soc_prox_wgt         = "social proximity weight network";                  // "social proximity weight network"
-	const std::string dem_prox             = "sociodemographic proximity network";               // "sociodemographic proximity network"
-	const std::string dem_prox_wgt         = "sociodemographic proximity weight network";        // "sociodemographic proximity weight network"
-	const std::string subs                 = "subscription network";                             // "subscription network"
-	const std::string sub_probability      = "subscription probability network";                 // "subscription probability network"
-	const std::string target_info          = "target information network";                       // "target information network"
-	const std::string task_assignment      = "task assignment network";                          // "task assignment network"
-	const std::string task_availability    = "task availability network";                        // "task availability network"
-	const std::string task_completion      = "task completion network";                          // "task completion network"
-	const std::string task_guess_prob      = "task guess probability network";                   // "task guess probability network"
-	const std::string task_k_importance    = "task knowledge importance network";                // "task knowledge importance network"
-	const std::string task_k_req           = "task knowledge requirement network";               // "task knowledge requirement network"
-	const std::string btm_msg_complex      = "transactive belief message complexity network";    // "transactive belief message complexity network"
-	const std::string ktm_msg_complex      = "transactive knowledge message complexity network"; // "transactive knowledge message complexity network"
-	const std::string twit_follow          = "twitter follower network";                         // "twitter follower network"
-	const std::string unused               = "unused knowledge network";                         // "unused knowledge network"
+	const std::string active = "agent active time network";					     // "agent active time network"
+	const std::string current_loc = "agent current location network";                   // "agent current location network"
+	const std::string group_beliefs = "agent group belief network";                       // "agent group belief network"
+	const std::string group_knowledge = "agent group knowledge network";                    // "agent group knowledge network"
+	const std::string agent_groups = "agent group membership network";                   // "agent group membership network"
+	const std::string init_count = "agent initiation count network";                   // "agent initiation count network"
+	const std::string loc_learning_rate = "agent location learning rate network";             // "agent location learning rate network"
+	const std::string loc_preference = "agent location preference network";                // "agent location preference network"
+	const std::string mail_usage = "agent mail usage by medium network";               // "agent mail usage by medium network"
+	const std::string recep_count = "agent reception count network";                    // "agent reception count network"
+	const std::string agent_trust = "agent trust network";								 // "agent trust network"
+	const std::string b_k_wgt = "belief knowledge weight network";                  // "belief knowledge weight network"
+	const std::string belief_msg_complex = "belief message complexity network";                // "belief message complexity network"
+	const std::string beliefs = "belief network";                                   // "belief network"
+	const std::string b_sim_wgt = "belief similarity weight network";                 // "belief similarity weight network"
+	const std::string btm = "belief transactive memory network";                // "belief transactive memory network"
+	const std::string comm_access = "communication medium access network";              // "communication medium access network"
+	const std::string comm_pref = "communication medium preferences network";         // "communication medium preferences network"
+	const std::string fb_friend = "facebook friend network";                          // "facebook friend network"
+	const std::string emotion_net = "emotion network";									 // "emotion network"
+	const std::string emot_broad_bias = "emotion broadcast bias network";					 // "emotion broadcast bias network"
+	const std::string emot_broad_first = "emotion broadcast first order network";			 // "emotion broadcast first order network"
+	const std::string emot_broad_second = "emotion broadcast second order network";			 // "emotion broadcast second order network"
+	const std::string emot_read_first = "emotion reading first order network";				 // "emotion reading first order network"
+	const std::string emot_read_second = "emotion reading second order network";			 // "emotion reading second order network"
+	const std::string emot_reg_bias = "emotion regulation bias network";					 // "emotion regulation bias network"
+	const std::string emot_reg_first = "emotion regulation first order network";			 // "emotion regulation first order network"
+	const std::string emot_reg_second = "emotion regulation second order network";			 // "emotion regulation second order network"
+	const std::string interact_k_wgt = "interaction knowledge weight network";             // "interaction knowledge weight network"
+	const std::string interact = "interaction network";                              // "interaction network"
+	const std::string interact_prob = "interaction probability network";                  // "interaction probability network"
+	const std::string soi = "interaction sphere network";                       // "interaction sphere network"
+	const std::string k_exp_wgt = "knowledge expertise weight network";               // "knowledge expertise weight network"
+	const std::string k_forget_prob = "knowledge forgetting prob network";                // "knowledge forgetting prob network"
+	const std::string k_forget_rate = "knowledge forgetting rate network";                // "knowledge forgetting rate network"
+	const std::string k_diff = "knowledge learning difficulty network";            // "knowledge learning difficulty network"
+	const std::string k_msg_complex = "knowledge message complexity network";             // "knowledge message complexity network"
+	const std::string knowledge = "knowledge network";                                // "knowledge network"
+	const std::string k_priority = "knowledge priority network";                       // "knowledge priority network"
+	const std::string k_sim_wgt = "knowledge similarity weight network";              // "knowledge similarity weight network"
+	const std::string k_strength = "knowledge strength network";                       // "knowledge strength network"
+	const std::string ktm = "knowledge transactive memory network";			 // "knowledge transactive memory network"
+	const std::string k_trust = "knowledge trust network";							 // "knowledge trust network"
+	const std::string ktrust_resist = "knowledge trust resistance network";				 // "knowledge trust resistance network"
+	const std::string learnable_k = "learnable knowledge network";                      // "learnable knowledge network"
+	const std::string loc_knowledge = "location knowledge network";                       // "location knowledge network"
+	const std::string loc_learning_limit = "location learning limit network";                  // "location learning limit network"
+	const std::string loc_medium_access = "location medium access network";                   // "location medium access network"
+	const std::string location_network = "location network";                                 // "location network"
+	const std::string mail_check_prob = "mail check probability network";                   // "mail check probability network"
+	const std::string medium_k_access = "medium knowledge access network";                  // "medium knowledge access network"
+	const std::string kttm = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
+	const std::string phys_prox = "physical proximity network";                       // "physical proximity network"
+	const std::string phys_prox_wgt = "physical proximity weight network";                // "physical proximity weight network"
+	const std::string propensity = "public propensity network";                        // "public propensity network"
+	const std::string subreddit_mem = "subreddit membership network";                     // "subreddit membership network"
+	const std::string soc_prox = "social proximity network";                         // "social proximity network"
+	const std::string soc_prox_wgt = "social proximity weight network";                  // "social proximity weight network"
+	const std::string dem_prox = "sociodemographic proximity network";               // "sociodemographic proximity network"
+	const std::string dem_prox_wgt = "sociodemographic proximity weight network";        // "sociodemographic proximity weight network"
+	const std::string subs = "subscription network";                             // "subscription network"
+	const std::string sub_probability = "subscription probability network";                 // "subscription probability network"
+	const std::string target_info = "target information network";                       // "target information network"
+	const std::string task_assignment = "task assignment network";                          // "task assignment network"
+	const std::string task_availability = "task availability network";                        // "task availability network"
+	const std::string task_completion = "task completion network";                          // "task completion network"
+	const std::string task_guess_prob = "task guess probability network";                   // "task guess probability network"
+	const std::string task_k_importance = "task knowledge importance network";                // "task knowledge importance network"
+	const std::string task_k_req = "task knowledge requirement network";               // "task knowledge requirement network"
+	const std::string btm_msg_complex = "transactive belief message complexity network";    // "transactive belief message complexity network"
+	const std::string ktm_msg_complex = "transactive knowledge message complexity network"; // "transactive knowledge message complexity network"
+	const std::string twit_follow = "twitter follower network";                         // "twitter follower network"
+	const std::string unused = "unused knowledge network";                         // "unused knowledge network"
+	const std::string banned_user = "banned user network";								// "banned user network"
+	const std::string k_type = "knowledge type network";							// "knowledge type network"
 }
 
 namespace generator_names {
@@ -3527,14 +3635,14 @@ namespace generator_names {
 
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------- Graph Manager
-class Construct;
+struct Construct;
 
-class GraphManager 
+class GraphManager
 {
 	GraphManager(Construct* _construct);
 	~GraphManager();
 
-	friend class Construct;
+	friend struct Construct;
 
 	Construct* construct;
 
@@ -3552,10 +3660,20 @@ public:
 	// gets a graph
 	// graph is required to already be loaded
 	Graph_Intermediary load_required(
-		const std::string& name, 
-		const Nodeset* src, 
-		const Nodeset* trg, 
+		const std::string& name,
+		const Nodeset* src,
+		const Nodeset* trg,
 		const Nodeset* slc = nullptr) const;
+
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg) {
+		return load_required(name, &src, &trg);
+	}
+
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) {
+		return load_required(name, &src, &trg, &slc);
+	}
 
 	// gets a graph
 	// graph is required to already be loaded
@@ -3565,13 +3683,30 @@ public:
 		const std::string& target_nodeset,
 		const std::string& slice_nodeset = "") const;
 
+	/*<summary> Similar to GraphManager::load_required(const std::string&, const std::string&, const std::string&, const std::string&) </summary>*/
+	Graph_Intermediary load_required(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "");
+
 	// gets a graph
 	// returns a null pointer if the graph can't be found
 	Graph_Intermediary load_optional(
-		const std::string& name, 
-		const Nodeset* src, 
-		const Nodeset* trg, 
+		const std::string& name,
+		const Nodeset* src,
+		const Nodeset* trg,
 		const Nodeset* slc = nullptr) const;
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg) {
+		return load_optional(name, &src, &trg);
+	}
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) {
+		return load_optional(name, &src, &trg, &slc);
+	}
 
 	// gets a graph
 	// returns a null pointer if the graph can't be found
@@ -3581,13 +3716,34 @@ public:
 		const std::string& target_nodeset,
 		const std::string& slice_nodeset = "") const;
 
-	// gets a graph
-	// if the graph can't be found, one is created
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const std::string&, const std::string&, const std::string&) </summary>*/
+	Graph_Intermediary load_optional(
+		const std::string& name,
+		const std::string& source_nodeset,
+		const std::string& target_nodeset,
+		const std::string& slice_nodeset = "");
+
+	 // gets a graph
+	 // if the graph can't be found, one is created
 	template<typename T>
 	Graph_Intermediary load_optional(const std::string& name, const T& vals,
 		const Nodeset* src, bool row_dense,
 		const Nodeset* trg, bool col_dense,
 		const Nodeset* slc = nullptr);
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const T&, const Nodeset*, bool, const Nodeset*, bool, const Nodeset*) </summary>*/
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense) {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense);
+	}
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const T&, const Nodeset*, bool, const Nodeset*, bool, const Nodeset*) </summary>*/
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense, const Nodeset& slc) {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense, &slc);
+	}
 
 	// gets a graph
 	// if the graph can't be found, one is created
@@ -3600,7 +3756,7 @@ public:
 	// gets a typeless graph
 	// if the graph can't be found, a null pointer is returned
 	Typeless_Graph* get_network(const std::string& name) noexcept;
-	
+
 	struct set_of_generators {
 		GraphManager* const graph_manager;
 		Random* const random;
@@ -3654,28 +3810,29 @@ public:
 
 struct Model
 {
-	Construct* const construct;
-	GraphManager* const graph_manager;
-	NodesetManager* const ns_manager;
-	Random* const random;
+	Construct& construct;
+	GraphManager& graph_manager;
+	NodesetManager& ns_manager;
+	Random& random;
 
-	Model(Construct* _construct, const std::string& name);
+	Model(Construct& _construct);
 
-	Model(const std::string& name);
+	virtual ~Model(void) {}
 
-	virtual ~Model(void) { ; }
+	virtual void initialize(void) {};
 
-	virtual void initialize(void);
 
-	virtual void think(void);
+	virtual void think(void) {};
 
-	virtual void update(void);
 
-	virtual void communicate(const InteractionMessage& msg);
+	virtual void update(void) {};
 
-	virtual void cleanup(void);
 
-	const std::string name;
+	virtual void communicate(const InteractionMessage& msg) {};
+
+
+	virtual void cleanup(void) {};
+
 
 	bool valid;
 
@@ -3686,12 +3843,11 @@ struct Model
 };
 
 
-
-struct Inheritence_Wrapper : virtual public Model {
+struct Inheritence_Wrapper : public Model {
 	Model* wrapped_model;
-
-	Inheritence_Wrapper(Model* model, const std::string& model_name) : Model(model_name) {
+	Inheritence_Wrapper(Model* model) : Model(model->construct) {
 		wrapped_model = model;
+		valid = false;
 	}
 };
 
@@ -3756,41 +3912,52 @@ namespace model_names {
 
 	//"Knowledge Parsing Model"
 	const std::string KPARSE	= "Knowledge Parsing Model";
+
+	const std::string REDDIT_mod = "Reddit Interaction Model";
 	
 }
 
-class ModelManager
+struct ModelManager
 {
+	std::unordered_map<std::string, Model*> _models;
+	std::unordered_map<std::string, Model*> queued_models;
+
 	ModelManager(void) { ; }
-	~ModelManager(void);
-	
-	std::vector<Model*> models;
+	~ModelManager(void) {
+		for (auto& model : _models) delete model.second;
+	}
 
-	friend class Construct;
+	bool contains(const std::string& name) const noexcept { return _models.contains(name); }
 
-	bool can_models_be_reorganized = true;	
+	Model* get_model(const std::string& name) {
+		if (contains(name)) {
+			Inheritence_Wrapper* temp = dynamic_cast<Inheritence_Wrapper*>(_models[name]);
+			if (temp)
+				return temp->wrapped_model;
+			else
+				return _models[name];
+		}
+		else throw dynet::model_not_found(name);
+		//@todo replace these with std::unreachable when msvc implements it in c++23
+		return NULL;
+	}
 
-	void InitializeAllModels(bool verbose_runtime);
+	const Model* get_model(const std::string& name) const {
+		if (contains(name)) {
+			const Inheritence_Wrapper* temp = dynamic_cast<const Inheritence_Wrapper*>(_models.at(name));
+			if (temp)
+				return temp->wrapped_model;
+			else
+				return _models.at(name);
+		}
+		else throw dynet::model_not_found(name);
+		return NULL;
+	}
 
-	void ThinkAllModels(bool verbose_runtime);
-
-	void UpdateAllModels(bool verbose_runtime);
-
-	void CommunicateAllModels(const InteractionMessage& msg);
-
-	void CleanUpAllModels(bool verbose_runtime);
-
-public:
-
-	void move_model_to_front(Model* model);
-
-	Model* get_model_by_name(const std::string &model_name) noexcept;
-
-	const Model* get_model_by_name(const std::string &model_name) const noexcept;
-
-	void add_model(Model* model) noexcept;
-		
-
+	void add_model(const std::string& name, Model* model) {
+		if (contains(name)) throw dynet::model_already_exists(name);
+		_models[name] = model;
+	}
 };
 
 #include <fstream>
@@ -3800,6 +3967,7 @@ namespace output_names {
 	const std::string output_dynetml = "dynetml"; //dynetml
 	const std::string output_messages = "messages"; //messages
 	const std::string output_media_events = "media events"; //media events
+	const std::string output_reddit_posts = "reddit posts"; //reddit posts
 }
 
 // output base class
@@ -3813,9 +3981,9 @@ protected:
 	// indicates the next time index that output should be recorded
 	std::vector<int>::const_iterator _next_output_time;
 public:
-
+	
 	// Constructor will setup a time system controlled by Output::should_process.
-	Output(const dynet::ParameterMap& params, Construct* construct) {
+	Output(const dynet::ParameterMap& params, Construct& construct) {
 		output_times = get_output_timeperiods(params, construct);
 		_next_output_time = output_times.begin();
 	}
@@ -3840,7 +4008,8 @@ public:
 	// called by Output to set output_times
 	// uses the "timeperiods" key from params to inform the structure of the returned vector
 	// replace this to function customize when the Output should be processed
-	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct* construct);
+
+	virtual std::vector<int> get_output_timeperiods(const dynet::ParameterMap& params, Construct& construct);
 
 	//this function should be replaced by classes that inheriet from Output
 	virtual void process(unsigned int t) = 0;
@@ -3850,7 +4019,7 @@ public:
 class OutputManager {
 
 	std::vector<Output*> _output;
-	friend class Construct;
+	friend struct Construct;
 	void ProcessAllOutput(unsigned int t);
 
 	OutputManager(void) { ; };
@@ -3863,17 +4032,38 @@ public:
 };
 
 
+struct InteractionMessageParser {
+	const std::string name;
+	InteractionMessageParser(const std::string& name) : name(name) {}
+	virtual void parse(const InteractionMessage& msg) = 0;
+};
+
+
 #include <ctime>
 
-class Construct {
-	time_t begTim;
-public:
+struct Construct {
+	time_t begTim = 0;
 
-	static constexpr const char* version = "5.4.0";
+	time_t loadtime = 0;
+
+	time_t simulation_start = 0;
+
+	time_t cycle_start = 0;
+
+	time_t cycle_end = 0;
+
+	time_t simulation_end = 0;
+
+	static constexpr const char* version = "5.4.2";
+	~Construct() {}
 
 	Construct();
 
-	~Construct() {}
+	static std::function<void(Construct&)> constructor_output;
+	static std::function<void(Construct&)> loading_complete_output;
+	static std::function<void(Construct&)> simulation_start_output;
+	static std::function<void(Construct&)> cycle_end_output;
+	static std::function<void(Construct&)> simulation_complete_output;
 
 	void load_from_xml(const std::string& fname);
 	
@@ -3894,6 +4084,13 @@ public:
 	// The manager that holds all outputs.
 	OutputManager output_manager;
 
+	// Holds all parsers that parse messages before models.
+	std::set<InteractionMessageParser*> message_parsers;
+
+	bool contains_parser(const std::string& name) {
+		for (auto parser : message_parsers) if (parser->name == name) return true;
+		return false;
+	}
 	
 	// central message queue for messages waiting to be dispersed.
 	InteractionMessageQueue interaction_message_queue;
@@ -3922,4 +4119,19 @@ private:
 	bool running = false;
 };
 
+
+
+struct Knowledge_Parser : public InteractionMessageParser {
+
+	Graph<bool>& knowledge_net;
+
+	Knowledge_Parser(Graph<bool>& knowledge_net) : InteractionMessageParser("knowledge"), knowledge_net(knowledge_net) {}
+
+	void parse(const InteractionMessage& msg) {
+		for (auto& item : msg) {
+			if (item.contains(InteractionItem::item_keys::knowledge)) 
+				knowledge_net.add_delta(msg.receiver, item.get_knowledge(), true);
+		}
+	}
+};
 
