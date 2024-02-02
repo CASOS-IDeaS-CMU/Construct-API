@@ -1,97 +1,66 @@
 #include "pch.h"
+#include "Friedkin.h"
+#include "SocialMedia.h"
 #include "Output.h"
-#include "StandardInteraction.h"
-#include "test.h"
 
 int main() {
 
-	test();
-
 	Construct construct;
 
-	// Construct parameters used by various components of Construct
-	construct.verbose_initialization = true;
-	construct.verbose_runtime = true;
-	construct.random.set_seed(56732);
-	construct.working_directory = ".";
+	dynet::ParameterMap ns_attributes;
 
-	// creating the agent nodeset
-	// Any attribute pointer previously submitted to add_node can be always safely be used in subsequent add_node calls.
-	// if the attribute pointer needs to be deallocated add_node will return true
-	Nodeset* agents = construct.ns_manager.create_nodeset(nodeset_names::agents);
-	dynet::ParameterMap agent_attributes;
-	agent_attributes.insert(std::pair("can send knowledge", "true"));
-	agent_attributes.insert(std::pair("can receive knowledge", "true"));
-	for (int i = 0; i < 50; i++) {
-		agents->add_node(agent_attributes);
+	unsigned int time_count = 100;
+	unsigned int knowledge_count = 1000;
+	unsigned int agent_count = 1000;
+	float knowledge_density = 0.1f;
+	float dt = 1; //in hours
+	float maximum_inactivity = 24;
+
+	construct.ns_manager.create_nodeset(nodeset_names::time)->add_nodes(time_count, ns_attributes);
+	construct.ns_manager.create_nodeset(nodeset_names::knowledge)->add_nodes(knowledge_count, ns_attributes);
+
+	ns_attributes["Twitter post density"] = "0.208";
+	ns_attributes["Twitter read density"] = "4.16";
+	ns_attributes["Twitter repost probability"] = "0.07";
+	ns_attributes["Twitter reply probability"] = "0.025";
+	ns_attributes["Twitter quote probability"] = "0.0125";
+	ns_attributes[node_attributes::send_k] = "true";
+	ns_attributes[node_attributes::recv_k] = "true";
+	ns_attributes[node_attributes::send_t] = "true";
+	ns_attributes[node_attributes::recv_t] = "true";
+
+	construct.ns_manager.create_nodeset(nodeset_names::agents)->add_nodes(agent_count, ns_attributes);
+
+	Graph<bool>& knowledge_net = construct.graph_manager.load_optional(graph_names::knowledge, false, nodeset_names::agents, dense, nodeset_names::knowledge, sparse);
+	Graph<float>& trust_net = construct.graph_manager.load_optional(graph_names::k_trust, 0.5f, nodeset_names::agents, dense, nodeset_names::knowledge, sparse);
+
+	for (auto& [agent_knowledge, agent_trust] : graph_utils::it_align(knowledge_net.begin_rows(), trust_net.begin_rows())) {
+		for (auto& [k, t] : graph_utils::it_align(agent_knowledge.full_begin(), agent_trust.full_begin())) {
+			if (construct.random.uniform() < knowledge_density) {
+				knowledge_net.at(k) = true;
+				trust_net.at(t) = construct.random.uniform();
+			}
+		}
 	}
-	// All nodesets have to have turn_to_const called in order for them to be discoverable by the nodeset manager and to be used to create graphs.
-	agents->turn_to_const();
 
-	Nodeset* knowledge = construct.ns_manager.create_nodeset(nodeset_names::knowledge);
-	dynet::ParameterMap knowledge_attributes;
-	for (int i = 0; i < 20; i++) {
-		knowledge->add_node(knowledge_attributes);
-	}
-	knowledge->turn_to_const();
+	dynet::ParameterMap model_parameters;
+	model_parameters["susceptibility"] = "0.1";
+	model_parameters["influence"] = "0.1";
 
-	Nodeset* time = construct.ns_manager.create_nodeset(nodeset_names::time);
-	dynet::ParameterMap time_attributes;
-	for (int i = 0; i < 10; i++) {
-		time->add_node(time_attributes);
-	}
-	time->turn_to_const();
-	construct.time_count = time->size();
+	construct.model_manager.add_model(model_names::TRUST, new Friedkin(construct, model_parameters));
 
-	Nodeset* comms = construct.ns_manager.create_nodeset(nodeset_names::comm);
+	model_parameters.clear();
+	model_parameters["interval time duration"] = std::to_string(dt);
+	model_parameters["maximum post inactivity"] = std::to_string(maximum_inactivity);
 
-	// each new set of attributes requires a new allocation
-	// the pointers are saved in the nodeset so no need to deallocate them after calling add_node
-	dynet::ParameterMap comm_attributes;
-	comm_attributes.insert(std::pair(comms_att::msg_complex, "1"));
-	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes.insert(std::pair(comms_att::tts, "0"));
-	comms->add_node(comm_attributes);
+	construct.model_manager.add_model(model_names::TWIT_nf, new Twitter_nf(model_parameters, construct));
 
-	comm_attributes.insert(std::pair(comms_att::msg_complex, "2"));
-	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes.insert(std::pair(comms_att::tts, "1"));
-	comms->add_node(comm_attributes);
+	dynet::ParameterMap output_parameters;
 
-	comms->turn_to_const();
+	output_parameters["network names"] = graph_names::k_trust;
+	output_parameters["timeperiods"] = "all";
+	output_parameters["output file"] = "trust.xml";
 
-
-	// adding the knowledge network
-	// Here I'm choosing for the graph to be dense in both dimensions with a default value of false.
-	Graph<bool>* knowledge_net = construct.graph_manager.load_optional(graph_names::knowledge, false, agents, true, knowledge, true);
-
-	// links can be added one by one or with a generator
-	dynet::ParameterMap generator_params;
-	generator_params["density"] = "0.2";
-	generator_params["src min"] = "0";
-	generator_params["src max"] = std::to_string(agents->size() - 1);
-	generator_params["trg min"] = "0";
-	generator_params["trg max"] = std::to_string(knowledge->size() - 1);
-	construct.graph_manager.generators.binary_generator_2d(generator_params, knowledge_net);
-
-	// Models can be created outside of Construct, but still require the construct pointer.
-	// Once models are created they must be added to the model manager so it can participate in the simulation.
-	auto SIM = new StandardInteraction(dynet::ParameterMap(), construct);
-	construct.model_manager.add_model(model_names::SIM, SIM);
-
-	// Outputs are similar to models in that they can be created outside of Construct and require import into its own Manager.
-	// Outputs can not be recovered after given to the output manager. This is because there is no uniqueness requirement for outputs.
-	// This causes difficulty for a query interface and is avoided.
-	dynet::ParameterMap output_params;
-	output_params["network name"] = graph_names::knowledge;
-	output_params["timeperiods"] = "all";
-	output_params["output file"] = "my_output.csv";
-	auto kout = new Output_Graph(output_params, construct);
-	construct.output_manager.add_output(kout);
-
-	// Runs the main Construct simulation starting with initialization which happens once at the beginning of the run function.
-	// The remaining steps are think, update, communicate, and clean_up. 
-	// Each model's respective function is called for each of these steps before moving on to the next step.
-	// In the communicate function, each message is dispersed one at a time to each model.
-	construct.run();
+	construct.output_manager.add_output(new Output_dynetml(output_parameters, construct));
+	
 }
