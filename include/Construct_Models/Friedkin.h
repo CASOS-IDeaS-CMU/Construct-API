@@ -73,6 +73,7 @@ struct Friedkin : public Model {
 				float weight = 0;
 				
 				float influence_normalization = 0;
+				unsigned int influence_count = 0;
 				
 
 
@@ -100,11 +101,12 @@ struct Friedkin : public Model {
 					if (it != alter_trust->end()) {
 						weight += *alter_infuence * it->second;
 						influence_normalization += *alter_infuence;
+						influence_count++;
 					}
 				}
 				if (influence_normalization > 0)
 					knowledge_trust_net.add_delta(k_trust.row(), k_trust.col(), 
-						susceptibility * weight / influence_normalization + (1 - susceptibility * influence_normalization) * (*k_trust));
+						susceptibility * weight / influence_count + (1 - susceptibility * influence_normalization) * (*k_trust));
 			}
 
 			for (auto& [alter_trust, alter_influence] : graph_utils::it_align(
@@ -121,7 +123,7 @@ struct Friedkin : public Model {
 				}
 				if (distance_alter_count > 0)
 					interpersonal_influence.add_delta(alter_influence.row(), alter_influence.col(),
-						influence * pow(distance / distance_alter_count, 0.5) + (1 - influence) * (*alter_influence));
+						influence * (1 - pow(distance / distance_alter_count, 0.5)) + (1 - influence) * (*alter_influence));
 			}
 		}
 	}

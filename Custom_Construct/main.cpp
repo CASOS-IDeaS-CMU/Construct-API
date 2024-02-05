@@ -6,21 +6,27 @@
 int main() {
 
 	Construct construct;
+	construct.verbose_initialization = true;
+	construct.verbose_runtime = true;
 
 	dynet::ParameterMap ns_attributes;
 
-	unsigned int time_count = 100;
-	unsigned int knowledge_count = 1000;
-	unsigned int agent_count = 1000;
+	unsigned int time_count = 10;
+	unsigned int knowledge_count = 100;
+	unsigned int agent_count = 100;
 	float knowledge_density = 0.1f;
 	float dt = 1; //in hours
 	float maximum_inactivity = 24;
 
-	construct.ns_manager.create_nodeset(nodeset_names::time)->add_nodes(time_count, ns_attributes);
-	construct.ns_manager.create_nodeset(nodeset_names::knowledge)->add_nodes(knowledge_count, ns_attributes);
+	Nodeset* time = construct.ns_manager.create_nodeset(nodeset_names::time);
+	time->add_nodes(time_count, ns_attributes);
+	time->turn_to_const();
+	Nodeset* knowledge = construct.ns_manager.create_nodeset(nodeset_names::knowledge);
+	knowledge->add_nodes(knowledge_count, ns_attributes);
+	knowledge->turn_to_const();
 
 	ns_attributes["Twitter post density"] = "0.208";
-	ns_attributes["Twitter read density"] = "4.16";
+	ns_attributes["Twitter reading density"] = "4.16";
 	ns_attributes["Twitter repost probability"] = "0.07";
 	ns_attributes["Twitter reply probability"] = "0.025";
 	ns_attributes["Twitter quote probability"] = "0.0125";
@@ -29,7 +35,9 @@ int main() {
 	ns_attributes[node_attributes::send_t] = "true";
 	ns_attributes[node_attributes::recv_t] = "true";
 
-	construct.ns_manager.create_nodeset(nodeset_names::agents)->add_nodes(agent_count, ns_attributes);
+	Nodeset* agents = construct.ns_manager.create_nodeset(nodeset_names::agents);
+	agents->add_nodes(agent_count, ns_attributes);
+	agents->turn_to_const();
 
 	Graph<bool>& knowledge_net = construct.graph_manager.load_optional(graph_names::knowledge, false, nodeset_names::agents, dense, nodeset_names::knowledge, sparse);
 	Graph<float>& trust_net = construct.graph_manager.load_optional(graph_names::k_trust, 0.5f, nodeset_names::agents, dense, nodeset_names::knowledge, sparse);
@@ -42,25 +50,31 @@ int main() {
 			}
 		}
 	}
+	try {
+		dynet::ParameterMap model_parameters;
+		model_parameters["susceptibility"] = "0.1";
+		model_parameters["influence"] = "0.1";
 
-	dynet::ParameterMap model_parameters;
-	model_parameters["susceptibility"] = "0.1";
-	model_parameters["influence"] = "0.1";
+		construct.model_manager.add_model(model_names::TRUST, new Friedkin(construct, model_parameters));
 
-	construct.model_manager.add_model(model_names::TRUST, new Friedkin(construct, model_parameters));
+		model_parameters.clear();
+		model_parameters["interval time duration"] = std::to_string(dt);
+		model_parameters["maximum post inactivity"] = std::to_string(maximum_inactivity);
 
-	model_parameters.clear();
-	model_parameters["interval time duration"] = std::to_string(dt);
-	model_parameters["maximum post inactivity"] = std::to_string(maximum_inactivity);
+		construct.model_manager.add_model(model_names::TWIT_nf, new Twitter_nf(model_parameters, construct));
 
-	construct.model_manager.add_model(model_names::TWIT_nf, new Twitter_nf(model_parameters, construct));
+		dynet::ParameterMap output_parameters;
 
-	dynet::ParameterMap output_parameters;
+		output_parameters["network names"] = graph_names::k_trust;
+		output_parameters["timeperiods"] = "all";
+		output_parameters["output file"] = "trust.xml";
 
-	output_parameters["network names"] = graph_names::k_trust;
-	output_parameters["timeperiods"] = "all";
-	output_parameters["output file"] = "trust.xml";
+		construct.output_manager.add_output(new Output_dynetml(output_parameters, construct));
 
-	construct.output_manager.add_output(new Output_dynetml(output_parameters, construct));
+		construct.run();
+	}
+	catch (std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 	
 }
