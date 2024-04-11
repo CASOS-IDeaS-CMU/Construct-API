@@ -160,7 +160,7 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 	//	return *temp;
 	//}
 	// reimplements Social_Media_no_followers to include an Emotions::attach_emotions call on the returned item
-	virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
+	InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const override;
 	//graph name: "emotion network"
 	//agent x emotion
 	//holds the emotional state of each agent

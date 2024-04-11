@@ -46,6 +46,7 @@ struct Social_Media_no_followers : public Model
 
         media_event& operator=(const media_event& temp) {
             assert(false);
+	    return *this;
         }
 
         //gets the size of the tree of events with this event at its root (minimum size of 1)

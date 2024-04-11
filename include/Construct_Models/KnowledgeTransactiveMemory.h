@@ -20,9 +20,8 @@ public:
 	Graph<float>* group_knowledge;
 	//graph name "knowledge transactive memory network"
 	//agent x agent x knowledge
-	Graph<std::vector<bool> >& tmk = graph_manager.load_optional(graph_names::ktm, std::vector<bool>(agents->size(), false), agents, dense, knowledge, sparse);
+	Graph<std::vector<bool> >& tmk = graph_manager.load_optional(graph_names::ktm, std::vector<bool>(agents.size(), false), agents, dense, knowledge, sparse);
 	unsigned int group_count;
-	const Nodeset* agents;
 
 	std::vector<unsigned int> group_size;
 

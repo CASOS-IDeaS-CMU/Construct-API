@@ -236,7 +236,7 @@ public:
         std::set<media_event*> read(media_event* read_event) { return std::set<media_event*>(); }
     };
 
-    Social_Media_no_followers::media_user* get_default_media_user(const Node& node) {
+    Social_Media_no_followers::media_user* get_default_media_user(const Node& node) override {
         if (node[media_name + node_attributes::user_type] == node_attributes::moderator)
             return new reddit_moderator(this, node);
         return new default_media_user(this, node);

@@ -41,7 +41,7 @@ struct Social_Media_Moderation : public Model {
 
     virtual void moderation_response(unsigned int user_index, Social_Media_no_followers* platform) {}
     
-    bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium);
+    bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium) override;
 
     virtual bool should_moderate_user(InteractionItem& item, unsigned int sender, Social_Media_no_followers* platform, float moderation_threshold);
 };
