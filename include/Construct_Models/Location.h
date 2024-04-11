@@ -1,5 +1,4 @@
-#ifndef LOCATION_HEADER_GUARD
-#define LOCATION_HEADER_GUARD
+#pragma once
 #include "pch.h"
 #include "Tasks.h"
 
@@ -69,6 +68,3 @@ public:
 	virtual float get_expertise(unsigned int agent, unsigned int location);
 	virtual const CommunicationMedium* get_medium(unsigned int agent);
 };
-#endif
-
-

@@ -1,15 +1,22 @@
-#ifndef SOCIAL_MEDIA_HEADER_GUARD
-#define SOCIAL_MEDIA_HEADER_GUARD
+#pragma once
 #include "pch.h"
 #include "json.hpp"
 
-struct Social_Media_no_followers : public Model
-{
+namespace model_parameters {
     //model parameter name who's value gets entered into Social_Media_with_followers::dt
     const std::string interval_time_duration = "interval time duration";
-
     //model parameter name who's value gets entered into Social_Media_with_followers::age
     const std::string maximum_post_inactivity = "maximum post inactivity";
+    const std::string time_conversion = "time conversion to seconds";
+    const std::string start_time = "start time";
+    const std::string input_file = "input file";
+    const std::string agent_mask = "agent mask";
+    const std::string disable_follower_recommendations = "disable follower recommendations";
+}
+
+struct Social_Media_no_followers : public Model
+{
+
 
     struct media_event : InteractionItem {
 
@@ -76,6 +83,9 @@ struct Social_Media_no_followers : public Model
 
         //how trending an event is
         float score = 1;
+
+        //how trending an event is
+        //bool removed = false;
 
         bool operator== (const media_event& a) const { return score == a.score; }
         bool operator!= (const media_event& a) const { return score != a.score; }
@@ -241,12 +251,14 @@ struct Social_Media_no_followers : public Model
     struct media_user {
         Social_Media_no_followers* media_ptr;
 
+        Random& random() { return media_ptr->random; }
+
         media_user(Social_Media_no_followers* media) : media_ptr(media) {}
 
         virtual ~media_user() { ; }
 
         // called before reply, quote, or repost, allows the user to parse an event before responding to it
-        virtual void read(media_event* read_event) = 0;
+        virtual void parse(media_event* read_event) = 0;
 
         // when called, allows the user to reply to the submitted event
         virtual void reply(media_event* read_event) = 0;
@@ -262,6 +274,8 @@ struct Social_Media_no_followers : public Model
 
         //number of events read each time step
         virtual unsigned int get_read_count(void) = 0;
+
+        virtual std::set<media_event*> read(media_event* read_event) = 0;
     };
 
     struct default_media_user : public media_user {
@@ -295,37 +309,32 @@ struct Social_Media_no_followers : public Model
         float pdread;
 
         //this reads the post given and performs any actions before the post is potentially responded to
-        void read(media_event* _event) override;
+        void parse(media_event* _event);
 
         //this adds a reply to the post with probability equal to media_user::pr
         //if an event is created default_media_user::add_mentions is called on that event
-        void reply(media_event* _event) override;
+        void reply(media_event* _event);
 
         //this adds a quote to the post with probability equal to media_user::prp
         //if an event is created media_user::add_mentions is called on that event
-        void quote(media_event* _event) override;
+        void quote(media_event* _event);
 
         //this adds a repost to the post with probability equal to default_media_user::pqu
         //if an event is created default_media_user::add_mentions is called on that event
-        void repost(media_event* _event) override;
+        void repost(media_event* _event);
 
         //user adds a number of post events based on default_media_user::pdp
-        void generate_post_events(void) override;
+        void generate_post_events(void);
 
         //number of events read each time step
-        unsigned int get_read_count(void) override;
+        unsigned int get_read_count(void);
 
-        //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post);
-
-        virtual void add_trust(media_event* post);
-
-        //gets the trust of the knowledge index
-        //if the "Knowledge Trust %Model" is not active, -1 is returned.
-        virtual float get_trust(unsigned int knowledge_index);
+        virtual void enrich_event(media_event* _event);
 
         // chooses which knowledge index to add to an event
         virtual unsigned int get_knowledge_selection(void);
+
+        std::set<media_event*> read(media_event* read_event);
     };
 
     class event_container : public std::list<media_event> {
@@ -354,6 +363,13 @@ struct Social_Media_no_followers : public Model
             return list::erase(_First, _Last);
         }
 
+        void hard_erase(iterator _Where) {
+            if (_Where->type == media_event::event_type::reply) _Where->parent_event->replies.erase(&*_Where);
+            if (_Where->type == media_event::event_type::quote) _Where->parent_event->quotes.erase(&*_Where);
+            if (_Where->type == media_event::event_type::repost) _Where->parent_event->reposts.erase(&*_Where);
+            list::erase(_Where);
+        }
+
         void clear() noexcept {
             for (auto& it : *this) {
                 removed_events.emplace_back(std::move(it));
@@ -366,7 +382,7 @@ struct Social_Media_no_followers : public Model
     // new events should be added to the front of this list
     event_container list_of_events;
 
-    media_event* create_post(unsigned int knowledge_index, unsigned int id) {
+    virtual media_event* create_post(unsigned int knowledge_index, unsigned int id) {
         list_of_events.emplace_front();
         media_event& new_post = list_of_events.front();
         new_post.type = media_event::event_type::post;
@@ -377,7 +393,7 @@ struct Social_Media_no_followers : public Model
         return &new_post;
     }
 
-    media_event* create_response(unsigned int id, media_event* parent) {
+    virtual media_event* create_response(unsigned int id, media_event* parent) {
         list_of_events.emplace_front();
         media_event& new_post = list_of_events.front();
         new_post.user = id;
@@ -390,25 +406,32 @@ struct Social_Media_no_followers : public Model
         return &new_post;
     }
 
-    media_event* create_quote(unsigned int id, media_event* parent) {
+    virtual media_event* create_quote(unsigned int id, media_event* parent) {
         media_event* new_post = create_response(id, parent);
         new_post->type = media_event::event_type::quote;
         parent->quotes.insert(new_post);
         return new_post;
     }
 
-    media_event* create_reply(unsigned int id, media_event* parent) {
+    virtual media_event* create_reply(unsigned int id, media_event* parent) {
         media_event* new_post = create_response(id, parent);
         new_post->type = media_event::event_type::reply;
         parent->replies.insert(new_post);
         return new_post;
     }
 
-    media_event* create_repost(unsigned int id, media_event* parent) {
+    virtual media_event* create_repost(unsigned int id, media_event* parent) {
         media_event* new_post = create_response(id, parent);
         new_post->type = media_event::event_type::repost;
         parent->reposts.insert(new_post);
         return new_post;
+    }
+
+    //call this on events after you're done creating them.
+    virtual void finalize_event(media_event* _event) {
+        if (construct.intercept(*_event, _event->user, agents.size(), &medium))
+            if (_event == &list_of_events.front())
+                list_of_events.hard_erase(list_of_events.begin());
     }
 
     void check_list_order() const;
@@ -416,17 +439,11 @@ struct Social_Media_no_followers : public Model
     const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);  
     const Nodeset& knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
 
-    //graph name - "knowledge trust network"
-    //agent x knowledge
-    Graph<float>* ktrust_net = nullptr;
-
-    //graph name - "knowledge trust transactive memory network"
-    //agent x agent x knowledge
-    Graph<std::map<unsigned int, float> >* kttm = nullptr;
+    
 
     //this is the medium used for all messages created by this model
     //it is intended to have unlimited complexity and avoid models that interact based on medium
-    CommunicationMedium medium;
+    const CommunicationMedium medium;
 
     //this key is added to messages created by this model for items that contain the feed index
     const InteractionItem::item_keys event_key;
@@ -459,7 +476,7 @@ struct Social_Media_no_followers : public Model
 
     //graph name - "agent active time network"
     //agent x timeperiod
-    const Graph<bool>& active_agents = graph_manager.load_optional(graph_names::active, true, agents, sparse, ns_manager.get_nodeset(nodeset_names::time), sparse);
+    const Graph<bool>* active_agents = graph_manager.load_optional(graph_names::active, true, agents, sparse, ns_manager.get_nodeset(nodeset_names::time), sparse);
 
     //list of users
     std::vector<media_user*> users;
@@ -480,30 +497,14 @@ struct Social_Media_no_followers : public Model
     //delete all pointers in stored in the Social_Media_with_followers::users data structure
     virtual ~Social_Media_no_followers();
 
-#ifdef CUSTOM_MEDIA_USERS
-    media_user* load_user(const Node& node);
-#endif
-
-    virtual void load_users(const std::string& version) {
-        assert(Construct::version == version);
-
-        for (auto& node : agents) {
-            users[node.index] =
-#ifdef CUSTOM_MEDIA_USERS
-                load_user(node);
-#else
-                new default_media_user(this, node);
-#endif
-        }
-
-    }
+    virtual media_user* get_default_media_user(const Node& node) { return new default_media_user(this, node); }
 
     //agents read events in their feeds starting with the first event
     //reading an event will create a message with all relavant knowledge and trust information in items along with the event's feed index
     //messages are sent from the read event's author to the reading user and uses a CommunicationMedium with maximum complexity
     void think(void) override;
 
-    //adds the Knowledge Parsing %Model, and attempts to find and save the pointer for the Knowledge Trust %Model if it has been added to the model list
+    //adds the Knowledge Parsing Model
     void initialize(void) override;
 
     //only parses messages that have an attribute equal to Social_Media_no_followers::event_key for the feed position index corresponding to a media_event pointer
@@ -515,6 +516,8 @@ struct Social_Media_no_followers : public Model
 
     //appends the array of InteractionItems based on the submitted event and the intended receiver of the message
     virtual void append_message(media_event* _event, InteractionMessage& msg);
+    
+    //virtual std::set<media_event*> read_other_events(media_event* read_event, unsigned int reader_index);
 
     virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
 
@@ -536,12 +539,30 @@ struct Social_Media_no_followers : public Model
 
     std::function<bool(media_event&)> active = [this](media_event& _event) { return _event.last_used > time - age; };
 
+    std::function<void(Social_Media_no_followers*,unsigned int)> feed_update_output;
+
+    std::function<void(Social_Media_no_followers*)> cleanup_output;
+
     template<typename function>
     auto get_events(function filter) {
         return list_of_events | std::views::filter(filter);
     }
 };
 
+namespace dynet {
+    template<typename SM_model, typename Callable>
+    SM_model* load_users(SM_model* model, Callable load) {
+        for (const Node& node : model->agents) {
+            try {
+                if (!model->users[node.index]) model->users[node.index] = load(model, node);
+            }
+            catch (const dynet::construct_exception& e) {
+                throw dynet::construct_exception("Could not load user agent \"" + node.name + "\": " + e.string());
+            }
+        }
+        return model;
+    }
+}
 
 struct Social_Media_with_followers : virtual public Social_Media_no_followers
 {
@@ -566,7 +587,7 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
 
     struct default_media_user : virtual public Social_Media_no_followers::default_media_user, public media_user {
 
-        default_media_user(Social_Media_with_followers* reddit, const Node& node);
+        default_media_user(Social_Media_no_followers* media, const Node& node);
 
         Social_Media_with_followers& media() {
             Social_Media_with_followers* temp = dynamic_cast<Social_Media_with_followers*>(media_ptr);
@@ -588,9 +609,11 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
 
         //If true, this user, when added as a followee by another user, will automatically reciprocate followings
         bool auto_follow;
+        
+        void enrich_event(media_event* _event) override;
 
         //mentions are added to the event if the event is a post by randomly selecting a followee
-        virtual void add_mentions(media_event* post) override;
+        virtual void add_mentions(media_event* post);
 
         //returns true if this user decides to follow an agent when called
         bool follow_user(unsigned int alter_agent_index) override;
@@ -615,35 +638,32 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
         return *temp;
     }
 
+    Social_Media_no_followers::media_user* get_default_media_user(const Node& node) override { return new default_media_user(this, node); }
+
     std::vector < std::vector<unsigned int> > responses;
 
     //graph name - deteremined by the media
     //agent x agent
     // if (follower_net->examine(i,j)) // agent i is following agent j
     Graph<bool>* follower_net = nullptr;
+
+    //graph name - "knowledge trust network"
+    //agent x knowledge
+    Graph<float>* ktrust_net = nullptr;
+
+    //graph name - "knowledge trust transactive memory network"
+    //agent x agent x knowledge
+    Graph<std::map<unsigned int, float> >* kttm = nullptr;
+
     bool disable_follower_recommendations = false;
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     Social_Media_with_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
 
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
-    media_user* load_user(const Node& node);
-#endif
-
-    virtual void load_users(const std::string& version) override {
-        assert(Construct::version == version);
-
-        for (auto& node : agents) {
-            users[node.index] =
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
-                load_user(node);
-#else
-                new default_media_user(this, node);
-#endif
-        }
-
-    }
+//#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
+//    Social_Media_no_followers::media_user* load_user(const Node& node);
+//#endif
 
     void communicate(const InteractionMessage& msg) override;
 
@@ -660,6 +680,8 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
     virtual void remove_followees(void);
 
     virtual int get_feed_priority(const media_event& _event, unsigned int user) override;
+
+    std::function<void(Social_Media_with_followers*, unsigned int)> add_followees_output;
 };
 
 struct Facebook_wf : public virtual Social_Media_with_followers {
@@ -681,6 +703,7 @@ struct Twitter_wf : public virtual Social_Media_with_followers {
     }
 };
 
+
 struct Facebook_nf : public virtual Social_Media_no_followers {
     Facebook_nf(const dynet::ParameterMap& parameters, Construct& construct);
 };
@@ -689,7 +712,3 @@ struct Facebook_nf : public virtual Social_Media_no_followers {
 struct Twitter_nf : public virtual Social_Media_no_followers {
     Twitter_nf(const dynet::ParameterMap& parameters, Construct& construct);
 };
-
-
-// TWITTER_SIM_HH_H
-#endif

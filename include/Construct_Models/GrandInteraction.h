@@ -1,5 +1,4 @@
-#ifndef GRAND_INTERACTION_HEADER_GUARD
-#define GRAND_INTERACTION_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 //Models this model will pull from
@@ -8,22 +7,16 @@
 #include "Tasks.h"
 #include "KnowledgeTransactiveMemory.h"
 
-class GrandInteraction : public StandardInteraction
-{
-	//model paramters - not all are required
+namespace model_parameters {
 	const std::string beliefs_enabled = "beliefs enabled"; //"beliefs enabled"
 	const std::string beliefTM_enabled = "belief transactive memory enabled"; //"belief transactive memory enabled"
 	const std::string tasks_enabled = "tasks enabled"; //"tasks enabled"
 	const std::string ktm_enabled = "knowledge transactive memory enabled"; //"knowledge transactive memory enabled"
 	const std::string belief_roc = "belief rate of change"; //"belief rate of change"
-	struct triplet {
-		triplet(unsigned int _alter, unsigned int _index, float _belief) : alter(_alter), index(_index), belief(_belief) { ; }
-		unsigned int alter = 0;
-		unsigned int index = 0;
-		float belief = 0;
-	};
+}
 
-public:
+struct GrandInteraction : public StandardInteraction
+{
 	KnowledgeTransactiveMemory* TMK = 0;
 
 	Beliefs* BM = 0;
@@ -75,7 +68,3 @@ public:
 
 	virtual void update_group_belief(void);
 };
-#endif
-
-
-

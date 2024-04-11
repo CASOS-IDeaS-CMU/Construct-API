@@ -75,6 +75,12 @@
     <ClInclude Include="item_keys.h">
       <Filter>Customization</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\MultiplatformSocialMedia.h">
+      <Filter>Do Not Edit\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Construct_Models\Reddit.h">
+      <Filter>Do Not Edit\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Supp_Library.cpp">

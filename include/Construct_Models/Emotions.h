@@ -1,5 +1,4 @@
-#ifndef EMOTIONS_HEADER_GUARD
-#define EMOTIONS_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 struct Emotions : public Model
@@ -106,7 +105,9 @@ struct Emotions : public Model
 	}
 
 	//attaches emotions to a message if no emotions are attached
-	void update(void) override;
+	//void update(void) override;
+
+	bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium) override;
 
 	//parses the message for emotions and updates the receiver's emotions
 	void communicate(const InteractionMessage& msg) override;
@@ -120,33 +121,10 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 	SM_nf_emotions(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& params, Construct& construct) : 
 		Social_Media_no_followers(_media_name, event_key, params, construct) {}
 	const Nodeset* emotions = ns_manager.get_nodeset(nodeset_names::emotions);
-	Emotions* emotM = 0;
-	void initialize() override {
-		emotM = dynamic_cast<Emotions*>(construct.model_manager.get_model(model_names::EMOT));
-		Social_Media_no_followers::initialize();
-	}
-
-#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
-	media_user* load_user(const Node& node);
-#endif
-
-	virtual void load_users(const std::string& version) override {
-		assert(Construct::version == version);
-
-		for (auto& node : agents) {
-			users[node.index] = 
-#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
-				load_user(node);
-#else
-				new default_media_user(this, node);
-#endif
-		}
-
-	}
 
 	// implements a user whose actions are dependent on their emotional state
 	struct default_media_user : virtual public Social_Media_no_followers::default_media_user {
-		default_media_user(SM_nf_emotions* media, const Node& node) : 
+		default_media_user(Social_Media_no_followers* media, const Node& node) :
 			Social_Media_no_followers::default_media_user(media, node) {}
 
 		SM_nf_emotions& media() {
@@ -156,6 +134,8 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 			assert(temp);
 			return *temp;
 		}
+
+		void enrich_event(media_event* _event) override;
 
 		void reply(media_event* _event) override;
 
@@ -167,17 +147,18 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 
 		unsigned int get_read_count(void) override;
 
-		virtual unsigned int get_knowledge_selection(void);
-
-		virtual void add_emotions(media_event* _event);
+		//virtual unsigned int get_knowledge_selection(void);
 	};
-	Social_Media_no_followers::media_user& user(unsigned int index) {
-		Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
-		// if the media couldn't be up casted the desired class this assertion will be raised.
-		// If you're confused why you probably have a diamond inheritence that makes casting non-trivial
-		assert(temp);
-		return *temp;
-	}
+
+	Social_Media_no_followers::media_user* get_default_media_user(const Node& node) override { return new default_media_user(this, node); }
+
+	//Social_Media_no_followers::media_user& user(unsigned int index) {
+	//	Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
+	//	// if the media couldn't be up casted the desired class this assertion will be raised.
+	//	// If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+	//	assert(temp);
+	//	return *temp;
+	//}
 	// reimplements Social_Media_no_followers to include an Emotions::attach_emotions call on the returned item
 	virtual InteractionItem convert_to_InteractionItem(media_event* _event, unsigned int sender_index, unsigned int receiver_index) const;
 	//graph name: "emotion network"
@@ -289,6 +270,8 @@ struct SM_nf_emotions : virtual public Social_Media_no_followers {
 	const Graph<float>& kselect = graph_manager.load_optional("knowledge select bias network", 1.0f, agents, false, knowledge, false);
 };
 
+
+
 struct SM_wf_emotions : public Social_Media_with_followers, public SM_nf_emotions {
 	void initialize(void) override { SM_nf_emotions::initialize(); }
 	void communicate(const InteractionMessage& msg) override { Social_Media_with_followers::communicate(msg); }
@@ -307,10 +290,11 @@ struct SM_wf_emotions : public Social_Media_with_followers, public SM_nf_emotion
 		typedef Social_Media_with_followers::default_media_user sm_follow;
 		typedef SM_nf_emotions::default_media_user sm_e;
 	public:
-		void read(media_event* _event) override { sm_follow::read(_event); }
+		void parse(media_event* _event) override { sm_follow::parse(_event); }
 		void reply(media_event* _event) override { sm_e::reply(_event); }
 		void quote(media_event* _event) override { sm_e::quote(_event); }
 		void repost(media_event* _event) override { sm_e::repost(_event); }
+		void enrich_event(media_event* _event) override;
 		void generate_post_events() override { sm_e::generate_post_events(); }
 		unsigned int get_read_count() override { return sm_e::get_read_count(); }
 		unsigned int get_knowledge_selection() override { return sm_e::get_knowledge_selection(); }
@@ -321,30 +305,17 @@ struct SM_wf_emotions : public Social_Media_with_followers, public SM_nf_emotion
 		unsigned int consider_recommendations() override { return sm_follow::consider_recommendations(); }
 		float get_charisma() override { return sm_follow::get_charisma(); }
 
-		default_media_user(SM_wf_emotions* reddit, const Node& node) :
-			Social_Media_no_followers::default_media_user(reddit, node),
-			Social_Media_with_followers::default_media_user(reddit, node), 
-			SM_nf_emotions::default_media_user(reddit, node) {}
+		default_media_user(Social_Media_no_followers* media, const Node& node) :
+			Social_Media_no_followers::default_media_user(media, node),
+			Social_Media_with_followers::default_media_user(media, node), 
+			SM_nf_emotions::default_media_user(media, node) {}
 	};
 
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
-	media_user* load_user(const Node& node);
-#endif
-
-	virtual void load_users(const std::string& version) override {
-		assert(Construct::version == version);
-
-		for (auto& node : Social_Media_with_followers::agents) {
-			Social_Media_with_followers::users[node.index] =
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
-				load_user(node);
-#else 
-				new default_media_user(this, node);
-#endif
-		}
-
-	}
+	Social_Media_no_followers::media_user* get_default_media_user(const Node& node) override { return new default_media_user(this, node); }
 };
+
+
+
 
 struct Facebook_nf_emotions : public SM_nf_emotions {
 	Facebook_nf_emotions(const dynet::ParameterMap& parameters, Construct& construct);
@@ -386,7 +357,3 @@ struct Twitter_wf_emotions : public SM_wf_emotions {
 		SM_wf_emotions::initialize();
 	}
 };
-#endif
-
-
-

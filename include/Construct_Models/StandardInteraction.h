@@ -1,6 +1,9 @@
-#ifndef STANDARD_INTERACTION_HEADER_GUARD
-#define STANDARD_INTERACTION_HEADER_GUARD
+#pragma once
 #include "pch.h"
+
+namespace model_parameters {
+	const std::string rejection_limit = "rejection limit"; //"rejection limit"
+}
 
 class StandardInteraction : public Model
 {
@@ -156,7 +159,7 @@ public:
 	const Graph<float>& knowledge_exp_weight = graph_manager.load_optional(graph_names::k_exp_wgt, 1.0f, agents, sparse, time, sparse);
 
 	//delayed messages waiting to be sent are here
-	InteractionMessageQueue send_msg_queue; 
+	std::list<InteractionMessage> send_msg_queue; 
 
 	//The communication mediums derived from the medium nodeset
 	std::vector<CommunicationMedium> communication_mediums;
@@ -165,9 +168,5 @@ public:
 	//size of the knowledge nodeset
 	unsigned int knowledge_count;
 	//number of times a try for an interaction pair can happen before interaction pairing prematurely ends
-	unsigned int interaction_rejection_limit;
-	const unsigned int& t;
-	
+	unsigned int interaction_rejection_limit;	
 };
-#endif
-
