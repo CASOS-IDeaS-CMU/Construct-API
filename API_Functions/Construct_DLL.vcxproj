@@ -413,6 +413,8 @@
     <ClInclude Include="..\include\Construct_Models\KnowledgeTrust.h" />
     <ClInclude Include="..\include\Construct_Models\Location.h" />
     <ClInclude Include="..\include\Construct_Models\Mail.h" />
+    <ClInclude Include="..\include\Construct_Models\MultiplatformSocialMedia.h" />
+    <ClInclude Include="..\include\Construct_Models\Reddit.h" />
     <ClInclude Include="..\include\Construct_Models\SocialMedia.h" />
     <ClInclude Include="..\include\Construct_Models\StandardInteraction.h" />
     <ClInclude Include="..\include\Construct_Models\Subscription.h" />

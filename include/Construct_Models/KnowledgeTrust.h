@@ -1,6 +1,10 @@
-#ifndef TRUST_HEADER_GUARD
-#define TRUST_HEADER_GUARD
+#pragma once
 #include "pch.h"
+
+namespace node_attributes {
+	const std::string trust_resistance = "agent trust resistance";
+	const std::string alter_trust_weight = "alter trust weight";
+}
 
 struct trust_parser : public InteractionMessageParser {
 
@@ -64,11 +68,9 @@ struct Trust : public Model
 
 	void update(void) override;
 
+	bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium) override;
+
 	void communicate(const InteractionMessage& msg) override;
 
 	void cleanup(void) override;
 };
-#endif
-
-
-

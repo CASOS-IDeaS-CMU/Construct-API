@@ -1,0 +1,11 @@
+Moved various strings used to load model parameters into the model_parameters namespace.
+Loosened restrictions on Nodesets so that turn_to_const is no longer needed. Various assertions have been added to warn developers when they're changing nodeset sizes when they shouldn't be.
+Replaced Typeless_Graph::get_type_name and Typeless_Graph::get_edge_type with dynet::get_type_name and dynet::get_edge_type. The new functions take a std::type_info uses that to determine the appropriate return value. This removes various warnings and the function's definitions.
+InteractionMessageQueue has been removed and all instances of the class have been replaced with std::list<InteractionMessage>. Construct::addMessage has been added to replace InteractionMessageQueue::addMessage for Construct::interaction_message_queue.
+Social_Media_no_followers::default_media_user::enrich_event has been added to allow more fine control of what information gets added to a media_event after it's created. Components like trust and mentions are not added using this function.
+The container for InteractionItem's in InteractionMessage has been changed from a vector to a list.
+Modified Social_Media_no_followers::load_users to be a lambda function instead of a virtual function. This has been propagated to all social media platforms.
+The function random() has been added to Social_Media_no_followers::media_users to make it easier to access random number generations.
+Modified how custom media users are loaded. Rather than using virtual functions, the API will manually load users using the API functions dynet::load_user. These are specialized for each social media and can be disabled with the relevant compiler flags. The initialize function now only loads default_media_user into Social_Media_no_followers::users if there is not already a media_user loaded for that user.
+For developers making their own social media class, the virtual function get_default_media_user can be reimplemented to provide for custom media user loading.
+Fixed a bug in Output that would cause Output::process to not return true at the correct times.

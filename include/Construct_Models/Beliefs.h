@@ -1,5 +1,4 @@
-#ifndef BELIEFS_HEADER_GUARD
-#define BELIEFS_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 //This model is a variant on the Standard Interaction Model
@@ -33,8 +32,3 @@ public:
 	// agent_i's knowledge_net row * the belief index's belief_weight row
 	virtual float get_belief_value(unsigned int agent_i, unsigned int belief);
 };
-
-// BELIEFS_H_HH_CONSTRUCT_H
-#endif
-
-

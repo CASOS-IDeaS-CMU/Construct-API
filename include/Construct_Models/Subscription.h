@@ -1,5 +1,4 @@
-#ifndef SUBSCRIPTION_HEADER_GUARD
-#define SUBSCRIPTION_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 struct Subscription : public Model
@@ -26,7 +25,5 @@ struct Subscription : public Model
 	const Graph<float>& sub_prob = graph_manager.load_optional(graph_names::sub_probability, 
 		0.01f, nodeset_names::agents, sparse, nodeset_names::agents, sparse);
 
-	InteractionMessageQueue public_queue;
+	std::list<InteractionMessage> public_queue;
 };
-#endif
-

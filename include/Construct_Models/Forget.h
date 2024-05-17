@@ -1,5 +1,4 @@
-#ifndef FORGET_HEADER_GUARD
-#define FORGET_HEADER_GUARD
+#pragma once
 #include "pch.h" 
 
 struct Forget : public Model
@@ -30,7 +29,3 @@ struct Forget : public Model
 	void cleanup(void) override;
 
 };
-#endif
-
-
-

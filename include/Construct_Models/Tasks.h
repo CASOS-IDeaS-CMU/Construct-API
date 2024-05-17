@@ -1,5 +1,4 @@
-#ifndef TASKS_HEADER_GUARD
-#define TASKS_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 //This model is a variant on the Standard Interaction Model
@@ -40,7 +39,3 @@ struct Tasks: public StandardInteraction
 
 	float get_k_exp(unsigned int agent_i, unsigned int agent_j) override;
 };
-#endif
-
-
-
