@@ -1,9 +1,5 @@
-#ifndef INFECTION_HH_H
-#define INFECTION_HH_H
+#pragma once
 #include "pch.h"
-
-
-// common names should be stored in a central location to limit typing errors
 
 namespace nodeset_names {
 	const std::string infections = "infection";
@@ -13,96 +9,43 @@ namespace graph_names {
 	const std::string infection_net = "infection network";
 }
 
-namespace model_names {
-	const std::string infection_v1 = "Infection v1 Model";
-}
+struct Infection : public Model {
+	Infection(Construct& construct) : Model(construct) {}
 
-
-
-
-// Very basic SI model
-struct Infection_v1 : public Model {
-
-	// all models require at a minimum the Construct pointer
-	Infection_v1(Construct& _construct);
-
-	// use the override qualifier to make sure your model functions will be called correctly
-	void think() override;
-
-	// stores the attributes in the infection nodeset as floats
-	std::vector<float> infection_rates;
-
-	// "infection network"
-	// agent x infection
 	Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
+	const Graph<float>& comm_infection_probability = graph_manager.load_required("medium infection probability network", nodeset_names::infections, nodeset_names::comm);
+
+	void update() {
+		for (auto& msg : construct.interaction_message_queue) {
+			if (msg.medium->index < comm_infection_probability.col_size)
+			for (auto it = infection_net.sparse_row_cbegin(msg.sender, false); it != infection_net.row_end(msg.sender); ++it) {
+				if (msg.medium->max_msg_complexity < msg.size() && construct.random.uniform() < comm_infection_probability.examine(it.col(), msg.medium->index)) {
+					InteractionItem item;
+					item.attributes.insert(InteractionItem::item_keys::infection);
+					item.indexes[InteractionItem::item_keys::infection] = it.col();
+					msg.add_item(item);
+				}
+			}
+		}
+	}
+
+	void communicate(const InteractionMessage& msg) {
+		for (auto& item : msg) {
+			if (item.contains(InteractionItem::item_keys::infection)) {
+				infection_net.at(msg.receiver, item.indexes.at(InteractionItem::item_keys::infection), true);
+			}
+		}
+	}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// SI model that uses the InteractionMessage Model interface
-struct Infection_v2 : public Model {
-	Infection_v2(Construct& _construct);
-
-	void communicate(const InteractionMessage& msg) override;
-
-
-	// Graphs can be loaded as a pointer or reference
-	// references are used similar to other object, but must be defined in the class/struct definition
-
-	// "infection rate network"
-	// infection x medium
-	const Graph<float>* infection_probability;
-
-	// "infection network"
-	// agent x infection
-	Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #include "StandardInteraction.h"
 
 // Modification that has people attempt to avoid other agents with an infection
 // models don't require cpp file and everything can be declared in the header file
 // cpp files simply make it easier to recompile or handle complex dependencies
-struct Infection_v3 : public StandardInteraction {
+struct InfectionInteraction : public StandardInteraction {
 
-	Infection_v3(const dynet::ParameterMap& params, Construct& _construct) :
+	InfectionInteraction(const dynet::ParameterMap& params, Construct& _construct) :
 		StandardInteraction(params, _construct) {}
 
 	const Graph<bool>& infection_net = graph_manager.load_required(graph_names::infection_net, nodeset_names::agents, nodeset_names::infections);
@@ -119,12 +62,3 @@ struct Infection_v3 : public StandardInteraction {
 		return risk;
 	}
 };
-
-
-
-
-
-
-
-
-#endif

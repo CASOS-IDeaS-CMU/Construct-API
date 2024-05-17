@@ -1,6 +1,6 @@
 #include "pch.h" 
+#include "Infection.h"
 #include "Supp_Library.h"
-
 #include "Template.h"
 #include "GrandInteraction.h"
 #include "Location.h"
@@ -18,19 +18,19 @@
 //only edit the contents of each function and include any extra files needed
 
 // comment out this definition to disable custom media users for Social_Media_no_followers
-#define CUSTOM_MEDIA_USERS
+//#define CUSTOM_MEDIA_USERS
 
 // comment out this definition to disable custom media users for Social_Media_with_followers
-#define CUSTOM_MEDIA_USERS_FOLLOWERS
+//#define CUSTOM_MEDIA_USERS_FOLLOWERS
 
 // uncomment this definition to enable custom media users for SM_nf_emotions
-#define CUSTOM_MEDIA_USERS_EMOTIONS
+//#define CUSTOM_MEDIA_USERS_EMOTIONS
 
 // uncomment this definition to enable custom media users for SM_wf_emotions
-#define CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
+//#define CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 
 // uncomment this definition to enable custom media users for Reddit
-#define CUSTOM_MEDIA_USERS_REDDIT
+//#define CUSTOM_MEDIA_USERS_REDDIT
 
 
 
@@ -46,6 +46,13 @@ namespace dynet {
 #ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
 	Social_Media_no_followers::media_user* load_user(Social_Media_with_followers* media, const Node& node) {
 		return new Social_Media_with_followers::default_media_user(media, node);
+	}
+#endif
+
+	// to disable custom media users for SM_nf_emotions comment out the definition of "CUSTOM_MEDIA_USERS_EMOTIONS" at the top of this file
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
+	Social_Media_no_followers::media_user* load_user(SM_nf_emotions* media, const Node& node) {
+		return new SM_nf_emotions::default_media_user(media, node);
 	}
 #endif
 
@@ -85,14 +92,8 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	//*    add your custom model here    *
 	//************************************
 
-	else if (model_name == model_names::infection_v1)
-		return new Infection_v1(construct);
-
-	else if (model_name == "Infection v2 Model")
-		return new Infection_v2(construct);
-
-	else if (model_name == "Standard Interaction Infection Model")
-		return new Infection_v3(parameters, construct);
+	else if (model_name == "Infection Interaction Model")
+		return new InfectionInteraction(parameters, construct);
 
 
 
@@ -117,39 +118,70 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 		return new Mail(construct);
 
 	else if (model_name == model_names::TWIT_nf)
+#ifdef CUSTOM_MEDIA_USERS
 		return dynet::load_users(new Twitter_nf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
-
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
+#else
+		return new Twitter_nf(parameters, construct);
+#endif
 	else if (model_name == model_names::FB_nf)
+#ifdef CUSTOM_MEDIA_USERS
 		return dynet::load_users(new Facebook_nf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
+#else
+		return new Facebook_nf(parameters, construct);
+#endif
 
 	else if (model_name == model_names::TWIT_wf)
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
 		return dynet::load_users(new Twitter_wf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
+#else
+		return new Twitter_wf(parameters, construct);
+#endif
 
 	else if (model_name == model_names::FB_wf)
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
 		return dynet::load_users(new Facebook_wf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
+#else
+		return new Facebook_wf(parameters, construct);
+#endif
 
 	else if (model_name == model_names::EMOT)
 		return new Emotions(construct);
 
 	else if (model_name == model_names::TWIT_nf_emot)
-		return dynet::load_users(new Twitter_nf_emotions(parameters, construct), 
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_nf_emotions*,const Node&)>(&dynet::load_user));
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
+		return dynet::load_users(new Twitter_nf_emotions(parameters, construct),
+			static_cast<Social_Media_no_followers::media_user * (*)(SM_nf_emotions*, const Node&)>(&dynet::load_user));
+#else
+		return new Twitter_nf_emotions(parameters, construct);
+#endif
 
 	else if (model_name == model_names::FB_nf_emot)
+#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
 		return dynet::load_users(new Facebook_nf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_nf_emotions*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(SM_nf_emotions*, const Node&)>(&dynet::load_user));
+#else
+		return new Facebook_nf_emotions(parameters, construct);
+#endif
 
 	else if (model_name == model_names::TWIT_wf_emot)
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 		return dynet::load_users(new Twitter_wf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
+#else
+		return new Twitter_wf_emotions(parameters, construct);
+#endif
 
 	else if (model_name == model_names::FB_wf_emot)
+#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
 		return dynet::load_users(new Facebook_wf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
+#else
+		return new Facebook_wf_emotions(parameters, construct);
+#endif
 
 	else if (model_name == model_names::BELIEF)
 		return new Beliefs(parameters, construct);
@@ -167,8 +199,12 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 		return new Location(construct);
 
 	else if (model_name == model_names::REDDIT)
+#ifdef CUSTOM_MEDIA_USERS_REDDIT
 		return dynet::load_users(new Reddit(parameters, construct), 
 			static_cast<Social_Media_no_followers::media_user* (*)(Reddit*,const Node&)>(&dynet::load_user));
+#else
+		return new Reddit(parameters, construct);
+#endif
 
 	else if (model_name == model_names::MODERATION)
 		return new Social_Media_Moderation(parameters, construct);
