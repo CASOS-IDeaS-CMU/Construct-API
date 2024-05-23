@@ -269,12 +269,9 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 	//one can trigger a manual application by pushing deltas
 	interaction_network_ptr->push_deltas();
 
-	//many models via the exchange of messages
-	//Construct will automatically disperse messages to be parsed in the communicate function of models
-	//These messages are dispersed from the private message queue and they are erased after the clean up function
-	auto interaction_queue = &construct.interaction_message_queue;
 
-	//When distributing messages for parsing, construct will distribute from the private messages
+
+	//When distributing messages for parsing, construct will distribute from the interaction message queue
 	//To add messages one must add items into a message.
 	//items have three data storage members; attributes, indexes, and values.
 
@@ -322,7 +319,10 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 	InteractionMessage msg(sndr, recv, &medium, items);
 
 	//This messages can then be added to the message queue
-	interaction_queue->addMessage(msg);
+	//many models the exchange messages as an interface for passing information
+	//Construct will automatically disperse messages to be parsed in the communicate function of models
+	//These messages are dispersed from the private message queue and they are erased after the clean up function
+	construct.addMessage(msg);
 
 	//you can also interact with other models via the model manager
 	//this manager is not pre loaded as it has a limited applications

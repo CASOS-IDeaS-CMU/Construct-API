@@ -1,5 +1,4 @@
-#ifndef TRANSACTIVE_MEMORY_HEADER_GUARD
-#define TRANSACTIVE_MEMORY_HEADER_GUARD
+#pragma once
 #include "pch.h"
 
 //This model operates as a modification to the Standard Interaction Model and thus requires the header
@@ -21,9 +20,8 @@ public:
 	Graph<float>* group_knowledge;
 	//graph name "knowledge transactive memory network"
 	//agent x agent x knowledge
-	Graph<std::vector<bool> >& tmk = graph_manager.load_optional(graph_names::ktm, std::vector<bool>(agents->size(), false), agents, dense, knowledge, sparse);
+	Graph<std::vector<bool> >& tmk = graph_manager.load_optional(graph_names::ktm, std::vector<bool>(agents.size(), false), agents, dense, knowledge, sparse);
 	unsigned int group_count;
-	const Nodeset* agents;
 
 	std::vector<unsigned int> group_size;
 
@@ -45,7 +43,3 @@ public:
 
 	virtual void update_group_knowledge(void);
 };
-#endif
-
-
-

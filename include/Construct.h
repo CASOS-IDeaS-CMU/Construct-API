@@ -280,7 +280,7 @@ namespace dynet
 	class Type_Interface<std::string> {
 		std::string _data;
 	public:
-		Type_Interface(std::string data) { _data = data; }
+		Type_Interface(const std::string& data) { _data = data; }
 		operator bool() const;
 		operator int() const;
 		operator unsigned() const;
@@ -303,7 +303,16 @@ namespace dynet
 
 
 	template<typename T> 
-	Type_Interface<T> convert(T data) { return Type_Interface<T>(data); }
+	Type_Interface<T> convert(const T& data) { return Type_Interface<T>(data); }
+
+	template<typename T, typename V>
+	V convert(const T& data, V min, V max) {
+		V val = (V)convert(data);
+		if (val < min || val > max) {
+			throw dynet::construct_exception("Value of " + (std::string)dynet::convert(data) + " is outside of the range [" + (std::string)dynet::convert(min) + "," + (std::string)dynet::convert(max) + "]");
+		}
+		return val;
+	}
 
 	struct ostream_wrapper {
 
@@ -562,19 +571,9 @@ public:
 	template<typename T>
 	void check_attributes(std::string attribute) const;
 
-	//sets a mutable nodeset to an immutable nodeset
-	void turn_to_const() noexcept;
-
 	void import_dynetml(const std::string& fname, const std::string& dynetml_ns_name);
 
 	void import_csv(const std::string& fname);
-
-private:
-	bool malliable = true;
-
-public:
-
-	bool is_const() const noexcept { return !malliable; }
 };
 
 
@@ -732,27 +731,27 @@ struct InteractionItem
 	//store any relevant attributes in this unordered map
 	//Note: If any non-standard keys are used, custom parsing is required when reading messages
 	std::unordered_set<item_keys> attributes;
-	InteractionItem() noexcept {}
-	InteractionItem(const InteractionItem& item) noexcept :
-		attributes(item.attributes),
-		indexes(item.indexes),
-		values(item.values) {}
-	InteractionItem& operator=(const InteractionItem& item) noexcept {
-		attributes = item.attributes;
-		indexes = item.indexes;
-		values = item.values;
-		return *this;
-	}
-	InteractionItem(InteractionItem&& item) noexcept :
-		attributes(std::move(item.attributes)),
-		indexes(std::move(item.indexes)),
-		values(std::move(item.values)) {}
-	InteractionItem& operator=(InteractionItem&& item) noexcept {
-		attributes = std::move(item.attributes);
-		indexes = std::move(item.indexes);
-		values = std::move(item.values);
-		return *this;
-	}
+	//InteractionItem() noexcept {}
+	//InteractionItem(const InteractionItem& item) noexcept :
+	//	attributes(item.attributes),
+	//	indexes(item.indexes),
+	//	values(item.values) {}
+	//InteractionItem& operator=(const InteractionItem& item) noexcept {
+	//	attributes = item.attributes;
+	//	indexes = item.indexes;
+	//	values = item.values;
+	//	return *this;
+	//}
+	//InteractionItem(InteractionItem&& item) noexcept :
+	//	attributes(std::move(item.attributes)),
+	//	indexes(std::move(item.indexes)),
+	//	values(std::move(item.values)) {}
+	//InteractionItem& operator=(InteractionItem&& item) noexcept {
+	//	attributes = std::move(item.attributes);
+	//	indexes = std::move(item.indexes);
+	//	values = std::move(item.values);
+	//	return *this;
+	//}
 
 	
 };
@@ -762,11 +761,9 @@ struct InteractionItem
 #include<item_keys.h>
 #endif
 
-class InteractionMessage
+struct InteractionMessage
 {
-	//this is private so the class can track whether the message is valid
-	std::vector<InteractionItem> items;
-public:
+	std::list<InteractionItem> items;
 
 	// the sender and receiver of the message
 	// the sender is the "owner" of the message, and therefore
@@ -781,10 +778,8 @@ public:
 
 	unsigned int time_to_send;
 
-	bool valid;
-
-	using iterator = std::vector<InteractionItem>::iterator;
-	using const_iterator = std::vector<InteractionItem>::const_iterator;
+	using iterator = std::list<InteractionItem>::iterator;
+	using const_iterator = std::list<InteractionItem>::const_iterator;
 
 	InteractionMessage(
 		unsigned int senderAgentIndex,
@@ -800,14 +795,12 @@ public:
 		sender(message.sender),
 		receiver(message.receiver),
 		time_to_send(message.time_to_send),
-		valid(message.valid),
 		medium(message.medium),
 		items(message.items) {}
 	InteractionMessage& operator=(const InteractionMessage& message) noexcept {
 		sender = message.sender;
 		receiver = message.receiver;
 		time_to_send = message.time_to_send;
-		valid = message.time_to_send;
 		medium = message.medium;
 		items = message.items;
 		return *this;
@@ -817,14 +810,12 @@ public:
 		sender(message.sender),
 		receiver(message.receiver),
 		time_to_send(message.time_to_send),
-		valid(message.valid),
 		medium(message.medium),
 		items(std::move(message.items)) {}
 	InteractionMessage& operator=(InteractionMessage&& message) noexcept {
 		sender = message.sender;
 		receiver = message.receiver;
 		time_to_send = message.time_to_send;
-		valid = message.time_to_send;
 		medium = message.medium;
 		items = std::move(message.items);
 		return *this;
@@ -860,53 +851,15 @@ public:
 	bool add_beliefTM_item(unsigned int belief_index, unsigned int alter, float belief_value) noexcept;
 
 	bool add_knowledge_trust_item(unsigned int knowledge_index, float ktrust) noexcept;
+
+	bool is_valid(void) const noexcept { return items.size() > 0 && medium != NULL; }
 };
-
-
-
-class InteractionMessageQueue
-{
-	//order nor does random access matter for the queue
-	//constant insert and erase are more important
-	std::list<InteractionMessage> _queue;
-public:
-	using iterator = std::list<InteractionMessage>::iterator;
-	using const_iterator = std::list<InteractionMessage>::const_iterator;
-	using reverse_iterator = std::list<InteractionMessage>::reverse_iterator;
-	using const_reverse_iterator = std::list<InteractionMessage>::const_reverse_iterator;
-
-	iterator begin(void) noexcept { return _queue.begin(); }
-
-	iterator end(void) noexcept { return _queue.end(); }
-
-	const_iterator begin(void) const noexcept { return _queue.begin(); }
-
-	const_iterator end(void) const noexcept { return _queue.end(); }
-
-	reverse_iterator rbegin(void) noexcept { return _queue.rbegin(); }
-
-	reverse_iterator rend(void) noexcept { return _queue.rend(); }
-
-	const_reverse_iterator rbegin(void)const noexcept { return _queue.rbegin(); }
-
-	const_reverse_iterator rend(void) const noexcept { return _queue.rend(); }
-
-	void clear(void) noexcept { _queue.clear(); }
-
-	void addMessage(const InteractionMessage& msg) noexcept;
-
-	void addMessage(InteractionMessage&& msg) noexcept;
-
-	iterator erase(iterator itr) noexcept;
-	
-	//iterator erase(iterator start, iterator finish) noexcept;
-};
-
 
 
 #ifdef max
 #undef max
 #endif // max
+
 
 
 class Typeless_Graph {
@@ -927,7 +880,8 @@ public:
 		mint,
 		muint,
 		mfloat,
-		mstring
+		mstring,
+		unknown
 	};
 
 
@@ -935,15 +889,9 @@ protected:
 	Typeless_Graph(const Nodeset* src, bool row_dense, const Nodeset* trg, bool col_dense, const Nodeset* slc, const std::string& network_name, edge_types edge);
 public:
 
-	template<typename T>
-	static constexpr edge_types get_edge_type(void) noexcept;
-
-	template<typename T>
-	static constexpr std::string get_type_name(void) noexcept;
-
 	virtual ~Typeless_Graph() { ; }
 
-	virtual void push_deltas(void) noexcept = 0;
+	virtual void push_deltas(void) = 0;
 
 	virtual void get_data_state(std::ostream& out) const = 0;
 
@@ -969,7 +917,35 @@ public:
 };
 
 
+namespace dynet {
+	inline std::string get_type_name(const std::type_info& dataType) {
+		if (	dataType == typeid(bool)			|| dataType == typeid(std::vector<bool>)			|| dataType == typeid(std::map<unsigned int, bool>))			return "bool";
+		else if (dataType == typeid(int)			|| dataType == typeid(std::vector<int>)				|| dataType == typeid(std::map<unsigned int, int>))				return "int";
+		else if (dataType == typeid(unsigned int)	|| dataType == typeid(std::vector<unsigned int>)	|| dataType == typeid(std::map<unsigned int, unsigned int>))	return "unsigned int";
+		else if (dataType == typeid(float)			|| dataType == typeid(std::vector<float>)			|| dataType == typeid(std::map<unsigned int, float>))			return "float";
+		else if (dataType == typeid(std::string)	|| dataType == typeid(std::vector<std::string>)		|| dataType == typeid(std::map<unsigned int, std::string>))		return "string";
+		return "unknown";
+	}
 
+	inline Typeless_Graph::edge_types get_edge_type(const std::type_info& dataType) {
+		if (dataType == typeid(bool)) return Typeless_Graph::edge_types::dbool;
+		else if (dataType == typeid(int)) return Typeless_Graph::edge_types::dint;
+		else if (dataType == typeid(unsigned int)) return Typeless_Graph::edge_types::duint;
+		else if (dataType == typeid(float)) return Typeless_Graph::edge_types::dfloat;
+		else if (dataType == typeid(std::string)) return Typeless_Graph::edge_types::dstring;
+		else if (dataType == typeid(std::vector<bool>)) return Typeless_Graph::edge_types::vbool;
+		else if (dataType == typeid(std::vector<int>)) return Typeless_Graph::edge_types::vint;
+		else if (dataType == typeid(std::vector<unsigned int>)) return Typeless_Graph::edge_types::vuint;
+		else if (dataType == typeid(std::vector<float>)) return Typeless_Graph::edge_types::vfloat;
+		else if (dataType == typeid(std::vector<std::string>)) return Typeless_Graph::edge_types::vstring;
+		else if (dataType == typeid(std::map<unsigned int, bool>)) return Typeless_Graph::edge_types::mbool;
+		else if (dataType == typeid(std::map<unsigned int, int>)) return Typeless_Graph::edge_types::mint;
+		else if (dataType == typeid(std::map<unsigned int, unsigned int>)) return Typeless_Graph::edge_types::muint;
+		else if (dataType == typeid(std::map<unsigned int, float>)) return Typeless_Graph::edge_types::mfloat;
+		else if (dataType == typeid(std::map<unsigned int, std::string>)) return Typeless_Graph::edge_types::mstring;
+		return Typeless_Graph::edge_types::unknown;
+	}
+}
 
 
 struct typeless_graph_iterator {
@@ -1408,23 +1384,7 @@ namespace graph_utils {
 template<typename link_type>
 class Graph : public Typeless_Graph {
 
-
-	
-//allows graph and its child classes to be able to access the private members of the iterator classes
-//the graph classes should do as much heavy lifting as possible compared to the iterator classes
-
-	struct delta {
-		unsigned int _row;
-		unsigned int _col;
-		link_type _data;
-		delta(unsigned int row, unsigned int col, const link_type& data) :
-			_row(row), _col(col), _data(data)
-		{
-		}
-	};
-
-
-	std::vector<delta> _deltas;
+	std::vector<std::tuple<unsigned int, unsigned int, link_type> > _deltas;
 
 	
 protected:
@@ -1503,7 +1463,7 @@ public:
 	void add_delta(unsigned int row, unsigned int col, const link_type& data);
 
 	//updates all elements based on queued deltas
-	void push_deltas(void) noexcept;
+	void push_deltas(void);
 
 	void get_data_state(std::ostream& out) const;
 
@@ -1747,8 +1707,8 @@ struct Graph_Intermediary {
 	template<typename T>
 	operator Graph<T>* () {
 		if (!ptr) return nullptr;
-		if (ptr->edge_type != Typeless_Graph::get_edge_type<T>())
-			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Typeless_Graph::get_type_name<T>());
+		if (ptr->edge_type != dynet::get_edge_type(typeid(T)))
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + dynet::get_type_name(typeid(T)));
 		return dynamic_cast<Graph<T>*>(ptr);
 	}
 
@@ -1761,8 +1721,8 @@ struct Graph_Intermediary {
 	template<typename T>
 	operator const Graph<T>* () const {
 		if (!ptr) return nullptr;
-		if (ptr->edge_type != Typeless_Graph::get_edge_type<T>())
-			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + Typeless_Graph::get_type_name<T>());
+		if (ptr->edge_type != dynet::get_edge_type(typeid(T)))
+			throw dynet::construct_exception("Network \"" + ptr->name + "\" requires an edge_type of " + dynet::get_type_name(typeid(T)));
 		return dynamic_cast<const Graph<T>*>(ptr);
 	}
 
@@ -1778,6 +1738,25 @@ struct Graph_Intermediary {
 
 namespace graph_utils {
 	
+	//template<typename link_type>
+	//void populator(Graph<link_type>& graph, std::function<link_type(full_row_iterator<link_type>&)>& lambda) {
+	//	for (auto row = graph.begin_rows(); row != graph.end_rows(); ++row) {
+	//		for (auto it = row.full_begin(); it != row.end(); ++it) {
+	//			graph.at(it, lambda(it));
+	//		}
+	//	}
+	//}
+
+	//template<typename link_type>
+	//void populator(Graph<link_type>& graph, std::function<link_type(full_row_iterator<link_type>&)>& lambda,
+	//	unsigned int row_start, unsigned int row_end, unsigned int col_start, unsigned int col_end) {
+	//	auto new_lamda = [&](full_row_iterator<link_type>& it) {
+	//		if (it.row() >= row_start && it.row() < row_end && it.col() >= col_start && it.col() < col_end)
+	//			return lambda(it);
+	//		}
+	//	populator(graph, new_lambda);
+	//}
+
 	template<typename it1, typename it2, typename... its>
 	struct align_zip_gits {
 		std::tuple<it1, it2, its...> iterators;
@@ -3601,6 +3580,7 @@ namespace graph_names {
 	const std::string unused = "unused knowledge network";                         // "unused knowledge network"
 	const std::string banned_user = "banned user network";								// "banned user network"
 	const std::string k_type = "knowledge type network";							// "knowledge type network"
+	const std::string platform_active = "active agent by platform network";    // "active agent by platform network"
 }
 
 namespace generator_names {
@@ -3652,6 +3632,8 @@ class GraphManager
 	void push_deltas(void);
 
 public:
+
+	std::function<void(Typeless_Graph&)> adding_network;
 
 	std::set<Typeless_Graph*> imported_graphs;
 
@@ -3828,6 +3810,8 @@ struct Model
 	virtual void update(void) {};
 
 
+	virtual bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium) { return false; }
+
 	virtual void communicate(const InteractionMessage& msg) {};
 
 
@@ -3882,6 +3866,8 @@ namespace model_names {
 	const std::string TWIT_nf_emot = "Twitter Emotion Model";
 	//"Twitter Emotion Follower Model"
 	const std::string TWIT_wf_emot = "Twitter Emotion Follower Model";
+	//"Twitter Follower Moderation Model"
+	const std::string TWIT_wf_wmod = "Twitter Follower Moderation Model";
 	//"Facebook Model"
 	const std::string FB_nf		= "Facebook Model";
 	//"Facebook Follower Model"
@@ -3890,8 +3876,11 @@ namespace model_names {
 	const std::string FB_nf_emot = "Facebook Emotion Model";
 	//"Facebook Emotion Follower Model"
 	const std::string FB_wf_emot = "Facebook Emotion Follower Model";
+	//"Reddit Interaction Model"
+	const std::string REDDIT = "Reddit Interaction Model";
 
 	//Modification Models
+
 
 	//"Emotion Model"
 	const std::string EMOT = "Emotion Model";
@@ -3907,14 +3896,10 @@ namespace model_names {
 	const std::string SUB		= "Subscription Model";
 	//"Knowledge Trust Parsing Model"
 	const std::string TRUST		= "Trust Model";
-
-	//Parsing Models
-
-	//"Knowledge Parsing Model"
-	const std::string KPARSE	= "Knowledge Parsing Model";
-
-	const std::string REDDIT_mod = "Reddit Interaction Model";
-	
+	//"Social Media Moderation Model"
+	const std::string MODERATION = "Social Media Moderation Model";
+	//"Multiplatform Moderation Model"
+	const std::string MULTI_MOD = "Multiplatform Moderation Model";
 }
 
 struct ModelManager
@@ -3970,6 +3955,13 @@ namespace output_names {
 	const std::string output_reddit_posts = "reddit posts"; //reddit posts
 }
 
+namespace output_parameters {
+	const std::string timeperiods = "timeperiods"; //timeperiods
+	const std::string all = "all"; //all
+	const std::string last = "last"; //last
+	const std::string initial = "initial"; //initial
+}
+
 // output base class
 class Output {
 protected:
@@ -3994,7 +3986,7 @@ public:
 	// call this function before processing any output unless the output is always processed
 	bool should_process(int t) {
 		if (_next_output_time != output_times.end()) {
-			assert(t >= *_next_output_time);
+			if (t > *_next_output_time) throw dynet::construct_exception("Output timeperiods were not in ascending order");
 			if (t == *_next_output_time) {
 				_next_output_time++;
 				return true;
@@ -4016,19 +4008,16 @@ public:
 };
 
 
-class OutputManager {
+struct OutputManager {
 
 	std::vector<Output*> _output;
-	friend struct Construct;
-	void ProcessAllOutput(unsigned int t);
 
-	OutputManager(void) { ; };
-
-	~OutputManager(void);
-public:
+	~OutputManager(void) {
+		for (auto output : _output) delete output;
+	}
 
 	// pointers added to OutputManager are deallocated by the OutputManager
-	void add_output(Output* output) noexcept;
+	void add_output(Output* output) noexcept { _output.push_back(output); }
 };
 
 
@@ -4054,7 +4043,7 @@ struct Construct {
 
 	time_t simulation_end = 0;
 
-	static constexpr const char* version = "5.4.2";
+	static constexpr const char* version = "5.4.4";
 	~Construct() {}
 
 	Construct();
@@ -4093,7 +4082,13 @@ struct Construct {
 	}
 	
 	// central message queue for messages waiting to be dispersed.
-	InteractionMessageQueue interaction_message_queue;
+	std::list<InteractionMessage> interaction_message_queue;
+
+	void addMessage(const InteractionMessage& msg) noexcept { if (msg.is_valid()) interaction_message_queue.push_front(msg); }
+
+	void addMessage(InteractionMessage&& msg) noexcept { if (msg.is_valid()) interaction_message_queue.emplace_front(msg); }
+
+	bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium);
 
 	//directory where all output gets sent.
 	std::string working_directory = "";

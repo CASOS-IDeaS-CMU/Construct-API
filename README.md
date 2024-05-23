@@ -5,7 +5,7 @@ Useful Links:
 
 [Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
 
-[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-ISR-23-104.pdf)
+[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-S3D-23-104.pdf)
 
 [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
 

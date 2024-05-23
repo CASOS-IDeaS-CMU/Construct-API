@@ -42,8 +42,11 @@ void Intervention2_nf::generate_post_events(void) {
 	default_media_user::generate_post_events();
 	// if we're at the specified time, create one extra post with a trust of zero for the specified knowledge
 	if (media().time == time) {
-		media().create_post(knowledge, id)->set_knowledge_trust_item(knowledge, 0.0f);
+		Social_Media_no_followers::media_event* post = media().create_post(knowledge, id);
+		post->set_knowledge_trust_item(knowledge, 0.0f);
+		enrich_event(post);
 	}
+	
 }
 
 Intervention3_nf::Intervention3_nf(Social_Media_no_followers* _media, const Node& _node) : default_media_user(_media, _node) {
@@ -59,12 +62,14 @@ Intervention3_nf::Intervention3_nf(Social_Media_no_followers* _media, const Node
 	time = t_node->index;
 }
 
-float Intervention3_nf::get_trust(unsigned int knowledge_index) {
-	if (!media().ktrust_net) return -1;
+void Intervention3_nf::enrich_event(Social_Media_no_followers::media_event* _event) {
+	if (time >= media().time && _event->get_knowledge() == knowledge)
+		_event->set_knowledge_trust_item(_event->get_knowledge(), 0);
+	default_media_user::enrich_event(_event);
+}
 
-	// after the specified time, the user always returns trust 0 for the specified knowledge
-	if (time >= media().time && knowledge_index == knowledge) 
-		return 0;
-
-	return default_media_user::get_trust(knowledge_index);
+void Intervention3::enrich_event(Social_Media_no_followers::media_event* _event) {
+	if (time >= media().time && _event->get_knowledge() == knowledge)
+		_event->set_knowledge_trust_item(_event->get_knowledge(), 0);
+	default_media_user::enrich_event(_event);
 }

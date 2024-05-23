@@ -28,6 +28,15 @@ namespace dynet {
 	
 }
 
+namespace output_parameters {
+	const std::string network_name = "network name"; //network name
+	const std::string network_names = "network names"; //network names
+	const std::string output_file = "output file"; //output file
+	const std::string model_name = "model name"; //model name
+	const std::string start_time = "start time"; //start time
+	const std::string time_conversion = "time conversion to seconds"; //time conversion to seconds
+}
+
 struct Output_Graph : public Output {
 
 	const Typeless_Graph* _graph;
@@ -35,18 +44,11 @@ struct Output_Graph : public Output {
 
 	Output_Graph(const dynet::ParameterMap& params, Construct& construct) : Output(params, construct) {
 
-		if (!params.contains("timeperiods")) throw dynet::could_not_find_parameter("timeperiods");
+		_graph = construct.graph_manager.get_network(params.get_parameter(output_parameters::network_name));
 
-		//names of required parameters
-		const char* network_name = "network name";
-		const char* output_file = "output file";
-
-
-		_graph = construct.graph_manager.get_network(params.get_parameter(network_name));
-
-		std::string file = params.get_parameter(output_file);
+		std::string file = params.get_parameter(output_parameters::output_file);
 		if (file.size() <= 4 || ".csv" != file.substr(file.size() - 4, 4)) {
-			throw dynet::wrong_file_extension(output_file, ".csv");
+			throw dynet::wrong_file_extension(output_parameters::output_file, ".csv");
 		}
 
 		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
@@ -202,12 +204,7 @@ struct Output_dynetml : public Output {
 	}
 
 	Output_dynetml(const dynet::ParameterMap& params, Construct& construct) : Output(params, construct) {
-
-		//names of required parameters
-		const char* network_name = "network names";
-		const char* output_file = "output file";
-
-		std::vector<std::string> network_names = dynet::split(params.get_parameter(network_name), ",");
+		std::vector<std::string> network_names = dynet::split(params.get_parameter(output_parameters::network_names), ",");
 		for (unsigned int i = 0; i < network_names.size(); i++) {
 			const Typeless_Graph* g = construct.graph_manager.get_network(dynet::trim(network_names[i]));
 			if (!g) {
@@ -226,10 +223,10 @@ struct Output_dynetml : public Output {
 			_nodesets.insert(_graphs[i]->target_nodeset);
 		}
 
-		std::string file = params.get_parameter(output_file);
+		std::string file = params.get_parameter(output_parameters::output_file);
 
 		if (file.size() <= 4 || ".xml" != file.substr(file.size() - 4, 4)) {
-			throw dynet::wrong_file_extension(output_file, ".xml");
+			throw dynet::wrong_file_extension(output_parameters::output_file, ".xml");
 		}
 		
 		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
@@ -249,7 +246,7 @@ struct Output_dynetml : public Output {
 };
 
 struct Output_Messages : public Output {
-	InteractionMessageQueue* queue;
+	std::list<InteractionMessage>* queue;
 	std::ofstream _output_file;
 
 	~Output_Messages(void) {
@@ -299,15 +296,11 @@ struct Output_Messages : public Output {
 
 
 	Output_Messages(const dynet::ParameterMap& params, Construct& construct) {
-
-		//name of required parameter
-		const char* output_file = "output file";
-
 		queue = &construct.interaction_message_queue;
 
-		std::string file = params.get_parameter(output_file);
+		std::string file = params.get_parameter(output_parameters::output_file);
 		if (file.size() <= 5 || ".json" != file.substr(file.size() - 5, 5)) {
-			throw dynet::wrong_file_extension(output_file, ".json");
+			throw dynet::wrong_file_extension(output_parameters::output_file, ".json");
 		}
 
 		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
@@ -333,28 +326,21 @@ struct Output_Events : public Output {
 	bool first_event_printed = false;
 
 	virtual const Social_Media_no_followers::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
-		const char* model_name = "model name";
+		
 
-		auto media_ptr = dynamic_cast<Social_Media_no_followers*>(construct.model_manager.get_model(params.get_parameter(model_name)));\
+		auto media_ptr = dynamic_cast<Social_Media_no_followers*>(construct.model_manager.get_model(params.get_parameter(output_parameters::model_name)));\
 
 		return &media_ptr->list_of_events;
 	}
 
 	Output_Events(const dynet::ParameterMap& params, Construct& construct) {
-
-		//names of required parameters
-		
-		const char* output_file = "output file";
-		const char* start_time = "start time";
-		const char* time_conversion = "time conversion to seconds";
-
 		media_events = get_event_list(params, construct);
 		agents = construct.ns_manager.get_nodeset(nodeset_names::agents);
 		max_time = construct.time_count;
 
-		std::string file = params.get_parameter(output_file);
+		std::string file = params.get_parameter(output_parameters::output_file);
 		if (file.size() <= 5 || ".json" != file.substr(file.size() - 5, 5)) {
-			throw dynet::wrong_file_extension(output_file, ".json");
+			throw dynet::wrong_file_extension(output_parameters::output_file, ".json");
 		}
 
 		if (construct.working_directory != "") file = construct.working_directory + dynet::seperator() + file;
@@ -367,9 +353,9 @@ struct Output_Events : public Output {
 
 		_output_file << "{\"data\":[";
 
-		time_zero = dynet::datetime(params.get_parameter(start_time));
+		time_zero = dynet::datetime(params.get_parameter(output_parameters::start_time));
 
-		tconvert = dynet::convert(params.get_parameter(time_conversion));
+		tconvert = dynet::convert(params.get_parameter(output_parameters::time_conversion));
 	}
 	// adds indexes, mentions, and values for the media_event into the json node
 	virtual void add_entities(nlohmann::json& entities, const Social_Media_no_followers::media_event& _event) {
@@ -424,7 +410,8 @@ struct Output_Events : public Output {
 			nlohmann::json json_event;
 			json_event["id"] = event_count;
 			json_event["author_id"] = (*agents)[tweet->user].name;
-			json_event["created_at"] = dynet::convert_datetime(time_stamp);
+			//json_event["created_at"] = dynet::convert_datetime(time_stamp);
+			json_event["created_at"] = (time_t)(tweet->time_stamp);
 
 			nlohmann::json entities;
 			add_entities(entities, *tweet);
@@ -488,8 +475,14 @@ struct Output_Reddit_Posts : public Output {
 	int output_frequency;
 
 	virtual const Reddit::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
-		auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); \
-			return &media_ptr->list_of_events;
+		try {
+			auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); \
+				return &media_ptr->list_of_events;
+		}
+		catch(...){
+			auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Multiplatform Reddit Model")); \
+				return &media_ptr->list_of_events;
+		}
 	}
 
 	~Output_Reddit_Posts(void) {
