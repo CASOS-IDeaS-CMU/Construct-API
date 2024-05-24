@@ -12,11 +12,12 @@ enum class InteractionItem::item_keys : char {
 	facebook_event,
 	feed_position,
 	emotion,
-	subreddit,
+	banned,
 	upvotes,
 	downvotes,
+	subreddit,
 	prev_banned,
-	banned
+	reddit_event
 	//ordering of the above items shall not be modified
 	//new items can be added after the above list
 	//added items should be added to InteractionItem::item_names data structure
