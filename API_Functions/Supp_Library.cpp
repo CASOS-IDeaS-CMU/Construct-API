@@ -17,60 +17,45 @@
 
 //only edit the contents of each function and include any extra files needed
 
-// comment out this definition to disable custom media users for Social_Media_no_followers
-#define CUSTOM_MEDIA_USERS
-
-// comment out this definition to disable custom media users for Social_Media_with_followers
-#define CUSTOM_MEDIA_USERS_FOLLOWERS
-
-// uncomment this definition to enable custom media users for SM_nf_emotions
-#define CUSTOM_MEDIA_USERS_EMOTIONS
-
-// uncomment this definition to enable custom media users for SM_wf_emotions
-#define CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
-
-// uncomment this definition to enable custom media users for Reddit
-#define CUSTOM_MEDIA_USERS_REDDIT
 
 
-
+// each function here corresponds to a specific social media platform type
+// to add custom media users to a model edit the appropriate function
 namespace dynet {
-	// to disable custom media users for Social_Media_no_followers comment out the definition of "CUSTOM_MEDIA_USERS" at the top of this file
-#ifdef CUSTOM_MEDIA_USERS
+	
 	Social_Media_no_followers::media_user* load_user(Social_Media_no_followers* media, const Node& node) {
-		return new Social_Media_no_followers::default_media_user(media, node);
-	}
-#endif
+		// add custom users here
 
-	// to disable custom media users for Social_Media_with_followers comment out the definition of "CUSTOM_MEDIA_USERS_FOLLOWERS" at the top of this file
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
+		// example of adding a custom media user
+		// return new my_custom_user(media, node)
+
+		return media->get_default_media_user(node);
+	}
+
 	Social_Media_no_followers::media_user* load_user(Social_Media_with_followers* media, const Node& node) {
-		return new Social_Media_with_followers::default_media_user(media, node);
-	}
-#endif
+		// add custom users here
 
-	// to disable custom media users for SM_nf_emotions comment out the definition of "CUSTOM_MEDIA_USERS_EMOTIONS" at the top of this file
-#ifdef CUSTOM_MEDIA_USERS_EMOTIONS
+		return media->get_default_media_user(node);
+	}
+
 	Social_Media_no_followers::media_user* load_user(SM_nf_emotions* media, const Node& node) {
-		return new SM_nf_emotions::default_media_user(media, node);
-	}
-#endif
+		// add custom users here
 
-	// to disable custom media users for SM_wf_emotions comment out the definition of "CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS" at the top of this file
-#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS_EMOTIONS
+		return media->get_default_media_user(node);
+	}
+
 	Social_Media_no_followers::media_user* load_user(SM_wf_emotions* media, const Node& node) {
-		return new SM_wf_emotions::default_media_user(media, node);
-	}
-#endif
+		// add custom users here
 
-	// to disable custom media users for Reddit comment out the definition of "CUSTOM_MEDIA_USERS_REDDIT" at the top of this file
-#ifdef CUSTOM_MEDIA_USERS_REDDIT
-	Social_Media_no_followers::media_user* load_user(Reddit* media, const Node& node) {
-		if (node[media->media_name + node_attributes::user_type] == node_attributes::moderator)
-			return new Reddit::reddit_moderator(media, node);
-		return new Reddit::default_media_user(media, node);
+		return media->get_default_media_user(node);
 	}
-#endif
+
+	Social_Media_no_followers::media_user* load_user(Reddit* media, const Node& node) {
+		// add custom users here
+		
+		return media->get_default_media_user(node);
+	}
+
 }
 
 //both functions should be a sequence of if/esle if statements
@@ -112,15 +97,15 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 
 	else if (model_name == model_names::TWIT_nf)
 		return dynet::load_users(new Twitter_nf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::FB_nf)
 		return dynet::load_users(new Facebook_nf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::TWIT_wf)
 		return dynet::load_users(new Twitter_wf(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
+			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::FB_wf)
 		return dynet::load_users(new Facebook_wf(parameters, construct),
