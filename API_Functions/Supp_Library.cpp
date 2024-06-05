@@ -79,7 +79,8 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	else if (model_name == "Infection Interaction Model")
 		return new InfectionInteraction(parameters, construct);
 
-
+	else if (model_name == "Infection Model")
+		return new Infection(construct);
 
 
 

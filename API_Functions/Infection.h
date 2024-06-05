@@ -41,8 +41,6 @@ struct Infection : public Model {
 #include "StandardInteraction.h"
 
 // Modification that has people attempt to avoid other agents with an infection
-// models don't require cpp file and everything can be declared in the header file
-// cpp files simply make it easier to recompile or handle complex dependencies
 struct InfectionInteraction : public StandardInteraction {
 
 	InfectionInteraction(const dynet::ParameterMap& params, Construct& _construct) :
@@ -56,6 +54,7 @@ struct InfectionInteraction : public StandardInteraction {
 	// this function will now be called when the parent class calls its get_additions function
 	float get_additions(unsigned int sender, unsigned int reciever) override {
 		float risk = 0;
+		// skips over infections
 		for (auto infections = infection_net.sparse_row_begin(reciever, true); infections != infection_net.row_end(reciever); ++infections) {
 			risk += risk_aversion.examine(sender, infections.col());
 		}
