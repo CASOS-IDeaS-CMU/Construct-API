@@ -19,7 +19,7 @@ struct Infection : public Model {
 		for (auto& msg : construct.interaction_message_queue) {
 			if (msg.medium->index < comm_infection_probability.col_size)
 			for (auto it = infection_net.sparse_row_cbegin(msg.sender, false); it != infection_net.row_end(msg.sender); ++it) {
-				if (msg.medium->max_msg_complexity < msg.size() && construct.random.uniform() < comm_infection_probability.examine(it.col(), msg.medium->index)) {
+				if (msg.medium->max_msg_complexity > msg.size() && construct.random.uniform() < comm_infection_probability.examine(it.col(), msg.medium->index)) {
 					InteractionItem item;
 					item.attributes.insert(InteractionItem::item_keys::infection);
 					item.indexes[InteractionItem::item_keys::infection] = it.col();

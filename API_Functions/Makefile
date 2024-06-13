@@ -53,10 +53,10 @@ CONFIG ?=
 
 # Allows for additional options to be given to the creation of object files.
 # Options that are added to this variable in section are "-c -fPIC"
-OBJECT_OPTIONS ?=
+OBJECT_OPTIONS ?= -arch arm64 -arch x86_64
 
 # Allows for additional options to be given to the linker process.
-LINKER_OPTIONS ?=
+LINKER_OPTIONS ?= -arch arm64 -arch x86_64
 
 # This variable adds preprocessor flags to the comiliation process.
 # Elements do not need -D added infront of them and should appear 
@@ -171,7 +171,7 @@ LIB_EXT = dylib
 endif
 
 # Adds -D to the beginning of each preprocessor flag
-override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_MEDIA_USERS -DCUSTOM_ITEM_KEYS
+override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_ITEM_KEYS
 
 # Adds -I to the beginning of each include directory
 override INC_DIR += $(patsubst %, -I%, $(INC) $(ADD_INC))
