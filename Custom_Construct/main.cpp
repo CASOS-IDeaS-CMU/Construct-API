@@ -1,11 +1,8 @@
 #include "pch.h"
 #include "Output.h"
 #include "StandardInteraction.h"
-#include "test.h"
 
 int main() {
-
-	test();
 
 	Construct construct;
 
@@ -15,68 +12,50 @@ int main() {
 	construct.random.set_seed(56732);
 	construct.working_directory = ".";
 
-	// creating the agent nodeset
-	// Any attribute pointer previously submitted to add_node can be always safely be used in subsequent add_node calls.
-	// if the attribute pointer needs to be deallocated add_node will return true
-	Nodeset* agents = construct.ns_manager.create_nodeset(nodeset_names::agents);
-	dynet::ParameterMap agent_attributes;
-	agent_attributes.insert(std::pair("can send knowledge", "true"));
-	agent_attributes.insert(std::pair("can receive knowledge", "true"));
-	for (int i = 0; i < 50; i++) {
-		agents->add_node(agent_attributes);
-	}
-	// All nodesets have to have turn_to_const called in order for them to be discoverable by the nodeset manager and to be used to create graphs.
-	agents->turn_to_const();
+	// whenever a nodeset is created it must be populated with nodes
+	// each node can be loaded with attributes
+	// if sets of nodes have the same attributes, add_nodes can be used to create sets of nodes
+	// when sets of nodes are created, their name is auto-generated using the nodeset name as the root
+	construct.ns_manager.create_nodeset(nodeset_names::agents)->add_nodes(50, dynet::ParameterMap({ 
+		{"can send knowledge", "true"},
+		{"can receive knowledge", "true"} }));
+	construct.ns_manager.create_nodeset(nodeset_names::knowledge)->add_nodes(20, {});
+	construct.ns_manager.create_nodeset(nodeset_names::time)->add_nodes(10, {});
 
-	Nodeset* knowledge = construct.ns_manager.create_nodeset(nodeset_names::knowledge);
-	dynet::ParameterMap knowledge_attributes;
-	for (int i = 0; i < 20; i++) {
-		knowledge->add_node(knowledge_attributes);
-	}
-	knowledge->turn_to_const();
+	//nodes can be added one at a time and each name can be set
+	Nodeset& comms = *construct.ns_manager.create_nodeset(nodeset_names::comm);
 
-	Nodeset* time = construct.ns_manager.create_nodeset(nodeset_names::time);
-	dynet::ParameterMap time_attributes;
-	for (int i = 0; i < 10; i++) {
-		time->add_node(time_attributes);
-	}
-	time->turn_to_const();
-	construct.time_count = time->size();
+	comms.add_node("face to face", dynet::ParameterMap({
+		{comms_att::msg_complex, "1"},
+		{comms_att::percent_learnable, "1"},
+		{comms_att::tts, "0"}
+	}));
 
-	Nodeset* comms = construct.ns_manager.create_nodeset(nodeset_names::comm);
-
-	// each new set of attributes requires a new allocation
-	// the pointers are saved in the nodeset so no need to deallocate them after calling add_node
-	dynet::ParameterMap comm_attributes;
-	comm_attributes.insert(std::pair(comms_att::msg_complex, "1"));
-	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes.insert(std::pair(comms_att::tts, "0"));
-	comms->add_node(comm_attributes);
-
-	comm_attributes.insert(std::pair(comms_att::msg_complex, "2"));
-	comm_attributes.insert(std::pair(comms_att::percent_learnable, "1"));
-	comm_attributes.insert(std::pair(comms_att::tts, "1"));
-	comms->add_node(comm_attributes);
-
-	comms->turn_to_const();
-
+	comms.add_node("email", dynet::ParameterMap({
+		{comms_att::msg_complex, "2"},
+		{comms_att::percent_learnable, "1"},
+		{comms_att::tts, "1"}
+		}));
 
 	// adding the knowledge network
 	// Here I'm choosing for the graph to be dense in both dimensions with a default value of false.
-	Graph<bool>* knowledge_net = construct.graph_manager.load_optional(graph_names::knowledge, false, agents, true, knowledge, true);
+	Graph<bool>& knowledge_net = construct.graph_manager.load_optional(
+		graph_names::knowledge, false, nodeset_names::agents, dense, nodeset_names::knowledge, dense);
 
 	// links can be added one by one or with a generator
 	dynet::ParameterMap generator_params;
 	generator_params["density"] = "0.2";
-	generator_params["src min"] = "0";
-	generator_params["src max"] = std::to_string(agents->size() - 1);
-	generator_params["trg min"] = "0";
-	generator_params["trg max"] = std::to_string(knowledge->size() - 1);
-	construct.graph_manager.generators.binary_generator_2d(generator_params, knowledge_net);
+	generator_params["src min"] = "first";
+	generator_params["src max"] = "last";
+	generator_params["trg min"] = "first";
+	generator_params["trg max"] = "last";
+	construct.graph_manager.generators.binary_generator_2d(generator_params, &knowledge_net);
+
+	knowledge_net.at(4, 5) = true;
 
 	// Models can be created outside of Construct, but still require the construct pointer.
 	// Once models are created they must be added to the model manager so it can participate in the simulation.
-	auto SIM = new StandardInteraction(dynet::ParameterMap(), construct);
+	Model* SIM = new StandardInteraction(dynet::ParameterMap(), construct);
 	construct.model_manager.add_model(model_names::SIM, SIM);
 
 	// Outputs are similar to models in that they can be created outside of Construct and require import into its own Manager.
