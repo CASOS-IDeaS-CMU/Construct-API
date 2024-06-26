@@ -458,9 +458,8 @@ namespace nodeset_names {
 	const std::string loc = "location";		//"location"
 	const std::string task = "task";			//"task"
 	const std::string agent_group = "agent group";	//"agent group"
-	const std::string emotions = "emotion";		//"emotions"
-	const std::string subreddits = "subreddit";		//"subreddits"
-	const std::string k_types = "knowledge type";	//"knowledge types"
+	const std::string emotions = "emotion";		//"emotion"
+	const std::string subreddits = "subreddit";		//"subreddit"
 }
 
 //names of node attributes used in Construct

@@ -28,18 +28,7 @@ struct Reddit : public virtual Social_Media_no_followers {
     //edge weight reflects the number of times a user's content is banned/removed in a given subreddit
     Graph<unsigned int>& banned_agent_network = graph_manager.load_optional(graph_names::banned_user, 0u, agents, sparse, subreddits, sparse);
 
-    //graph name - "knowledge type network"
-    //knowledge x knowledge type
-    //specifies whether a knowledge is misinformation or true information 
-    //Graph<bool>* knowledge_type_network;
-
-    //const Graph<float>& reading_threshold = graph_manager.load_required("reading threshold network", agents, subreddits);
-
     Social_Media_Moderation* moderation_model = nullptr;
-
-    //float view_replies_probability;
-
-    //float thread_browsing_probability;
 
 private:
     using Social_Media_no_followers::create_post;
@@ -72,56 +61,6 @@ public:
     void random_event_swapping(unsigned int) override {}
 
     void update_event_scores() override;
-
-    //void cleanup() override;
-
-    //virtual void moderation_response(unsigned int user_index, unsigned int current_time) {}
-
-    //void append_message(media_event* _event, InteractionMessage& msg) override;
-
-    //std::set<media_event*> read_other_events(media_event* read_event, unsigned int reader_index) override;
-
-    //void cascading_comments(media_event* read_event, float stopping_threshold, std::set<media_event*>& comment_cascade);
-
-    //media_user& user(unsigned int index) {
-    //    media_user* temp = dynamic_cast<media_user*>(users[index]);
-    //    // if the media couldn't be up casted the desired class this assertion will be raised.
-    //    // If you're confused why, you probably have a diamond inheritence that makes casting non-trivial
-    //    assert(temp);
-    //    return *temp;
-    //}
-
-    //static std::function<Social_Media_no_followers::media_user* (Reddit*, const Node&)> load_user;
-
-//#ifdef CUSTOM_REDDIT_USERS
-//    media_user* load_user(const Node& node);
-//#endif
-//
-//
-//    void load_users(const std::string& version) override {
-//        assert(Construct::version == version);
-//
-//        for (auto& node : agents) {
-//#ifndef CUSTOM_REDDIT_USERS
-//            media_user* user = NULL;
-//            if (node["Reddit user type"] == "moderator") {
-//                user = new Reddit::reddit_moderator(this, node);
-//            }
-//            else if (node["Reddit user type"] == "user") {
-//                user = new Reddit::default_media_user(this, node);
-//            }
-//            else {
-//                assert(false);
-//            }
-//#endif
-//            users[node.index] =
-//#ifdef CUSTOM_REDDIT_USERS
-//                load_user(node);
-//#else
-//                user;
-//#endif
-//        }
-//    }
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct default_media_user : public media_user
@@ -176,11 +115,6 @@ public:
         //this downvotes on the media_event with probability equal to default_media_user::dp
         void downvote(media_event* _event);
 
-        //if the user's "Reddit can receive knowledge trust" is true,
-        //this updates the user's trust of the media_event's knowledge bit based on their 
-        //current trust of the knowledge bit and the trust contained in the media_event
-        //void update_ktrust(media_event* _event);
-
         virtual void enrich_event(media_event* _event);
 
         virtual unsigned int select_subreddit();
@@ -192,7 +126,6 @@ public:
         std::set<media_event*> read(media_event* read_event);
 
         void repost(media_event* _event) {}
-        //void reply(media_event* _event) {}
         void quote(media_event* _event) {}
     };
 
@@ -243,10 +176,6 @@ public:
     }
 
     std::vector<unsigned int> subreddit_banned_threshold = std::vector<unsigned int>(subreddits.size());;
-
-//private:
-    //list of integers that stores the starting size of each subreddit
-    //std::vector<unsigned int> subreddit_sizes;
 };
 
 

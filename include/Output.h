@@ -246,7 +246,8 @@ struct Output_dynetml : public Output {
 };
 
 struct Output_Messages : public Output {
-	std::list<InteractionMessage>* queue;
+	const Nodeset& agents;
+	const std::list<InteractionMessage>& queue;
 	std::ofstream _output_file;
 
 	~Output_Messages(void) {
@@ -258,10 +259,13 @@ struct Output_Messages : public Output {
 		nlohmann::json timeperiod;
 		timeperiod["timeperiod"] = t;
 		nlohmann::json messages = nlohmann::json::array();
-		for (auto& msg : *queue) {
+		for (auto& msg : queue) {
 			nlohmann::json json_msg;
-			json_msg["sender"] = msg.sender;
-			json_msg["receiver"] = msg.receiver;
+			json_msg["sender index"] = msg.sender;
+			json_msg["sender name"] = agents[msg.sender].name;
+			json_msg["receiver index"] = msg.receiver;
+			json_msg["receiver name"] = agents[msg.receiver].name;
+			json_msg["medium index"] = msg.medium->index;
 			json_msg["medium name"] = msg.medium->name;
 			nlohmann::json items = nlohmann::json::array();
 
@@ -286,17 +290,21 @@ struct Output_Messages : public Output {
 			messages.push_back(json_msg);
 		}
 		timeperiod["messages"] = messages;
-		if (t == output_times[0])
-			_output_file << "[";
+			
 		_output_file << timeperiod;
-		if (t == output_times.back())
+		if (t != output_times.back())
 			_output_file << ",";
 
 	}
 
 
-	Output_Messages(const dynet::ParameterMap& params, Construct& construct) {
-		queue = &construct.interaction_message_queue;
+	Output_Messages(const dynet::ParameterMap& params, Construct& construct) : 
+		queue(construct.interaction_message_queue),
+		agents(construct.ns_manager.get_nodeset(nodeset_names::agents)) {
+
+		for (unsigned int i = 0; i < construct.time_count; i++) {
+			output_times.push_back(i);
+		}
 
 		std::string file = params.get_parameter(output_parameters::output_file);
 		if (file.size() <= 5 || ".json" != file.substr(file.size() - 5, 5)) {
@@ -310,6 +318,8 @@ struct Output_Messages : public Output {
 		if (!_output_file.is_open()) {
 			throw dynet::could_not_open_file(file);
 		}
+
+		_output_file << "[";
 	}
 };
 
@@ -474,15 +484,9 @@ struct Output_Reddit_Posts : public Output {
 	const Reddit::event_container* media_events;
 	int output_frequency;
 
-	virtual const Reddit::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {
-		try {
-			auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); \
-				return &media_ptr->list_of_events;
-		}
-		catch(...){
-			auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Multiplatform Reddit Model")); \
-				return &media_ptr->list_of_events;
-		}
+	virtual const Reddit::event_container* get_event_list(const dynet::ParameterMap& params, Construct& construct) {	
+		auto media_ptr = dynamic_cast<Reddit*>(construct.model_manager.get_model("Reddit Interaction Model")); 
+		return &media_ptr->list_of_events;
 	}
 
 	~Output_Reddit_Posts(void) {

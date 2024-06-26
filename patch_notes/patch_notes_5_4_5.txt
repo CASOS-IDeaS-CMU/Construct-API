@@ -1,0 +1,6 @@
+Fixed a bug with OutputMessages where commas weren't seperating the json array.
+Added additional information to OutputMessages to also include sender and receiver names and medium index.
+Fixed a bug in Social_Media_no_followers::clean_up where if dt was less than 1, an error would occur.
+Arm64 architecture now supported for mac machines.
+Fixed a bug in Nodeset::check_attributes where sometimes the node name wasn't returned when a value is outside the specified range.
+Fixed a bug where StandardInteraction wasn't creating InteractionItems correctly.
