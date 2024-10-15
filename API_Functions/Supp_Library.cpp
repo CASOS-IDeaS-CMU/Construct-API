@@ -1,6 +1,4 @@
-#include "pch.h" 
 #include "Supp_Library.h"
-
 #include "Template.h"
 #include "GrandInteraction.h"
 #include "Location.h"
@@ -38,18 +36,6 @@ namespace dynet {
 		return media->get_default_media_user(node);
 	}
 
-	Social_Media_no_followers::media_user* load_user(SM_nf_emotions* media, const Node& node) {
-		// add custom users here
-
-		return media->get_default_media_user(node);
-	}
-
-	Social_Media_no_followers::media_user* load_user(SM_wf_emotions* media, const Node& node) {
-		// add custom users here
-
-		return media->get_default_media_user(node);
-	}
-
 	Social_Media_no_followers::media_user* load_user(Reddit* media, const Node& node) {
 		// add custom users here
 		
@@ -70,7 +56,7 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 	assert(std::string(Construct::version) == version);
 
 	if (model_name == "Template Model")
-		return new Template(parameters, construct);
+		return construct.create_model<Template>(parameters);
 
 	//************************************
 	//*    add your custom model here    *
@@ -78,82 +64,66 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 
 
 	if (model_name == model_names::SIM)
-		return new StandardInteraction(parameters, construct);
+		return construct.create_model<StandardInteraction>(parameters);
 
 	else if (model_name == model_names::SUB)
-		return new Subscription(construct);
+		return construct.create_model<Subscription>();
 
 	else if (model_name == model_names::KDIFF)
-		return new KnowledgeLearningDifficulty(construct);
+		return construct.create_model<KnowledgeLearningDifficulty>();
 
 	else if (model_name == model_names::KTM)
-		return new KnowledgeTransactiveMemory(parameters, construct);
+		return construct.create_model<KnowledgeTransactiveMemory>(parameters);
 
 	else if (model_name == model_names::FORGET)
-		return new Forget(construct);
+		return construct.create_model<Forget>();
 
 	else if (model_name == model_names::MAIL)
-		return new Mail(construct);
+		return construct.create_model<Mail>();
 
 	else if (model_name == model_names::TWIT_nf)
-		return dynet::load_users(new Twitter_nf(parameters, construct),
+		return dynet::load_users(construct.create_model<Twitter_nf>(parameters),
 			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::FB_nf)
-		return dynet::load_users(new Facebook_nf(parameters, construct),
+		return dynet::load_users(construct.create_model<Facebook_nf>(parameters),
 			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_no_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::TWIT_wf)
-		return dynet::load_users(new Twitter_wf(parameters, construct),
+		return dynet::load_users(construct.create_model<Twitter_wf>(parameters),
 			static_cast<Social_Media_no_followers::media_user * (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::FB_wf)
-		return dynet::load_users(new Facebook_wf(parameters, construct),
+		return dynet::load_users(construct.create_model<Facebook_wf>(parameters),
 			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::EMOT)
-		return new Emotions(construct);
-
-	else if (model_name == model_names::TWIT_nf_emot)
-		return dynet::load_users(new Twitter_nf_emotions(parameters, construct), 
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_nf_emotions*,const Node&)>(&dynet::load_user));
-
-	else if (model_name == model_names::FB_nf_emot)
-		return dynet::load_users(new Facebook_nf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_nf_emotions*, const Node&)>(&dynet::load_user));
-
-	else if (model_name == model_names::TWIT_wf_emot)
-		return dynet::load_users(new Twitter_wf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
-
-	else if (model_name == model_names::FB_wf_emot)
-		return dynet::load_users(new Facebook_wf_emotions(parameters, construct),
-			static_cast<Social_Media_no_followers::media_user* (*)(SM_wf_emotions*, const Node&)>(&dynet::load_user));
+		return construct.create_model<Emotions>();
 
 	else if (model_name == model_names::BELIEF)
-		return new Beliefs(parameters, construct);
+		return construct.create_model<Beliefs>(parameters);
 
 	else if (model_name == model_names::TASK)
-		return new Tasks(parameters, construct);
+		return construct.create_model<Tasks>(parameters);
 
 	else if (model_name == model_names::GRAND)
-		return new GrandInteraction(parameters, construct);
+		return construct.create_model<GrandInteraction>(parameters);
 
 	else if (model_name == model_names::TRUST)
-		return new Trust(parameters, construct);
+		return construct.create_model<Trust>(parameters);
 
 	else if (model_name == model_names::LOC)
-		return new Location(construct);
+		return construct.create_model<Location>();
 
 	else if (model_name == model_names::REDDIT)
-		return dynet::load_users(new Reddit(parameters, construct), 
+		return dynet::load_users(construct.create_model<Reddit>(parameters), 
 			static_cast<Social_Media_no_followers::media_user* (*)(Reddit*,const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::MODERATION)
-		return new Social_Media_Moderation(parameters, construct);
+		return construct.create_model<Social_Media_Moderation>();
 
 	else if (model_name == model_names::MULTI_MOD)
-		return new Multiplatform_Manager(parameters, construct);
+		return construct.create_model<Multiplatform_Manager>();
 
 	//*************************************
 	//*    add your custom model here     *

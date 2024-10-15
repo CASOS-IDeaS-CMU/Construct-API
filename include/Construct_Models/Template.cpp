@@ -276,9 +276,9 @@ Template::Template(dynet::ParameterMap parameters, Construct& construct) : Model
 	//items have three data storage members; attributes, indexes, and values.
 
 	InteractionItem item;
-	item.attributes.insert(InteractionItem::item_keys::knowledge);
-	item.indexes[InteractionItem::item_keys::knowledge] = 2;
-	item.values[InteractionItem::item_keys::ktrust] = 0.5;
+	item.attributes.insert(item_keys::knowledge);
+	item.indexes[item_keys::knowledge] = 2;
+	item.values[item_keys::ktrust] = 0.5;
 
 	//messages require a vector of items
 

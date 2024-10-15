@@ -1,6 +1,4 @@
 #pragma once
-#include "pch.h"
-
 //This model is a variant on the Standard Interaction Model
 #include "StandardInteraction.h"
 

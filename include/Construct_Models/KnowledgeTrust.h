@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "Construct.h"
 
 namespace node_attributes {
 	const std::string trust_resistance = "agent trust resistance";
@@ -15,9 +15,9 @@ struct trust_parser : public InteractionMessageParser {
 	void parse(const InteractionMessage& msg) override {
 		for (auto& item : msg) {
 			unsigned int j = msg.sender;
-			auto alter = item.indexes.find(InteractionItem::item_keys::alter);
+			auto alter = item.indexes.find(item_keys::alter);
 			if (alter != item.indexes.end()) j = alter->second;
-			if (item.contains(InteractionItem::item_keys::ktrust)) {
+			if (item.contains(item_keys::ktrust)) {
 				auto [k, trust] = item.get_knowledge_trust();
 				kttm.at(msg.receiver, j).insert(std::pair(k, trust));
 			}

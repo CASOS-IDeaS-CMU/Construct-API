@@ -1,4 +1,4 @@
-#pragma once
+#pragma once#include "CustomKeys.h"
 #ifdef DEBUG
 	#undef NDEBUG
 	#ifndef _DEBUG
@@ -451,6 +451,7 @@ public:
 //names of nodesets used in Construct
 namespace nodeset_names {
 	const std::string agents = "agent";			//"agent"
+	const std::string activity = "activity";		//"activity"
 	const std::string knowledge = "knowledge";		//"knowledge"
 	const std::string time = "time";			//"time"
 	const std::string belief = "belief";			//"belief"
@@ -460,6 +461,7 @@ namespace nodeset_names {
 	const std::string agent_group = "agent group";	//"agent group"
 	const std::string emotions = "emotion";		//"emotion"
 	const std::string subreddits = "subreddit";		//"subreddit"
+	const std::string model = "model";
 }
 
 //names of node attributes used in Construct
@@ -478,6 +480,8 @@ namespace node_attributes {
 	const std::string susceptiblity = "susceptiblity";				//"susceptiblity"
 	const std::string send_e = "can send emotion";			//"can send emotion"
 	const std::string recv_e = "can receive emotion";		//"can receive emotion"
+	const std::string emot_dep = "emotional dependence"; //"enable emotional dependence"
+	
 
 	//These node attributes have prefixes that precede their name
 	//See the class media_user
@@ -640,50 +644,41 @@ struct CommunicationMedium
 
 struct InteractionItem
 {
-	enum class item_keys : char
-#ifndef CUSTOM_ITEM_KEYS
-	{
-		knowledge,
-		alter,
-		belief,
-		ktm,
-		btm,
-		ktrust,
-		twitter_event,
-		facebook_event,
-		feed_position,
-		emotion,
-		banned,
-		upvotes,
-		downvotes,
-		subreddit,
-		prev_banned,
-		reddit_event
-		//ordering of the above items shall not be modified
-		//new items can be added after the above list
-		//added items should be added to the item_names data structure
+//	enum class item_keys : char
+//#ifndef CUSTOM_ITEM_KEYS
+//	{
+//		knowledge,
+//		alter,
+//		belief,
+//		ktm,
+//		btm,
+//		ktrust,
+//		twitter_event,
+//		facebook_event,
+//		feed_position,
+//		emotion,
+//		banned,
+//		upvotes,
+//		downvotes,
+//		subreddit,
+//		prev_banned,
+//		reddit_event
+//		//ordering of the above items shall not be modified
+//		//new items can be added after the above list
+//		//added items should be added to the item_names data structure
+//
+//
+//
+//
+//		//item_key list should not exceed 100 as this is reserved for the emotion nodeset
+//	}
+//#endif
+//	;
+	static std::unordered_map<item_keys, std::string> item_names;
 
+	static const std::string& get_item_name(item_keys key);
 
-
-
-		//item_key list should not exceed 100 as this is reserved for the emotion nodeset
-	}
-#endif
-	;
-	static std::unordered_map<InteractionItem::item_keys, std::string> item_names;
-
-	static const std::string& get_item_name(InteractionItem::item_keys key);
-
-	static InteractionItem::item_keys get_item_key(const std::string& name);
-
-	using attribute_iterator = std::unordered_set<item_keys>::iterator;
-	using attribute_const_iterator = std::unordered_set<item_keys>::const_iterator;
-
-	using index_iterator = std::unordered_map<item_keys, unsigned int>::iterator;
-	using index_const_iterator = std::unordered_map<item_keys, unsigned int>::const_iterator;
-
-	using value_iterator = std::unordered_map<item_keys, float>::iterator;
-	using value_const_iterator = std::unordered_map<item_keys, float>::const_iterator;
+	static item_keys get_item_key(const std::string& name);
 	
 	bool contains(item_keys key) const {
 		return attributes.contains(key);
@@ -755,10 +750,6 @@ struct InteractionItem
 	
 };
 
-
-#ifdef CUSTOM_ITEM_KEYS
-#include<item_keys.h>
-#endif
 
 struct InteractionMessage
 {
@@ -853,7 +844,6 @@ struct InteractionMessage
 
 	bool is_valid(void) const noexcept { return items.size() > 0 && medium != NULL; }
 };
-
 
 #ifdef max
 #undef max
@@ -3505,6 +3495,7 @@ auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& 
 
 namespace graph_names {
 	const std::string active = "agent active time network";					     // "agent active time network"
+	const std::string activity_weights = "agent activity weights network";	// "agent activity weights network"
 	const std::string current_loc = "agent current location network";                   // "agent current location network"
 	const std::string group_beliefs = "agent group belief network";                       // "agent group belief network"
 	const std::string group_knowledge = "agent group knowledge network";                    // "agent group knowledge network"
@@ -3515,6 +3506,7 @@ namespace graph_names {
 	const std::string mail_usage = "agent mail usage by medium network";               // "agent mail usage by medium network"
 	const std::string recep_count = "agent reception count network";                    // "agent reception count network"
 	const std::string agent_trust = "agent trust network";								 // "agent trust network"
+	const std::string base_activity = "base activity rate network";
 	const std::string b_k_wgt = "belief knowledge weight network";                  // "belief knowledge weight network"
 	const std::string belief_msg_complex = "belief message complexity network";                // "belief message complexity network"
 	const std::string beliefs = "belief network";                                   // "belief network"
@@ -3523,6 +3515,7 @@ namespace graph_names {
 	const std::string comm_access = "communication medium access network";              // "communication medium access network"
 	const std::string comm_pref = "communication medium preferences network";         // "communication medium preferences network"
 	const std::string fb_friend = "facebook friend network";                          // "facebook friend network"
+	const std::string emotion_att = "emotion attractors network";
 	const std::string emotion_net = "emotion network";									 // "emotion network"
 	const std::string emot_broad_bias = "emotion broadcast bias network";					 // "emotion broadcast bias network"
 	const std::string emot_broad_first = "emotion broadcast first order network";			 // "emotion broadcast first order network"
@@ -3554,6 +3547,7 @@ namespace graph_names {
 	const std::string loc_medium_access = "location medium access network";                   // "location medium access network"
 	const std::string location_network = "location network";                                 // "location network"
 	const std::string mail_check_prob = "mail check probability network";                   // "mail check probability network"
+	const std::string media_removal = "media removal count network";
 	const std::string medium_k_access = "medium knowledge access network";                  // "medium knowledge access network"
 	const std::string kttm = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
 	const std::string phys_prox = "physical proximity network";                       // "physical proximity network"
@@ -3938,10 +3932,24 @@ struct ModelManager
 		return NULL;
 	}
 
+	template<typename Model_Class>
+	Model_Class* get_model(const std::string& name) { return dynamic_cast<Model_Class*>(get_model(name)); }
+
+	template<typename Model_Class>
+	const Model_Class* get_model(const std::string& name) const { return dynamic_cast<Model_Class*>(get_model(name)); }
+
 	void add_model(const std::string& name, Model* model) {
 		if (contains(name)) throw dynet::model_already_exists(name);
 		_models[name] = model;
 	}
+
+	template<typename modelclass, typename... modelargs>
+	modelclass* add_model(const std::string& name, modelargs&&... args) {
+		modelclass* model = new modelclass(std::forward<modelargs>(args));
+		add_model(name, model);
+		return model;
+	}
+
 };
 
 #include <fstream>
@@ -4017,6 +4025,13 @@ struct OutputManager {
 
 	// pointers added to OutputManager are deallocated by the OutputManager
 	void add_output(Output* output) noexcept { _output.push_back(output); }
+
+	template<typename outputclass, typename... outputargs>
+	outputclass& add_output(outputargs&&... args) {
+		outputclass* output = new outputclass(std::forward<outputargs>(args)...);
+		add_output(output);
+		return *outputclass;
+	}
 };
 
 
@@ -4042,7 +4057,7 @@ struct Construct {
 
 	time_t simulation_end = 0;
 
-	static constexpr const char* version = "5.4.4";
+	static constexpr const char* version = "5.4.6";
 	~Construct() {}
 
 	Construct();
@@ -4089,6 +4104,11 @@ struct Construct {
 
 	bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium);
 
+	template<typename modelclass, typename... modelargs>
+	modelclass* create_model(modelargs&&... args) {
+		return new modelclass(std::forward<modelargs>(args), *this);
+	}
+
 	//directory where all output gets sent.
 	std::string working_directory = "";
 
@@ -4123,7 +4143,7 @@ struct Knowledge_Parser : public InteractionMessageParser {
 
 	void parse(const InteractionMessage& msg) {
 		for (auto& item : msg) {
-			if (item.contains(InteractionItem::item_keys::knowledge)) 
+			if (item.contains(item_keys::knowledge)) 
 				knowledge_net.add_delta(msg.receiver, item.get_knowledge(), true);
 		}
 	}

@@ -1,12 +1,11 @@
 #pragma once
-#include "pch.h"
+#include "Construct.h"
 #include "SocialMedia.h"
 #include "MultiplatformSocialMedia.h"
 
 namespace node_attributes {
     const std::string banned_threshold = "banned threshold";
     const std::string moderation_delay = "moderation delay";
-    const std::string moderation_threshold = "moderation threshold";
     const std::string user_type = " user type";
     const std::string moderator = "moderator";
     const std::string view_replies_probability = " view reply probability";
@@ -36,10 +35,10 @@ public:
 
     media_event* create_post(unsigned int knowledge_index, unsigned int id, unsigned int subreddit) {
         media_event* ret = Social_Media_no_followers::create_post(knowledge_index, id);
-        ret->indexes[InteractionItem::item_keys::subreddit] = subreddit;
-        ret->indexes[InteractionItem::item_keys::upvotes] = 1;
-        ret->indexes[InteractionItem::item_keys::downvotes] = 0;
-        ret->indexes[InteractionItem::item_keys::prev_banned] = banned_agent_network.examine(id, subreddit);
+        ret->indexes[item_keys::subreddit] = subreddit;
+        ret->indexes[item_keys::upvotes] = 1;
+        ret->indexes[item_keys::downvotes] = 0;
+        ret->indexes[item_keys::prev_banned] = banned_agent_network.examine(id, subreddit);
         return ret;
     }
 
@@ -47,10 +46,10 @@ public:
         media_event* ret = Social_Media_no_followers::create_response(id, parent);
         ret->type = media_event::event_type::reply;
         parent->replies.insert(ret);
-        ret->indexes[InteractionItem::item_keys::upvotes] = 1;
-        ret->indexes[InteractionItem::item_keys::downvotes] = 0;
-        ret->indexes[InteractionItem::item_keys::subreddit] = parent->indexes[InteractionItem::item_keys::subreddit];
-        ret->indexes[InteractionItem::item_keys::prev_banned] = banned_agent_network.examine(id, parent->indexes[InteractionItem::item_keys::subreddit]);
+        ret->indexes[item_keys::upvotes] = 1;
+        ret->indexes[item_keys::downvotes] = 0;
+        ret->indexes[item_keys::subreddit] = parent->indexes[item_keys::subreddit];
+        ret->indexes[item_keys::prev_banned] = banned_agent_network.examine(id, parent->indexes[item_keys::subreddit]);
         return ret;
     }
 
@@ -61,6 +60,9 @@ public:
     void random_event_swapping(unsigned int) override {}
 
     void update_event_scores() override;
+
+    //populates using upvotes and likes instead of reposts and quotes in addition to actions::trees and actions::expand
+    void populate_activity_indexes() override;
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct default_media_user : public media_user
@@ -75,27 +77,12 @@ public:
             return *temp;
         }
 
+        //shortcut to Social_Media_no_followers::get_action
+        template<actions action>
+        inline float get_action() { return media().get_action<action>(id); }
+
         //this user's agent index
         unsigned int id;
-
-        //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
-        float pdread;
-
-        //probability to create a post to a subreddit
-        float pp;
-
-        //probability to reply when an event or reply is read
-        float pr;
-
-        //probability to add an upvote to an event
-        float up;
-
-        //probability to add a downvote to an event
-        float dp;
-
-        float expand;
-
-        float reply_tree;
 
         //user makes a new post based on their "Reddit post probability"
         void generate_post_events(void);
@@ -168,6 +155,7 @@ public:
         void quote(media_event* _event) {}
         std::set<media_event*> read(media_event* read_event) { return std::set<media_event*>(); }
     };
+
 
     Social_Media_no_followers::media_user* get_default_media_user(const Node& node) override {
         if (node[media_name + node_attributes::user_type] == node_attributes::moderator)

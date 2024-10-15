@@ -1,7 +1,5 @@
 #ifndef OUTPUT_HEADER_GUARD
 #define OUTPUT_HEADER_GUARD
-
-#include "pch.h"
 #include "SocialMedia.h"
 #include "json.hpp"
 
@@ -501,13 +499,13 @@ struct Output_Reddit_Posts : public Output {
 		_output_file << "\"timestep created\", " << msg.time_stamp << ", ";
 		_output_file << "\"user\", \"" << msg.user << "\", ";
 		_output_file << "\"last used\", " << msg.last_used << ", ";
-		_output_file << "\"prev banned\", " << msg.indexes.find(InteractionItem::item_keys::prev_banned)->second << ", ";
-		_output_file << "\"subreddit\", " << msg.indexes.find(InteractionItem::item_keys::subreddit)->second << ", ";
-		_output_file << "\"knowledge\", " << msg.indexes.find(InteractionItem::item_keys::knowledge)->second << ", ";
-		_output_file << "\"ktrust\", " << msg.values.find(InteractionItem::item_keys::ktrust)->second << ", ";
-		_output_file << "\"upvotes\", " << msg.indexes.find(InteractionItem::item_keys::upvotes)->second << ", ";
-		_output_file << "\"downvotes\", " << msg.indexes.find(InteractionItem::item_keys::downvotes)->second << ", ";
-		_output_file << "\"banned\", " << msg.indexes.find(InteractionItem::item_keys::banned)->second << ", ";
+		_output_file << "\"prev banned\", " << msg.indexes.find(item_keys::prev_banned)->second << ", ";
+		_output_file << "\"subreddit\", " << msg.indexes.find(item_keys::subreddit)->second << ", ";
+		_output_file << "\"knowledge\", " << msg.indexes.find(item_keys::knowledge)->second << ", ";
+		_output_file << "\"ktrust\", " << msg.values.find(item_keys::ktrust)->second << ", ";
+		_output_file << "\"upvotes\", " << msg.indexes.find(item_keys::upvotes)->second << ", ";
+		_output_file << "\"downvotes\", " << msg.indexes.find(item_keys::downvotes)->second << ", ";
+		_output_file << "\"banned\", " << msg.indexes.find(item_keys::banned)->second << ", ";
 
 		//_output_file << "\"type\" : " << (std::string)(msg->type) << ", ";
 		//_output_file << "\"child_size\" : " << msg->child_size() << ", ";

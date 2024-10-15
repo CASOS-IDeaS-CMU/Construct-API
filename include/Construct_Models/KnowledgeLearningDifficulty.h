@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "Construct.h"
 
 class KnowledgeLearningDifficulty : public Model
 {
@@ -13,7 +13,7 @@ public:
 	Returns true with probability from the receiver's corresponding element in k_learning_difficulty_net.
 	<para>
 	Only applies to items with receiver index less than the agent nodeset size, a non-null pointer medium, 
-	and if the item contains InteractionItem::item_keys::knowledge.
+	and if the item contains item_keys::knowledge.
 	</para>
 	<summary>*/
 	bool intercept(InteractionItem& item, unsigned int sender, unsigned int receiver, const CommunicationMedium* medium) override;

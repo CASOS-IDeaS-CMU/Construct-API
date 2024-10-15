@@ -5,7 +5,7 @@ Useful Links:
 
 [Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
 
-[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-S3D-23-104.pdf)
+[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-S3D-24-105.pdf)
 
 [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
 
@@ -56,7 +56,7 @@ An example would be modifiying StandardInteraction's knowledge_similarity functi
 Once a custom model has been defined, it must be included in the definition of "create_model".
 The function call gives as input the model's name.
 This allows Construct to select the appropriate model.
-If the custom model's name is given (the same string given to the Model constructor), the custom model should be allocated with new and its pointer returned by the function.
+If the custom model's name is given, the custom model should be created using Construct::create_model with the return value returned by "create_model".
 To aid in the example of how developers can create models and how interfaces between models can work, the Template files serve as an examples for how the Construct interfaces work.
 
 ## Creating Custom Output
@@ -68,8 +68,7 @@ Each output must inheriet from the Output class, each output is selected using t
 
 ## Custom Media Users
 
-When the preprocessor definition "CUSTOM_MEDIA_USERS" is present as it is in Construct_DLL.sln, custom load_users function can be defined.
-These replace the load_users function in the social media models without having to create a new class inherieting from the corresponding models.
+Custom load_user functions replaces the load_user functions in the social media models without having to create a new class inherieting from the corresponding models.
 While many methods can be used to instantiate social media users, the default method is using the node attributes for each of the user's corresponding nodes'.
 By creating a class that inheriets from the media_user or default_media_user class contained in a social media model, various functionality can be modified such as targeted behavior when reposting.
 

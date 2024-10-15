@@ -5,7 +5,7 @@
 #define CONSTRUCT_API
 #endif
 
-#include "pch.h"
+#include "Construct.h"
 //Do not edit these functions
 
 namespace dynet {

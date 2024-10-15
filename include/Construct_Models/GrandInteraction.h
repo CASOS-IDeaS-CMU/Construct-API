@@ -1,6 +1,4 @@
 #pragma once
-#include "pch.h"
-
 //Models this model will pull from
 #include "StandardInteraction.h"
 #include "Beliefs.h"

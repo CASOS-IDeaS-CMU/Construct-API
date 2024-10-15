@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "Construct.h"
 #include "json.hpp"
 
 namespace model_parameters {
@@ -250,9 +250,9 @@ struct Social_Media_no_followers : public Model
 
     //class that contains all settings for a user as well as functions that dictates how each user interacts
     struct media_user {
-        Social_Media_no_followers* media_ptr;
+        Social_Media_no_followers* const media_ptr;
 
-        Random& random() { return media_ptr->random; }
+        constexpr Random& random() { return media_ptr->random; }
 
         media_user(Social_Media_no_followers* media) : media_ptr(media) {}
 
@@ -281,33 +281,17 @@ struct Social_Media_no_followers : public Model
 
     struct default_media_user : public media_user {
 
-        default_media_user(Social_Media_no_followers* reddit, const Node& node);
+        default_media_user(Social_Media_no_followers* sm, const Node& node);
 
-        Social_Media_no_followers& media() {
-            Social_Media_no_followers* temp = dynamic_cast<Social_Media_no_followers*>(media_ptr);
-            // if the media couldn't be up casted the desired class this assertion will be raised.
-            // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
-            assert(temp);
-            return *temp;
+        constexpr Social_Media_no_followers& media() {
+            return *media_ptr;
         }
 
+        template<actions action>
+        inline float get_action() { return media().get_action<action>(id); }
+
         //this user's agent index
-        unsigned int id;
-
-        //probability density to post pdtw * dt = average number of events in a time period
-        float pdp;
-
-        //probability to reply when an event or reply is read
-        float pr;
-
-        //probability to repost when an event is read
-        float prp;
-
-        //probability to quote when an event is read
-        float pqu;
-
-        //probability density to read events (time in hours) pdread*dt=average number of read messages in a time period.
-        float pdread;
+        const unsigned int id;
 
         //this reads the post given and performs any actions before the post is potentially responded to
         void parse(media_event* _event);
@@ -337,6 +321,17 @@ struct Social_Media_no_followers : public Model
 
         std::set<media_event*> read(media_event* read_event);
     };
+
+    //list of users
+    std::vector<media_user*> users;
+
+    Social_Media_no_followers::media_user& user(unsigned int index) {
+        Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
+        // if the media couldn't be up casted the desired class this assertion will be raised.
+        // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
+        assert(temp);
+        return *temp;
+    }
 
     class event_container : public std::list<media_event> {
         using std::list<media_event>::insert;
@@ -440,6 +435,15 @@ struct Social_Media_no_followers : public Model
     const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);  
     const Nodeset& knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
 
+
+    const Nodeset& activity = ns_manager.get_nodeset(nodeset_names::activity);
+    const Graph<float>& agent_activity_weights = graph_manager.load_required(graph_names::activity_weights, agents, activity);
+    std::unordered_map<actions, unsigned int> activity_indexes;
+
+    virtual void populate_activity_indexes();
+
+    template<actions action>
+    inline float get_action(unsigned int agent_index) { return agent_activity_weights.examine(agent_index, activity_indexes[action]); }
     
 
     //this is the medium used for all messages created by this model
@@ -447,7 +451,7 @@ struct Social_Media_no_followers : public Model
     const CommunicationMedium medium;
 
     //this key is added to messages created by this model for items that contain the feed index
-    const InteractionItem::item_keys event_key;
+    const item_keys event_key;
 
 
 
@@ -477,23 +481,12 @@ struct Social_Media_no_followers : public Model
 
     //graph name - "agent active time network"
     //agent x timeperiod
-    const Graph<bool>* active_agents = graph_manager.load_optional(graph_names::active, true, agents, sparse, ns_manager.get_nodeset(nodeset_names::time), sparse);
-
-    //list of users
-    std::vector<media_user*> users;
-
-    Social_Media_no_followers::media_user& user(unsigned int index) {
-        Social_Media_no_followers::media_user* temp = dynamic_cast<Social_Media_no_followers::media_user*>(users[index]);
-        // if the media couldn't be up casted the desired class this assertion will be raised.
-        // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
-        assert(temp);
-        return *temp;
-    }
+    const Graph<bool>& active_agents = graph_manager.load_optional(media_name + graph_names::active, true, agents, sparse, ns_manager.get_nodeset(nodeset_names::time), sparse);
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
     //Uses the API function create_social_media_user to populate Social_Media_with_followers::users
-    Social_Media_no_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
+    Social_Media_no_followers(const std::string& _media_name, item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
 
     //delete all pointers in stored in the Social_Media_with_followers::users data structure
     virtual ~Social_Media_no_followers();
@@ -590,7 +583,7 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
 
         default_media_user(Social_Media_no_followers* media, const Node& node);
 
-        Social_Media_with_followers& media() {
+        constexpr Social_Media_with_followers& media() {
             Social_Media_with_followers* temp = dynamic_cast<Social_Media_with_followers*>(media_ptr);
             // if the media couldn't be up casted the desired class this assertion will be raised.
             // If you're confused why you probably have a diamond inheritence that makes casting non-trivial
@@ -660,7 +653,7 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
 
     //Loads all nodesets and graphs for this model and checks to ensure all required node attributes are present
     //Loads the parameters "interval time duration" into dt and "maximum post inactivity" into age
-    Social_Media_with_followers(const std::string& _media_name, InteractionItem::item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
+    Social_Media_with_followers(const std::string& _media_name, item_keys event_key, const dynet::ParameterMap& parameters, Construct& _construct);
 
 //#ifdef CUSTOM_MEDIA_USERS_FOLLOWERS
 //    Social_Media_no_followers::media_user* load_user(const Node& node);

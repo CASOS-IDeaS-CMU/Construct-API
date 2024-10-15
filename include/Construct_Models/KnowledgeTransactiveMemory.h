@@ -1,6 +1,4 @@
 #pragma once
-#include "pch.h"
-
 //This model operates as a modification to the Standard Interaction Model and thus requires the header
 #include "StandardInteraction.h"
 

@@ -1,0 +1,11 @@
+Added the nodeset "models". This is used by the Social_Media_Moderation and Multiplatform_Moderation models. This removes the respective model parameters and are instead moved to the attributes of each model node.
+Added the nodeset "activity". This nodeset is used by Social_Media_no_followers, Reddit, and Emotion. Probabilities and rates are no longer stored in node attributes. Instead the values are stored in the "agent activity weights network". The emotion model then updates these values as needed.
+An enumeration for each of the activities have been added to give each activity a key.
+A parser for emotions is now added when loading the emotion model which guarentees that emotions are updated from reading a message before any model parses an interaction message.
+The Emotion model now updates the "agent activity weights network" using values from the "base agent activity weights network" and the first order and second order activity weights with names designated by the name of the activity nodes. Ex. For the activity Twitter repost probability, there is an associated network "first order Twitter repost probability network".
+Base rates should now better reflect the average value of the rates over time.
+Emotion Social Media Models have been removed as they are now unnecessary.
+Added the function ModelManager::add_model which takes as a template argument a class type. The function create the model, forwards the arguments to the model constructor, and adds the model to the model_manager.
+Added the function Construct::create_model which takes as a template argument a class type. The function creates the model, but does not add it to the model_manager. The arguments are passed to the model construct in addition to the construct reference. Ex If the model constructor is Template(parameters, construct), the correct call is construct.create_model<Template>(parameters).
+Added the function ModelManager::get_model which takes as a template argument a class type. The function finds the requested model and attempts to cast the model to the template class type. If the cast is unsuccessful, a nullptr will be returned.
+InteractionItem::item_keys has been moved to the CustomKeys.h file and using custom keys no longer requires the compliation flag CUSTOM_ITEM_KEYS.

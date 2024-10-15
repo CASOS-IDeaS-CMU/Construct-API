@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 #include "Tasks.h"
 
 class Location : public Model
