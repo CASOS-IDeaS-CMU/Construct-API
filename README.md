@@ -1,11 +1,11 @@
 # The Construct API
 Useful Links:
 
-[CASOS Construct Webpage](http://casos.cs.cmu.edu/projects/construct)
+[CASOS Construct Webpage](https://www.cmu.edu/casos-center/research/tools/construct.html)
 
 [Stand alone executables and GUI](http://casos.cs.cmu.edu/projects/construct/software.php)
 
-[Construct User Guide](http://casos.cs.cmu.edu/publications/papers/CMU-S3D-24-105.pdf)
+[Construct User Guide](https://www.cmu.edu/casos-center/publications/cmu-s3d-24-105.pdf)
 
 [API Documenation](http://casos.cs.cmu.edu/projects/construct/API/index.html)
 
