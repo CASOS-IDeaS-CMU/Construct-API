@@ -6,31 +6,36 @@ emotions = ["sad", "fear", "disgust", "anger", "surprise", "happiness"]
 # how strongly should activity depend on emotional valence
 activity_dependence_scale_factor = 2.0
 
-activities = {"Twitter post density": {
-                    "base": 0.139,              #sad	fear	disg	anger	surp	hap
-                    "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
-                    "second order": None,
-                    "transform": "exponential"}, 
-              "Twitter read density": {
-                    "base": 3.41},
-                    #"first order": None, #np.array([	-0.1,	0.1,	-0.2,	0.1,	0.2,	0.0 ]) * activity_dependence_scale_factor,
-                    #"second order": None}, 
-              "Twitter repost probability": {
-                    "base": 0.0476,             #sad	fear	disg	anger	surp	hap
-                    "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
-                    "second order": None,
-                    "transform": "sigmoid"}, 
-              "Twitter reply probability": {
-                    "base": 0.00452,            #sad	fear	disg	anger	surp	hap
-                    "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
-                    "second order": None,
-                    "transform": "sigmoid"}, 
-              "Twitter quote probability": {
-                    "base": 0.00225,            #sad	fear	disg	anger	surp	hap
-                    "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
-                    "second order": None,
-                    "transform": "sigmoid"}
-              }
+activities = [{
+        "name": "Twitter post density",
+        "base": 0.139,              #sad	fear	disg	anger	surp	hap
+        "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
+        "second order": None,
+        "transform": "exponential"
+    }, {
+        "name": "Twitter read density",
+        "base": 3.41
+        #,"first order": None, #np.array([	-0.1,	0.1,	-0.2,	0.1,	0.2,	0.0 ]) * activity_dependence_scale_factor,
+        #"second order": None
+    }, {
+        "name": "Twitter repost probability",
+        "base": 0.0476,             #sad	fear	disg	anger	surp	hap
+        "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
+        "second order": None,
+        "transform": "sigmoid"
+    }, { 
+        "name": "Twitter reply probability",
+        "base": 0.00452,            #sad	fear	disg	anger	surp	hap
+        "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
+        "second order": None,
+        "transform": "sigmoid"
+    }, { 
+        "name": "Twitter quote probability",
+        "base": 0.00225,            #sad	fear	disg	anger	surp	hap
+        "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
+        "second order": None,
+        "transform": "sigmoid"
+    }]
 agent_count = 100
 
 attractors = np.array([0.2, 0.2, 0.1, 0.2, 0.1, 0.5])
@@ -78,11 +83,7 @@ for i in range(agent_count):
         "can receive emotion": "true"
         })
     
-activity_ns = construct_xml.add_nodeset("activity")
-for act, info in activities.items():
-    activity_node = construct_xml.add_node(activity_ns, act)
-    if "transform" in info:
-        construct_xml.add_node_attribute(activity_node, {"enable emotional dependence": info["transform"]})
+
     
     
 construct_xml.add_network("knowledge network", "bool", "agent", "knowledge", src_rep="sparse", trg_rep="sparse", default_value="true")
@@ -91,19 +92,40 @@ emot_bc_bias = construct_xml.add_network("emotion broadcast bias network", "floa
 construct_xml.add_network("emotion broadcast first order network", "float", "emotion", "emotion", src_rep="sparse", trg_rep="sparse")
 
 emot_reading_net = construct_xml.add_network("emotion reading first order network", "float", "emotion", "emotion")
-emot_reg_net = construct_xml.add_network("emotion regulation first order network", "float", "emotion", "emotion")
-emot_reg_bias = construct_xml.add_network("emotion regulation bias network", "float", "agent", "emotion")
+for (row, col), value in np.ndenumerate(emot_reading):
+    construct_xml.add_network_link(emot_reading_net, row, col, value = value)
+
+emot_attractors_net = construct_xml.add_network("emotion attractors network", "float", "agent", "emotion")
+for agent_index in range(agent_count):
+    for emot_index, value in attractors.enumerate():
+        construct_xml.add_network_link(emot_attractors_net, agent_index, emot_index, value = value)
+        
+emot_decay_rate_net = construct_xml.add_network("emotion decay rate network", "float", "agent", "emotion")
+for agent_index in range(agent_count):
+    for emot_index, value in decay_rates.enumerate():
+        construct_xml.add_network_link(emot_decay_rate_net, agent_index, emot_index, value = value)
+
+activity_ns = construct_xml.add_nodeset("activity")
+for act, info in activities.items():
+    activity_node = construct_xml.add_node(activity_ns, act)
+    if "transform" in info:
+        construct_xml.add_node_attribute(activity_node, {"enable emotional dependence": info["transform"]})
+        
 activity_net = construct_xml.add_network("agent activity weights network", "float", "agent", "activity")
 
-
-read_net = construct_xml.add_network("first order Twitter read density emotion network", "float", "agent", "emotion")
-rt_net = construct_xml.add_network("first order Twitter repost probability emotion network", "float", "agent", "emotion")
-rp_net = construct_xml.add_network("first order Twitter reply probability emotion network", "float", "agent", "emotion")
-qu_net = construct_xml.add_network("first order Twitter quote probability emotion network", "float", "agent", "emotion")
-
-for i in range(agent_count):
-    for act, info in activities.items():
-        if "transform" in info:
-            net = construct_xml.add_network("first order " + act + " emotion network", "float", "agent", "emotion")
-            construct_xml.add_l
+for index, info in activities.enumerate():
+    if "transform" in info:
+        for agent_index in range(agent_count):
+            construct_xml.add_network_link(activity_net, agent_index, index, value=info["base"])
+        if "first order" in info and info["first order"] != None:
+            net = construct_xml.add_network("first order " + info["name"] + " emotion network", "float", "agent", "emotion")
+            for agent_index in range(agent_count):
+                for emot, value in info["first order"].enumerate():
+                    construct_xml.add_network_link(net, agent_index, emot, value=value)
+        if "second order" in info and info["second order"] != None:
+            net = construct_xml.add_network("second order " + info["name"] + " emotion network", "float", "agent", "emotion", "emotion")
+            for agent_index in range(agent_count):
+                for (row, col), value in np.ndenumerate(info["second order"]):
+                    construct_xml.add_network_link(net, agent_index, row, col, value)
+            
         
