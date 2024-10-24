@@ -6,8 +6,6 @@ emotion_network_output_filename = "emotion_network.xml"
 twitter_events_output_filename = "emotion_event.json"
 input_xml_filename = "construct.xml"
 
-
-
 # how strongly should activity depend on emotional valence
 activity_dependence_scale_factor = 2.0
 
@@ -21,7 +19,8 @@ activities = [{
         "name": "Twitter read density",
         "base": 3.41
         #,"first order": None, #np.array([	-0.1,	0.1,	-0.2,	0.1,	0.2,	0.0 ]) * activity_dependence_scale_factor,
-        #"second order": None
+        #"second order": None,
+        #"transform": "exponential
     }, {
         "name": "Twitter repost probability",
         "base": 0.0476,             #sad	fear	disg	anger	surp	hap
@@ -143,14 +142,14 @@ for index, info in activities.enumerate():
                     construct_xml.add_network_link(net, agent_index, row, col, value)
                     
 construct_xml.add_model("Emotion Model")
-construct_xml.add_model("Twitter Emotion Model", {"interval time duration": f"{deltat}", "maximum post inactivity": "24.0"})
+construct_xml.add_model("Twitter Model", {"interval time duration": f"{deltat}", "maximum post inactivity": "24.0"})
 
 construct_xml.add_output("dynetml", {"network names":"emotion network", "timeperiods": "all", "output file": emotion_network_output_filename})
 construct_xml.add_output("events", {
-                                    "model name": "Twitter Emotion Model", 
+                                    "model name": "Twitter Model", 
                                     "output file": twitter_events_output_filename, 
                                     "start time": "2024-09-11T00:00:00.000Z",
-                                    "time conversion": f"{deltat}"})
+                                    "time conversion": f"{deltat * 3600}"})
 
 construct_xml.write(input_xml_filename)
             
