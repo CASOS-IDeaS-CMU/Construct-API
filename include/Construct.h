@@ -1,4 +1,5 @@
-#pragma once#include "CustomKeys.h"
+#pragma once
+#include "CustomKeys.h"
 #ifdef DEBUG
 	#undef NDEBUG
 	#ifndef _DEBUG
