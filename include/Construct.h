@@ -1,4 +1,5 @@
-#pragma once#include "CustomKeys.h"
+#pragma once
+#include "CustomKeys.h"
 #ifdef DEBUG
 	#undef NDEBUG
 	#ifndef _DEBUG
@@ -3506,7 +3507,7 @@ namespace graph_names {
 	const std::string mail_usage = "agent mail usage by medium network";               // "agent mail usage by medium network"
 	const std::string recep_count = "agent reception count network";                    // "agent reception count network"
 	const std::string agent_trust = "agent trust network";								 // "agent trust network"
-	const std::string base_activity = "base activity rate network";
+	const std::string base_activity = "base activity rate network"; // "base activity rate network"
 	const std::string b_k_wgt = "belief knowledge weight network";                  // "belief knowledge weight network"
 	const std::string belief_msg_complex = "belief message complexity network";                // "belief message complexity network"
 	const std::string beliefs = "belief network";                                   // "belief network"
@@ -3517,7 +3518,7 @@ namespace graph_names {
 	const std::string fb_friend = "facebook friend network";                          // "facebook friend network"
 	const std::string emotion_att = "emotion attractors network";
 	const std::string emotion_net = "emotion network";									 // "emotion network"
-	const std::string emot_broad_bias = "emotion broadcast bias network";					 // "emotion broadcast bias network"
+	const std::string base_broad_prob = "emotion broadcast probability network";					 // "emotion broadcast probability network"
 	const std::string emot_broad_first = "emotion broadcast first order network";			 // "emotion broadcast first order network"
 	const std::string emot_broad_second = "emotion broadcast second order network";			 // "emotion broadcast second order network"
 	const std::string emot_read_first = "emotion reading first order network";				 // "emotion reading first order network"
@@ -3547,13 +3548,14 @@ namespace graph_names {
 	const std::string loc_medium_access = "location medium access network";                   // "location medium access network"
 	const std::string location_network = "location network";                                 // "location network"
 	const std::string mail_check_prob = "mail check probability network";                   // "mail check probability network"
-	const std::string media_removal = "media removal count network";
+	const std::string media_removal = "media removal count network"; //"media removal count network"
 	const std::string medium_k_access = "medium knowledge access network";                  // "medium knowledge access network"
 	const std::string kttm = "knowledge trust transactive memory network";       // "knowledge trust transactive memory network"
 	const std::string phys_prox = "physical proximity network";                       // "physical proximity network"
 	const std::string phys_prox_wgt = "physical proximity weight network";                // "physical proximity weight network"
 	const std::string propensity = "public propensity network";                        // "public propensity network"
 	const std::string subreddit_mem = "subreddit membership network";                     // "subreddit membership network"
+	const std::string moderation_threshold = "social media moderation threshold network"; // "social media moderation threshold network"
 	const std::string soc_prox = "social proximity network";                         // "social proximity network"
 	const std::string soc_prox_wgt = "social proximity weight network";                  // "social proximity weight network"
 	const std::string dem_prox = "sociodemographic proximity network";               // "sociodemographic proximity network"
@@ -3780,9 +3782,6 @@ public:
 
 };
 
-
-
-
 struct Model
 {
 	Construct& construct;
@@ -3894,7 +3893,6 @@ namespace model_names {
 	//"Multiplatform Moderation Model"
 	const std::string MULTI_MOD = "Multiplatform Moderation Model";
 }
-
 struct ModelManager
 {
 	std::unordered_map<std::string, Model*> _models;

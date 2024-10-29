@@ -12,20 +12,17 @@ namespace model_parameters {
 namespace node_attributes {
     const std::string moderated = "moderated"; //moderated
 
-    const std::string moderation_threshold = "moderation threshold";
-    const std::string ban_threshold = "ban threshold";
+    const std::string moderation_threshold = "moderation threshold"; // moderation threshold
+    const std::string ban_threshold = "ban threshold"; // ban threshold
 }
 
 struct Social_Media_Moderation : public Model {
     struct Platform {
         Social_Media_no_followers* platform;
-        //std::vector<unsigned int> removal_count;
         Graph<bool>* active_agent;
-        float moderation_threshold;
         unsigned int ban_threshold;
         unsigned int index;
     };
-
 
     const Nodeset& models = ns_manager.get_nodeset(nodeset_names::model);
     const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
@@ -42,6 +39,8 @@ struct Social_Media_Moderation : public Model {
     std::vector<const CommunicationMedium*> platform_medium = std::vector<const CommunicationMedium*>(models.size(), nullptr);
 
     const Nodeset& knowledge = ns_manager.get_nodeset(nodeset_names::knowledge);
+
+    Graph<float>& moderation_threshold = graph_manager.load_optional(graph_names::moderation_threshold, 0.1f, knowledge, sparse, models, sparse);
 
     Social_Media_Moderation(Construct& construct) : Model(construct) {}
 

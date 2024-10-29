@@ -1,4 +1,5 @@
 #pragma once
+#include "Construct.h"
 
 class Mail : public Model
 {

@@ -1,6 +1,4 @@
 #pragma once
-#include "Construct.h"
-#include "SocialMedia.h"
 #include "MultiplatformSocialMedia.h"
 
 namespace node_attributes {

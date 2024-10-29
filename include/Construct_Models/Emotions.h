@@ -1,6 +1,12 @@
 #pragma once
 #include "Construct.h"
 
+namespace dynet {
+	inline float biased_sigmoid(float bias, float arg) noexcept {
+		return 1 / (1 + (1 / bias - 1) * exp(-1 * arg));
+	}
+}
+
 struct Emotions : public Model
 {
 	Emotions(Construct& construct);
@@ -15,15 +21,7 @@ struct Emotions : public Model
 	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
 	const Nodeset& emotions = ns_manager.get_nodeset(nodeset_names::emotions);
 	
-	
-	//given an activity node, the stored function takes an agent index and returns an emotional projection
-	//this projection is calculated by started by
-	//taking the dot product of the agent's emotions minus their respective attractors (e-a) and the corresponding row in "first order {activity_node_name} network",
-	//and adding the dot product of (e-a) * the "second order {activity_node_name} network" * (e-a)
-	//finally if the activity node's "enable emotion dependence" equal's "sigmoid", 
-	//this value is passed through a sigmoid function where a value of zero return's the corresonding element in the "base agent activity rates network"
-	//if the attribute's value is "exponential" the value is instead passed through an exponential with a value of zero returning the base value as with the sigmoid
-	//only "exponential" and "sigmoid" is currently available for transforming the projections to specific ranges.
+	//functions that update their respective activity rates based on the submitted agent index.
 	std::map<const Node*, std::function<float(unsigned int)> > emotional_activity_dependence;
 
 	//graph name: "agent activity rates network"
@@ -40,14 +38,14 @@ struct Emotions : public Model
 	//graph name: "emotion broadcast bias network"
 	//agent x emotion
 	//the base probability that an agent attaches an emotion independent of their currrent emotional state
-	const Graph<float>& emot_broadcast_bias = graph_manager.load_optional(graph_names::emot_broad_bias, 1.0f, agents, sparse, emotions, sparse);
+	const Graph<float>& base_broadcast_prob = graph_manager.load_optional(graph_names::base_broad_prob, 0.1f, agents, sparse, emotions, sparse);
 
 	//graph name: "emotion broadcast first order network"
 	//emotion x emotion
 	//the first order dependence for the probability that an agent attaches an emotion
 	//the source dimension correspondes to the emotion being attached 
 	//the target dimension corresponds to the emotional state of an agent
-	const Graph<float>& emot_broadcast_first = graph_manager.load_optional(graph_names::emot_broad_first, 0.0f, emotions, sparse, emotions, sparse);
+	const Graph<float>& emot_broadcast_first = graph_manager.load_optional(graph_names::emot_broad_first, 1.0f, emotions, sparse, emotions, sparse);
 
 	//graph name: "emotion broadcast second order network"
 	//emotion x emotion x emotion
