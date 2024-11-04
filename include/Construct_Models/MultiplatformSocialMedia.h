@@ -18,10 +18,26 @@ namespace node_attributes {
 
 struct Social_Media_Moderation : public Model {
     struct Platform {
-        Social_Media_no_followers* platform;
-        Graph<bool>* active_agent;
-        unsigned int ban_threshold;
-        unsigned int index;
+        Social_Media_no_followers* platform = nullptr;
+        Graph<bool>* active_agent = nullptr;
+        unsigned int ban_threshold = 0;
+        unsigned int index = 0;
+
+	Platform() {}
+
+	Platform(const Platform& p) {
+		platform = p.platform;
+		active_agent = p.active_agent;
+		ban_threshold = p.ban_threshold;
+		index = p.index;
+	}
+
+	Platform(Social_Media_no_followers* p, Graph<bool>* a, unsigned int b, unsigned int i) {
+		platform = p;
+		active_agent = a;
+		ban_threshold = b;
+		index = i;
+	}
     };
 
     const Nodeset& models = ns_manager.get_nodeset(nodeset_names::model);

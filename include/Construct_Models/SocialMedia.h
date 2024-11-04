@@ -583,7 +583,7 @@ struct Social_Media_with_followers : virtual public Social_Media_no_followers
 
         default_media_user(Social_Media_no_followers* media, const Node& node);
 
-        constexpr Social_Media_with_followers& media() {
+        inline Social_Media_with_followers& media() {
             Social_Media_with_followers* temp = dynamic_cast<Social_Media_with_followers*>(media_ptr);
             // if the media couldn't be up casted the desired class this assertion will be raised.
             // If you're confused why you probably have a diamond inheritence that makes casting non-trivial

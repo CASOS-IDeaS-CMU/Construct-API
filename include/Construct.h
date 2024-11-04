@@ -3943,7 +3943,7 @@ struct ModelManager
 
 	template<typename modelclass, typename... modelargs>
 	modelclass* add_model(const std::string& name, modelargs&&... args) {
-		modelclass* model = new modelclass(std::forward<modelargs>(args));
+		modelclass* model = new modelclass(std::forward<modelargs>(args)...);
 		add_model(name, model);
 		return model;
 	}
@@ -4028,7 +4028,7 @@ struct OutputManager {
 	outputclass& add_output(outputargs&&... args) {
 		outputclass* output = new outputclass(std::forward<outputargs>(args)...);
 		add_output(output);
-		return *outputclass;
+		return *output;
 	}
 };
 
@@ -4104,7 +4104,7 @@ struct Construct {
 
 	template<typename modelclass, typename... modelargs>
 	modelclass* create_model(modelargs&&... args) {
-		return new modelclass(std::forward<modelargs>(args), *this);
+		return new modelclass(std::forward<modelargs>(args)..., *this);
 	}
 
 	//directory where all output gets sent.
