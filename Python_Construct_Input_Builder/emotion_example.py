@@ -4,14 +4,14 @@ import numpy as np
 emotions = ["sad", "fear", "disgust", "anger", "surprise", "happiness"]
 emotion_network_output_filename = "emotion_network.xml"
 twitter_events_output_filename = "emotion_event.json"
-input_xml_filename = "construct.xml"
+input_xml_filename = "../../construct/construct_stephen/construct.xml"
 
 # how strongly should activity depend on emotional valence
-activity_dependence_scale_factor = 2.0
+activity_dependence_scale_factor = 0.5
 
 activities = [{
         "name": "Twitter post density",
-        "base": 0.139,              #sad	fear	disg	anger	surp	hap
+        "base": 1.0,                #sad	fear	disg	anger	surp	hap
         "first order": np.array([	-0.1,	-0.1,	0.1,	0.2,	0.1,	0.1 ]) * activity_dependence_scale_factor,
         "second order": None,
         "transform": "exponential"
@@ -40,7 +40,6 @@ activities = [{
         "second order": None,
         "transform": "sigmoid"
     }]
-agent_count = 100
 
 emot_broadcast_probabilities = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
 attractors = np.array([0.2, 0.2, 0.1, 0.2, 0.1, 0.5])
@@ -56,15 +55,17 @@ emot_reading = [
 ]
 
 deltat = 0.1
-total_time = 96.0
+total_time = 12.0
 
-agent_count = 100
+agent_count = 20
 knowledge_count = 1
 time_count = int(total_time / deltat)
-reading_scale = 0.0075
+reading_scale = 0.75
 
 construct_xml = cb.ConstructBuilder()
-construct_xml.add_construct_parameter("verbose runtime", "true")
+construct_xml.add_construct_parameter("verbose runtime", "false")
+construct_xml.add_construct_parameter("verbose initalization", "false")
+construct_xml.add_construct_parameter("seed", "0")
 
 time_ns = construct_xml.add_nodeset("time")
 for i in range(time_count):
@@ -121,7 +122,7 @@ activity_ns = construct_xml.add_nodeset("activity")
 for act in activities:
     activity_node = construct_xml.add_node(activity_ns, act["name"])
     if "transform" in act:
-        construct_xml.add_node_attribute(activity_node, {"enable emotional dependence": act["transform"]})
+        construct_xml.add_node_attribute(activity_node, {"emotional dependence": act["transform"]})
         
 activity_net = construct_xml.add_network("agent activity weights network", "float", "agent", "activity")
 base_activity = construct_xml.add_network("base activity rate network", "float", "agent", "activity")
@@ -140,16 +141,19 @@ for index, info in enumerate(activities):
             for agent_index in range(agent_count):
                 for (row, col), value in np.ndenumerate(info["second order"]):
                     construct_xml.add_network_link(net, agent_index, row, col, value)
+    else:
+        for agent_index in range(agent_count):
+            construct_xml.add_network_link(activity_net, agent_index, index, value=info["base"])
                     
 construct_xml.add_model("Emotion Model")
 construct_xml.add_model("Twitter Model", {"interval time duration": f"{deltat}", "maximum post inactivity": "24.0"})
 
 construct_xml.add_output("dynetml", {"network names":"emotion network", "timeperiods": "all", "output file": emotion_network_output_filename})
-construct_xml.add_output("events", {
+construct_xml.add_output("media events", {
                                     "model name": "Twitter Model", 
                                     "output file": twitter_events_output_filename, 
                                     "start time": "2024-09-11T00:00:00.000Z",
-                                    "time conversion": f"{deltat * 3600}"})
+                                    "time conversion to seconds": f"{deltat * 3600}"})
 
 construct_xml.write(input_xml_filename)
             

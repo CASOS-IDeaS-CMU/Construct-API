@@ -5,23 +5,26 @@ class ConstructBuilder:
     def __init__(self) -> None:
         self.soup = BeautifulSoup(features = 'xml')
 
+        self.construct = self.soup.new_tag('construct')
+        self.soup.append(self.construct)
+
         self.parameters = self.soup.new_tag('construct_parameters')
-        self.soup.append(self.parameters)
+        self.construct.append(self.parameters)
 
         self.nodesets = self.soup.new_tag('nodesets')
-        self.soup.append(self.nodesets)
+        self.construct.append(self.nodesets)
 
         self.networks = self.soup.new_tag('networks')
-        self.soup.append(self.networks)
+        self.construct.append(self.networks)
 
         self.models = self.soup.new_tag('models')
-        self.soup.append(self.models)
+        self.construct.append(self.models)
 
         self.outputs = self.soup.new_tag('outputs')
-        self.soup.append(self.outputs)
+        self.construct.append(self.outputs)
 
     def add_parameter(self, construct_tag: element.Tag, name: str, value: str) -> None:
-        param = self.soup.new_tag('parameter')
+        param = self.soup.new_tag('param')
         param.attrs['name'] = name
         param.attrs['value'] = value
         construct_tag.append(param)
