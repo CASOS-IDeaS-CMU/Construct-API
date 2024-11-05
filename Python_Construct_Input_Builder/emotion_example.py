@@ -4,7 +4,7 @@ import numpy as np
 emotions = ["sad", "fear", "disgust", "anger", "surprise", "happiness"]
 emotion_network_output_filename = "emotion_network.xml"
 twitter_events_output_filename = "emotion_event.json"
-input_xml_filename = "../../construct/construct_stephen/construct.xml"
+input_xml_filename = "construct.xml"
 
 # how strongly should activity depend on emotional valence
 activity_dependence_scale_factor = 0.5
@@ -60,7 +60,7 @@ total_time = 12.0
 agent_count = 20
 knowledge_count = 1
 time_count = int(total_time / deltat)
-reading_scale = 0.75
+reading_scale = 0.01
 
 construct_xml = cb.ConstructBuilder()
 construct_xml.add_construct_parameter("verbose runtime", "false")
