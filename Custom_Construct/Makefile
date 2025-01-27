@@ -47,11 +47,6 @@
 # Section 1			#
 #################################
 
-# The default configuration is Debug
-# This variable controls the path files are stored in unless otherwise directed
-# Ex. /path/to/makefile/Linux/Debug/
-CONFIG ?=
-
 # Allows for additional options to be given to the creation of object files.
 # Options that are added to this variable in section are "-c -fPIC"
 OBJECT_OPTIONS ?=
@@ -71,29 +66,27 @@ SRC_DIR := .
 # Defines any additional directories that should be included
 # All cpp files included in these directories are compiled.
 # The base set of include directories are defined in Section 2.
-ADD_INC ?=
+INCLUDE = $(SRC_DIR) $(CONSTRUCT_HEADER_DIR) $(CONSTRUCT_MODELS_DIR)
 
 # The location of the Construct Header
 CONSTRUCT_HEADER_DIR = $(SRC_DIR)/../include
 
 # The location of the static library that provides definitions for the declarations in the Construct Header
-IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)/$(CONFIG)
+IMPORT_LIB_DIR = $(CONSTRUCT_HEADER_DIR)/$(UNAME_S)
 
 # The name of the output executable. Exe gets output to $(UNAME_S)/$(CONFIG)
 EXE_OUT := construct
+
+EXE_OUT_DIR = $(SRC_DIR)/$(UNAME_S)
 
 
 # The location of the Construct Models
 CONSTRUCT_MODELS_DIR = $(CONSTRUCT_HEADER_DIR)/Construct_Models
 
-# The name of the output executable. Exe gets output to $(UNAME_S)/$(CONFIG)
-EXE_OUT := construct
-
-
 CXX = g++ -g -std=c++20
 # end user defined variables
 
-
+EXCLUDE_CPPS = 
 
 
 
@@ -114,52 +107,10 @@ CXX = g++ -g -std=c++20
 
 .PHONY: clean debug quiet release clean_debug clean_quiet clean_release FORCE
 
-override INC := $(SRC_DIR) $(CONSTRUCT_HEADER_DIR) $(CONSTRUCT_MODELS_DIR)
-
-debug: export CONFIG = Debug
-debug: export CONFIG_FLAGS = DEBUG
-
-# The variables set in the target are local variables.
-# While the variables will be properly evaluated in commands,
-# target prerequisites are evaluated before targets are done.
-# This means we have to export the local variables and rerun make.
-debug: 
-	@$(MAKE) $(API_OUT)
-
-# the quiet configuration will silence any runtime console output, but will still output errors
-quiet: export CONFIG = Quiet
-quiet: export CONFIG_FLAGS = QUIET NDEBUG 
-
-# You can't have a command in a target when defining a local variable.
-quiet:
-	@$(MAKE) $(API_OUT)
-
-# the release version removes assertions and other checks once debugging is finished
-release: export CONFIG = Release
-release: export CONFIG_FLAGS = NDEBUG
-release:
-	@$(MAKE) $(API_OUT)
-
-
-
-
-clean_debug: export CONFIG = Debug
-clean_debug:
-	@$(MAKE) clean
-
-clean_quiet: export CONFIG = Quiet
-clean_quiet:
-	@$(MAKE) clean	
-
-clean_release: export CONFIG = Release
-clean_release:
-	@$(MAKE) clean
-
-
-# Directory that holds the corresponding library and exe
-# Also holds intermediary object files
-API_OUT_DIR ?= $(SRC_DIR)/$(UNAME_S)/$(CONFIG)
-API_OUT = $(API_OUT_DIR)/$(EXE_OUT)
+config_Debug = -DDEBUG
+config_Quiet = -DNDEBUG -DQUIET
+config_Release = -DNDEBUG
+CONFIGS = Debug Quiet Release
 
 IMPORT_LIB ?= construct
 
@@ -168,43 +119,38 @@ IMPORT_LIB ?= construct
 UNAME_S = $(shell uname -s)
 
 # Adds -D to the beginning of each preprocessor flag
-override MACROS = $(patsubst %, -D%, $(CXXFLAGS) $(CONFIG_FLAGS)) -DCUSTOM_MEDIA_USERS
+override MACROS = $(patsubst %, -D%, $(CXXFLAGS))
 
-# Adds -I to the beginning of each include directory
-override INC_DIR += $(patsubst %, -I%, $(INC) $(ADD_INC))
+SRC_CPP := $(foreach dir,$(INCLUDE),$(shell find $(dir) -maxdepth 1 -type f -name '*.cpp'))
+SRC_CPP := $(filter-out $(EXCLUDE_CPPS),$(SRC_CPP))
+SRC_OBJ := $(notdir $(SRC_CPP:.cpp=.o))
 
-# collects all cpp and header files in directed dirs
-override SRC_CPP = $(notdir $(foreach dir, $(INC) $(ADD_INC), $(wildcard $(dir)/*.cpp)))
-override SRC_HED = $(foreach dir, $(INC) $(ADD_INC), $(wildcard $(dir)/*.h))
+define build_rules
+$(1): $(EXE_OUT_DIR)/$(1)/$(EXE_OUT) | $(EXE_OUT_DIR)/$(1)/
+	@echo "$(EXE_OUT_DIR)/$(1)/$(EXE_OUT) built succesfully"
 
-# convert to a list of object files that should live in the out dir
-override SRC_OBJ = $(patsubst %.cpp, $(API_OUT_DIR)/%.o, $(SRC_CPP))
+$(EXE_OUT_DIR)/$(1)/:
+	mkdir -p $(EXE_OUT_DIR)/$(1)/
 
-# Combines all the options required to create the shared library.
-# This included the -shared/-dynamiclib option, the Construct shared library and its dir.
-override API_LIB_OPTIONS := -L$(IMPORT_LIB_DIR) -l$(IMPORT_LIB) 
+$(EXE_OUT_DIR)/$(1)/$(EXE_OUT): $(patsubst %, $(EXE_OUT_DIR)/$(1)/%, $(SRC_OBJ))
+	$(CXX) $(EXE_OPTIONS) $(patsubst %, -D%, $(CXXFLAGS)) $(patsubst %, $(EXE_OUT_DIR)/$(1)/%, $(SRC_OBJ))\
+	 -o $(EXE_OUT_DIR)/$(1)/$(EXE_OUT) $(config_$(1)) -L$(IMPORT_LIB_DIR)/$(1) -l$(IMPORT_LIB)
+endef
+$(foreach dir, $(CONFIGS), $(eval $(call build_rules,$(dir))))
 
-
-# creates the shared library for the API
-%/$(EXE_OUT): $(SRC_OBJ) $(SRC_HED) $(IMPORT_LIB_DIR)/lib$(IMPORT_LIB).a
-	$(CXX) $(LINKER_OPTIONS) $(SRC_OBJ) $(API_LIB_OPTIONS) -o $@ $(MACROS)
-	
-
-#this is needed to do the recursive search for the specified cpp and h files in build/%.o
-.SECONDEXPANSION:
-
-.SECONDARY: $(SRC_OBJ)
-
-# because each object file is in a different location that the the corresponding cpp file
-# we have to search for the cpp file which is what this shell command does
-# it only searches files in this directory so as to make sure other files aren't accidently used
-$(API_OUT_DIR)/%.o: $$(shell find .. -name $$*.cpp)
-	$(CXX) -c $(OBJECT_OPTIONS) $(INC_DIR) $< -o $@ $(MACROS)
+OBJ_BUILD = $(CXX) -c $(OBJECT_OPTIONS) $(patsubst %, -I%, $(INCLUDE)) $(patsubst %, -D%, $(CXXFLAGS))
+#pretty sure I need something to add the java paths when building gui objects
+define obj_rule
+$(EXE_OUT_DIR)/$(1)/$(notdir $(2:.cpp=.o)): $(2)
+	@echo "Compiling $(notdir $(2:.cpp= ))"
+	@$(OBJ_BUILD) $(2) -o $(EXE_OUT_DIR)/$(1)/$(notdir $(2:.cpp=.o)) $(config_$(1))
+endef
+$(foreach dir, $(CONFIGS) gui, $(foreach file, $(SRC_CPP), $(eval $(call obj_rule,$(dir),$(file)))))
 
 
 	
 clean:
-	-rm -f $(API_OUT_DIR)/*.o 
-	-rm $(API_OUT_DIR)/$(EXE_OUT)
+	-rm -f $(EXE_OUT_DIR)/**/*.o 
+	-rm $(EXE_OUT_DIR)/**/$(EXE_OUT)
 
 
