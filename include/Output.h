@@ -418,8 +418,8 @@ struct Output_Events : public Output {
 			nlohmann::json json_event;
 			json_event["id"] = event_count;
 			json_event["author_id"] = (*agents)[tweet->user].name;
-			//json_event["created_at"] = dynet::convert_datetime(time_stamp);
-			json_event["created_at"] = (time_t)(tweet->time_stamp);
+			json_event["created_at"] = dynet::convert_datetime(time_stamp);
+			//json_event["created_at"] = (time_t)(tweet->time_stamp);
 
 			nlohmann::json entities;
 			add_entities(entities, *tweet);
