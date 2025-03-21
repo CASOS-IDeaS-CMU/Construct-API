@@ -98,7 +98,7 @@ Model * dynet::create_model(const std::string & model_name, const ParameterMap& 
 			static_cast<Social_Media_no_followers::media_user* (*)(Social_Media_with_followers*, const Node&)>(&dynet::load_user));
 
 	else if (model_name == model_names::EMOT)
-		return construct.create_model<Emotions>();
+		return construct.create_model<Emotions>(parameters);
 
 	else if (model_name == model_names::BELIEF)
 		return construct.create_model<Beliefs>(parameters);

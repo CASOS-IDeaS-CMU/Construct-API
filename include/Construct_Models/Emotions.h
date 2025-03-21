@@ -7,14 +7,18 @@ namespace dynet {
 	}
 }
 
-struct Emotions : public Model
-{
-	Emotions(Construct& construct);
+struct Emotions : public Model {
+	Emotions(const dynet::ParameterMap& params, Construct& construct);
 	
 	~Emotions(void) {
 		for (auto& node : emotions)
 			InteractionItem::item_names.erase((item_keys)(emot_itemkey_block + node.index));
 	}
+
+	Graph<float>& get_emotional_response_graph(const dynet::ParameterMap& params);
+	Graph<float>& get_emotional_attractor_graph();
+	Graph<float>& get_emotional_decay_graph();
+	Graph<float>& get_emotional_graph();
 
 	// defines the start of indexes reserved for emotion item_keys
 	static constexpr char emot_itemkey_block = 100;
@@ -30,10 +34,29 @@ struct Emotions : public Model
 	//each element dictates how active agents should be at various activities
 	Graph<float>* activity_rates = nullptr;
 
+	//graph name: "emotion regulation network"
+	//agent x emotion
+	//how quickly an agent's emotions return to their respective attractors during the clean_up function
+	const Graph<float>& emotion_regulation = get_emotional_decay_graph();
+		//graph_manager.load_optional(graph_names::emot_reg, 0.1f, agents, sparse, emotions, sparse);
+
+	//graph name: "emotion attractors network
+	//agent x emotion
+	//the emotional valence regulation stable point
+	const Graph<float>& emotion_attractors = get_emotional_attractor_graph();
+		//graph_manager.load_optional(graph_names::emotion_att, 0.0f, agents, sparse, emotions, sparse);
+
 	//graph name: "emotion network"
 	//agent x emotion
 	//contains each agents current emotional state
-	Graph<float>& emotion_net = graph_manager.load_required(graph_names::emotion_net, agents, emotions);
+	Graph<float>& emotion_net = get_emotional_graph();
+
+	//graph name: "emotion reading first order network"
+	//emotion x emotion
+	//the first order dependence for the emotional deflection of reading a message with emotions
+	//the source dimension corresponds to the emotion being deflected
+	//the target dimension corresponds to the emotions attached in a read message
+	const Graph<float>& emot_reading_first;
 
 	//graph name: "emotion broadcast bias network"
 	//agent x emotion
@@ -55,12 +78,7 @@ struct Emotions : public Model
 	const Graph<std::map<unsigned int, float> >& emot_broadcast_second = 
 		graph_manager.load_optional(graph_names::emot_broad_second, std::map<unsigned int, float>(), emotions, sparse, emotions, sparse, emotions);
 
-	//graph name: "emotion reading first order network"
-	//emotion x emotion
-	//the first order dependence for the emotional deflection of reading a message with emotions
-	//the source dimension corresponds to the emotion being deflected
-	//the target dimension corresponds to the emotions attached in a read message
-	const Graph<float>& emot_reading_first = graph_manager.load_required(graph_names::emot_read_first, emotions, emotions);
+
 
 	//graph name: "emotion reading second order network"
 	//emotion x emotion x emotion
@@ -70,15 +88,7 @@ struct Emotions : public Model
 	const Graph<std::map<unsigned int, float> >& emot_reading_second =
 		graph_manager.load_optional(graph_names::emot_read_second, std::map<unsigned int, float>(), emotions, sparse, emotions, sparse, emotions);
 
-	//graph name: "emotion regulation network"
-	//agent x emotion
-	//how quickly an agent's emotions return to their respective attractors during the clean_up function
-	const Graph<float>& emotion_regulation = graph_manager.load_optional("emotion regulation network", 0.1f, agents, sparse, emotions, sparse);
 
-	//graph name: "emotion attractors network
-	//agent x emotion
-	//the emotional valence regulation stable point
-	const Graph<float>& emotion_attractors = graph_manager.load_optional(graph_names::emotion_att, 0.0f, agents, sparse, emotions, sparse);
 
 	//emotions are selected probabilistically to be attached to a message
 	//map pairs corresponds to an emotional index and that emotion's value for the agent_index

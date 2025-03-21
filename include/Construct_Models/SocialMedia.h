@@ -464,9 +464,6 @@ struct Social_Media_no_followers : public Model
     //the maximum time a post can exist without its tree being added to
     float age;
 
-    //the time duration between time steps
-    float dt;
-
     //current time period
     float time = 0.0f;
 
@@ -527,9 +524,9 @@ struct Social_Media_no_followers : public Model
     //after the events have been organized stochastic shuffling is done on 10% of the feed to avoid a fully deterministic feed
     virtual void update_feeds(float new_events_timestamp);
 
-    std::function<bool(media_event&)> current_timestep = [this](media_event& _event) { return _event.time_stamp > time - 0.5f * dt; };
+    std::function<bool(media_event&)> current_timestep = [this](media_event& _event) { return _event.time_stamp > time - 0.5f * construct.deltat; };
 
-    std::function<bool(media_event&)> previous_timestep = [this](media_event& _event) { return _event.time_stamp > time - 1.5f * dt; };
+    std::function<bool(media_event&)> previous_timestep = [this](media_event& _event) { return _event.time_stamp > time - 1.5f * construct.deltat; };
 
     std::function<bool(media_event&)> active = [this](media_event& _event) { return _event.last_used > time - age; };
 

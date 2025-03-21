@@ -440,6 +440,9 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Supp_Library.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="construct.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

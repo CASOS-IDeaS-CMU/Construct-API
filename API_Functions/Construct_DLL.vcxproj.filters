@@ -90,4 +90,9 @@
       <Filter>Customization</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="construct.xml">
+      <Filter>Customization</Filter>
+    </Xml>
+  </ItemGroup>
 </Project>

@@ -1,0 +1,10 @@
+the emotional network was being output after a round a bug fixing during Emotion::clean_up. This output has been removed.
+the emotion regulation value was flipped from the value it should be. The equation is now new_emot_value = reg_val * current_emot_value + attractor * (1 - reg_val).
+Many of the generators in GraphManager have been moved to Random. The inputs for these generators use explicit parameters rathan a general ParameterMap input. Additional they use a new BoundingBox class that implements bounds to limit which elements the generator is applied on.
+The above generators have been marked as deprecated.
+csv and dynetml generators have been moved to the Graph and Nodeset classes.
+Fixed a bug where msvc wasn't compiling Custom_Construct.
+Updated the makefiles for linux and mac for both API_Functions and Custom_Construct.
+Added default generation of "emotion attractors network", "emotion regulation network", "emotion network", and "emotion reading first order network". Does not override explicit input of these networks. Default generation of "emotion reading first order network" requires and even number of emotions. Frequency values are an optional input using the model parameter "frequencies" as a comma seperated list ex. "0.5,0.6,0.7"
+Moved Social_Media_no_followers::dt to Construct::deltat and added it to the list of construct parameters using "interval time duration".
+Random::generator has been marked as public so custom models can use custom random generation to fit their needs.

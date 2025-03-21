@@ -15,14 +15,14 @@ int main() {
 	// each node can be loaded with attributes
 	// if sets of nodes have the same attributes, add_nodes can be used to create sets of nodes
 	// when sets of nodes are created, their name is auto-generated using the nodeset name as the root
-	construct.ns_manager.create_nodeset(nodeset_names::agents)->add_nodes(50, dynet::ParameterMap({ 
+	construct.ns_manager.add_nodeset(nodeset_names::agents).add_nodes(50, dynet::ParameterMap({ 
 		{"can send knowledge", "true"},
 		{"can receive knowledge", "true"} }));
-	construct.ns_manager.create_nodeset(nodeset_names::knowledge)->add_nodes(20, {});
-	construct.ns_manager.create_nodeset(nodeset_names::time)->add_nodes(10, {});
+	construct.ns_manager.add_nodeset(nodeset_names::knowledge).add_nodes(20, {});
+	construct.ns_manager.add_nodeset(nodeset_names::time).add_nodes(10, {});
 
 	//nodes can be added one at a time and each name can be set
-	Nodeset& comms = *construct.ns_manager.create_nodeset(nodeset_names::comm);
+	Nodeset& comms = construct.ns_manager.add_nodeset(nodeset_names::comm);
 
 	comms.add_node("face to face", dynet::ParameterMap({
 		{comms_att::msg_complex, "1"},
@@ -42,20 +42,14 @@ int main() {
 		graph_names::knowledge, false, nodeset_names::agents, dense, nodeset_names::knowledge, dense);
 
 	// links can be added one by one or with a generator
-	dynet::ParameterMap generator_params;
-	generator_params["density"] = "0.2";
-	generator_params["src min"] = "first";
-	generator_params["src max"] = "last";
-	generator_params["trg min"] = "first";
-	generator_params["trg max"] = "last";
-	construct.graph_manager.generators.binary_generator_2d(generator_params, &knowledge_net);
+	construct.random.binary_generator(knowledge_net, 0.2f, Bounding_Box<2>(knowledge_net));
 
 	knowledge_net.at(4, 5) = true;
 
-	// Models can be created outside of Construct, but still require the construct pointer.
-	// Once models are created they must be added to the model manager so it can participate in the simulation.
-	Model* SIM = new StandardInteraction(dynet::ParameterMap(), construct);
-	construct.model_manager.add_model(model_names::SIM, SIM);
+	// Models can be created using Construct::create_model where the model class is taken as a template input.
+	// This function automatically adds the construct to the model, so you'll only need to include model parameters
+	// that come before the construct reference
+	construct.create_model<StandardInteraction>(dynet::ParameterMap());
 
 	// Outputs are similar to models in that they can be created outside of Construct and require import into its own Manager.
 	// Outputs can not be recovered after given to the output manager. This is because there is no uniqueness requirement for outputs.

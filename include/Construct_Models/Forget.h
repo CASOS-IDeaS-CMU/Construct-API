@@ -3,7 +3,7 @@
 
 struct Forget : public Model
 {
-	const Nodeset* agents;
+	const Nodeset& agents = ns_manager.get_nodeset(nodeset_names::agents);
 	//graph name - "knowledge network"
 	//agent x knowledge
 	Graph<bool>* knowledge_net = 0;

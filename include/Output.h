@@ -326,7 +326,7 @@ struct Output_Messages : public Output {
 struct Output_Events : public Output {
 	std::ofstream _output_file;
 	const Social_Media_no_followers::event_container* media_events;
-	const Nodeset* agents;
+	const Nodeset& agents;
 	float tconvert;
 	dynet::datetime time_zero;
 	unsigned int event_count = 0;
@@ -341,9 +341,9 @@ struct Output_Events : public Output {
 		return &media_ptr->list_of_events;
 	}
 
-	Output_Events(const dynet::ParameterMap& params, Construct& construct) {
+	Output_Events(const dynet::ParameterMap& params, Construct& construct) : 
+		agents(construct.ns_manager.get_nodeset(nodeset_names::agents)) {
 		media_events = get_event_list(params, construct);
-		agents = construct.ns_manager.get_nodeset(nodeset_names::agents);
 		max_time = construct.time_count;
 
 		std::string file = params.get_parameter(output_parameters::output_file);
@@ -371,7 +371,7 @@ struct Output_Events : public Output {
 			nlohmann::json mentions = nlohmann::json::array();
 			for (auto id : _event.mentions) {
 				nlohmann::json mention;
-				mention["id"] = (*agents)[id].name;
+				mention["id"] = agents[id].name;
 				mentions.push_back(mention);
 			}
 			entities["mentions"] = mentions;
@@ -417,7 +417,7 @@ struct Output_Events : public Output {
 
 			nlohmann::json json_event;
 			json_event["id"] = event_count;
-			json_event["author_id"] = (*agents)[tweet->user].name;
+			json_event["author_id"] = agents[tweet->user].name;
 			json_event["created_at"] = dynet::convert_datetime(time_stamp);
 			//json_event["created_at"] = (time_t)(tweet->time_stamp);
 

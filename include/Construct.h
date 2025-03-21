@@ -209,6 +209,12 @@ namespace dynet
 	};
 
 
+	struct incompatible_data_type : public construct_exception {
+		incompatible_data_type(const std::string& data_type, const std::string& generator_name, const std::string& graph_name):
+			construct_exception("Data type of " + data_type + " is incompatible with generator " + generator_name + " for network " + graph_name) {}
+	};
+
+
 	struct end_early {
 	};
 
@@ -237,6 +243,8 @@ namespace dynet
 		Type_Interface(T data) { _data = data; }
 		template <typename S> operator S() const { return S(_data); }
 	};
+
+
 
 	template<>
 	class Type_Interface<bool> {
@@ -288,6 +296,21 @@ namespace dynet
 		operator float() const;
 		operator std::string() const noexcept { return _data; };
 
+		template<typename S>
+		operator std::vector<S>() const {
+			std::vector<std::string> tokens = dynet::split(_data, ",");
+			std::vector<S> ret;
+			for (const std::string& token : tokens) ret.push_back((S)Type_Interface<std::string>(token));
+			return ret;
+		}
+
+		template<typename S>
+		operator std::map<unsigned int, S>() const {
+			std::vector<std::string> tokens = dynet::split(_data, ",");
+			std::map<unsigned int, S> ret;
+			for (unsigned int i = 0; i < tokens.size(); i++) ret[i] = (S)Type_Interface<std::string>(tokens[i]);
+			return ret;
+		}
 	};
 
 	template<>
@@ -300,6 +323,38 @@ namespace dynet
 		operator unsigned() const;
 		operator float() const noexcept { return _data; }
 		operator std::string() const;
+	};
+
+
+		template<typename T>
+	class Type_Interface<std::vector<T> > {
+		std::vector<T> _data;
+	public:
+		Type_Interface(std::vector<T> data) { _data = data; }
+
+		template<typename S> operator std::vector<S>() const {
+			std::vector<S> ret;
+			for (unsigned int i = 0; i < _data.size(); i++) {
+				ret[i] = (S)Type_Interface<T>(_data[i]);
+			}
+			return ret;
+		}
+	};
+
+
+	template<typename T>
+	class Type_Interface<std::map<unsigned int, T> > {
+		std::map<unsigned int, T> _data;
+	public:
+		Type_Interface(std::map<unsigned int, T> data) { _data = data; }
+
+		template<typename S> operator std::map<unsigned int, S>() const {
+			std::map<unsigned int, S> ret;
+			for (auto& it : _data) {
+				ret[it.first] = (S)Type_Interface<T>(it.second);
+			}
+			return ret;
+		}
 	};
 
 
@@ -379,74 +434,6 @@ inline std::ostream& operator<<(std::ostream& os, const dynet::datetime& val) {
 	return os;
 }
 
-
-#include <random>
-#include <time.h>
-
-
-class Random
-{
-	friend struct Construct;
-
-	//Constructor is kept private so that only Construct has access to it.
-	//This will prevent models from creating their own instance.
-	Random() : generator(seed) { ; }
-	~Random() { ; }
-public:
-	unsigned int seed = static_cast<unsigned int>(time(nullptr));
-private:
-	std::default_random_engine generator;
-public:
-
-	/*<summary> Sets the random number generator seed. </summary>*/
-	void set_seed(unsigned int seed) noexcept;
-
-	//creates a random number >= 0 and <1
-	float uniform() noexcept;
-
-	//creates a random number >= min and < max
-	float uniform(float min, float max) noexcept;
-
-	//creates a random integer >= 0 and < max
-	unsigned int integer(unsigned int max);
-
-	//samples from a poisson distribution with mean equal to lambda
-	unsigned int poisson_number(float lambda);
-
-	//returns true with probability equal to the parameter probability
-	bool randombool(float probability = .5);
-
-	//samples from a normal distribution
-	float normal(float mean, float standard_deviation);
-
-	//samples from an exoponential distribution
-	float exponential(float mean);
-
-	//each element in the vector will be moved to a random position
-	template<typename T>
-	void vector_shuffle(std::vector<T>& A) noexcept {
-		for (unsigned int i = 0; i < A.size(); i++) {
-			unsigned int index = i + integer((unsigned int)A.size() - i);
-			T temp = A[index];
-			A[index] = A[i];
-			A[i] = temp;
-		}
-	}
-
-	//selects a random element from the vector
-	template<typename T>
-	T& select(std::vector<T>& vec) {
-		assert(vec.size());
-		return vec[integer((unsigned int)vec.size())];
-	}
-
-	//chooses an index based on the submitted pdf
-	unsigned int find_dist_index(std::vector<float>& pdf);
-
-	//stochastically organizes in descending order the list of indexes based on their values in the pdf.
-	std::vector<unsigned int> order_by_pdf(std::vector<float>& pdf);
-	
-};
 
 
 //names of nodesets used in Construct
@@ -529,6 +516,7 @@ public:
 
 	~Nodeset();
 
+	[[deprecated]]
 	operator const Nodeset* () const { return this; }
 
 	const std::string name;
@@ -543,13 +531,13 @@ public:
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	void add_node(const dynet::ParameterMap& attributes);
+	Nodeset& add_node(const dynet::ParameterMap& attributes);
 
 	//can only be called if the nodeset hasn't been turned to constant
 	//if true is returned the submitted attributes pointer needs to be deallocated
-	void add_node(const std::string& node_name, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
+	Nodeset& add_node(const std::string& node_name, const dynet::ParameterMap& attributes);
 
-	void add_nodes(unsigned int count, const dynet::ParameterMap& attributes, bool verbose_initialization = false);
+	Nodeset& add_nodes(unsigned int count, const dynet::ParameterMap& attributes);
 
 	const Node& operator[](unsigned int index) const noexcept {
 		assert(index < _nodes.size());
@@ -563,8 +551,10 @@ public:
 		return _nodes.front();
 	}
 
+	[[deprecated]]
 	const Node* get_node_by_index(unsigned int index) const;
 
+	[[deprecated]]
 	const Node* get_node_by_name(const std::string& name) const noexcept;
 
 	//checks to make sure the attribute once converted is in range [min,max]
@@ -583,18 +573,21 @@ public:
 
 class NodesetManager
 {
-	NodesetManager(void) { ; }
-	~NodesetManager(void);
-
-	friend struct Construct;
 	std::unordered_map<std::string, const Nodeset*> _nodesets;
 public:
+
+	NodesetManager(void) { ; }
+	~NodesetManager(void);
 
 	//Creates a mutable nodeset.
 	//This nodeset can become immutable after calling Nodeset::turn_to_const
 	//only immutable nodesets can be found by get_nodeset or does_nodeset_exist
 	//the pointer returned is still owned by the ns_manager
+	[[deprecated]]
 	Nodeset* create_nodeset(const std::string& name);
+
+	//Creates a nodeset and stores it in the nodesetmanager. Do not copy this class.
+	Nodeset& add_nodeset(const std::string& name);
 
 	//can only find a nodeset if it has been turned to constant
 	const Nodeset& get_nodeset(const std::string& name) const;
@@ -1683,6 +1676,47 @@ public:
 	output col_sum(unsigned int col_index) const {
 		return get_col(col_index).sum();
 	}
+
+	void load_csv(const std::string& file_name) {
+		std::ifstream myfile;
+		myfile.open(file_name);
+		if (!myfile.is_open()) throw dynet::could_not_open_file(file_name);
+
+		unsigned int row = 0;
+		std::string line;
+		while(getline(myfile, line)) {
+			if (line == "\n") break;
+			if (row == row_size) throw dynet::csv_too_many_rows(file_name);
+			std::vector<std::string> tokens;
+			if (slice_nodeset) {
+				tokens = dynet::split(line, "},{");
+				if (tokens.front().front() == '{') tokens.front().erase(tokens.front().begin());
+				else throw dynet::csv_missing_beginning_bracket(file_name);
+
+				if (tokens.back().substr(tokens.back().size() - 2) == "}\n") tokens.back().erase(tokens.back().size() - 2);
+				else throw dynet::csv_missing_ending_bracket(file_name);
+				
+			}
+			else tokens = dynet::split(line, ",");
+			if (tokens.size() != col_size) throw dynet::csv_too_many_cols(file_name, row);
+
+			unsigned int col = 0;
+			for (std::string& token : tokens) {
+				if (slice_nodeset && dynet::split(token, ",").size() != slice_nodeset->size()) 
+					throw dynet::csv_too_many_slcs(file_name);
+				try {
+					at(row, col, (link_type)dynet::convert(token)); 
+				}
+				catch (const dynet::could_not_convert& e) {
+					throw dynet::could_not_convert_value(e, " for row " + std::to_string(row) + ", column " + std::to_string(col) + " in file \"" + file_name + "\"");
+				}
+				
+				col++;
+			}
+		}
+	}
+
+	void load_dynetml(const std::string& file_name, const std::string& dynetml_network_name);
 };
 
 
@@ -3490,6 +3524,243 @@ auto operator*(const Transpose<left>& lhs, const std::map<unsigned int, right>& 
 template<typename left, typename right>
 auto operator*(const std::map<unsigned int, left>& lhs, const Transpose<right>& rhs) { return rhs.graph() * lhs; }
 
+#include <random>
+#include <time.h>
+#include <type_traits>
+
+template <std::size_t Dimensions>
+class Bounding_Box {
+public:
+    using Bound = std::array<unsigned int, Dimensions>;
+
+    Bounding_Box(const Bound& start = {}, const Bound& end = {}) : start_(start), end_(end) {}
+	Bounding_Box(const Typeless_Graph& g) {
+		std::vector<const Nodeset*> ns = {g.source_nodeset, g.target_nodeset, g.slice_nodeset};
+
+		for (unsigned int i = 0; i < Dimensions; i++) {
+			start_[i] = 0;
+			end_[i] = ns[i]->size();
+		}
+	}
+
+    const Bound& first() const { return start_; }
+    const Bound& last() const { return end_; }
+
+	void set_start(unsigned int index, unsigned int start) {
+		start_[index] = start;
+	}
+
+	void set_end(unsigned int index, unsigned int end) {
+		end_[index] = end;
+	}
+
+    struct Iterator {
+        Bound current;
+        const Bound start, end;
+
+        Iterator(const Bound& start, const Bound& end, bool is_end = false)
+            : start(start), end(end), current(start) {
+            if (is_end) {
+                current = end;
+            }
+        }
+
+        bool operator!=(const Iterator& other) const {
+            return current != other.current;
+        }
+
+        Iterator& operator++() {
+            for (std::size_t i = 0; i < Dimensions; ++i) {
+                if (++current[i] < end[i]) {
+                    return *this;
+                }
+                current[i] = start[i];
+            }
+            current = end; // Mark as finished
+            return *this;
+        }
+
+        const Bound& operator*() const { return current; }
+    };
+
+
+    Iterator begin() const { return Iterator(start_, end_); }
+    Iterator end() const { return Iterator(start_, end_, true); }
+
+private:
+    Bound start_;
+    Bound end_;
+};
+
+
+class Random
+{
+	friend struct Construct;
+
+	//Constructor is kept private so that only Construct has access to it.
+	//This will prevent models from creating their own instance.
+	Random() : generator(seed) { ; }
+	~Random() { ; }
+public:
+	unsigned int seed = static_cast<unsigned int>(time(nullptr));
+
+	std::default_random_engine generator;
+
+
+	/*<summary> Sets the random number generator seed. </summary>*/
+	void set_seed(unsigned int seed) noexcept;
+
+	//creates a random number >= 0 and <1
+	float uniform() noexcept;
+
+	//creates a random number >= min and < max
+	float uniform(float min, float max) noexcept;
+
+	//creates a random integer >= 0 and < max
+	unsigned int integer(unsigned int max);
+
+	//samples from a poisson distribution with mean equal to lambda
+	unsigned int poisson_number(float lambda);
+
+	//returns true with probability equal to the parameter probability
+	bool randombool(float probability = .5);
+
+	//samples from a normal distribution
+	float normal(float mean, float standard_deviation);
+
+	//samples from an exoponential distribution
+	float exponential(float mean);
+
+	float gamma(float mean, float variance);
+
+	//each element in the vector will be moved to a random position
+	template<typename T>
+	void vector_shuffle(std::vector<T>& A) noexcept {
+		for (unsigned int i = 0; i < A.size(); i++) {
+			unsigned int index = i + integer((unsigned int)A.size() - i);
+			T temp = A[index];
+			A[index] = A[i];
+			A[i] = temp;
+		}
+	}
+
+	//selects a random element from the vector
+	template<typename T>
+	T& select(std::vector<T>& vec) {
+		assert(vec.size());
+		return vec[integer((unsigned int)vec.size())];
+	}
+
+	//chooses an index based on the submitted pdf
+	unsigned int find_dist_index(std::vector<float>& pdf);
+
+	//stochastically organizes in descending order the list of indexes based on their values in the pdf.
+	std::vector<unsigned int> order_by_pdf(std::vector<float>& pdf);
+	
+	template <typename T>
+	void binary_generator(Graph<T>& graph, float density, const Bounding_Box<2>& box) {
+		// This graph is a 3d graph, but a 2d box was used
+		assert(!graph.slice_nodeset);
+		for (auto [x, y] : box) {
+			graph.at(x, y, (T)dynet::convert(randombool(density)));
+		}
+	}
+
+	template<typename T>
+	void binary_generator(Graph<std::vector<T> >& graph, float density, const Bounding_Box<3>& box) {
+		// A 3d box was used, but this is a 2d graph
+		assert(graph.slice_nodeset);
+		for (auto [x, y, z] : box) {
+			graph.at(x, y)[z] = (T)dynet::convert(randombool(density));
+		} 
+	}
+
+	template<typename T>
+	void binary_generator(Graph<std::map<unsigned int, T> >& graph, float density, const Bounding_Box<3>& box) {
+		// A 3d box was used, but this is a 2d graph
+		assert(graph.slice_nodeset);
+		for (auto [x, y, z] : box) {
+			graph.at(x, y)[z] = (T)dynet::convert(randombool(density));
+		} 
+	}
+
+	template<typename T>
+	void uniform_generator (Graph<T>& graph, float density, float upper_bound, float lower_bound, const Bounding_Box<2>& box) {
+		throw dynet::incompatible_data_type(dynet::get_type_name(typeid(T)), "uniform generator", graph.name);
+	}
+
+	template<float>
+	void uniform_generator(Graph<float>& graph, float density, float upper_bound, float lower_bound, const Bounding_Box<2>& box) {
+		for (auto [x, y] : box) {
+			if (randombool(density)) graph.at(x, y) = uniform(lower_bound, upper_bound);
+		}
+	}
+
+	template<typename T>
+	void uniform_generator(Graph<T>& graph, float density, float upper_bound, float lower_bound, const Bounding_Box<3>& box) {
+		// A 3d box was used, but this is a 2d graph
+		assert(graph.slice_nodeset);
+		for (auto [x, y, z] : box) {
+			if (randombool(density)) graph.at(x, y)[z] = uniform(lower_bound, upper_bound);
+		}
+
+	}
+
+	template<typename T, typename V>
+	void perception_generator(Graph<T>& graph, const Graph<V>& perception_graph, const Graph<bool>& interaction_sphere, 
+	float density, float false_positive_rate, float false_negative_rate, const Bounding_Box<3>& box) {
+		throw dynet::incompatible_data_type(dynet::get_type_name(typeid(T)), "perception generator", graph.name);
+	}
+
+	template<typename T, bool>
+	void perception_generator(Graph<T>& graph, const Graph<bool>& perception_graph, const Graph<bool>& interaction_sphere, 
+	float density, float false_positive_rate, float false_negative_rate, const Bounding_Box<3>& box) {
+		// The perception generator can only be used on a 3d graph
+		assert(graph.slice_nodeset);
+		// dimensions of the perception graph don't match the submitted graph
+		assert(perception_graph.source_nodeset == graph.target_nodeset && perception_graph.target_nodeset == graph.slice_nodeset);
+		// dimensions of the interaction sphere graph don't match the submitted graph
+		assert(interaction_sphere.source_nodeset == graph.source_nodeset && interaction_sphere.source_nodeset == graph.target_nodeset);
+		for (auto [x, y, z] : box) {
+			if (randombool(density) && interaction_sphere.examine(x, y)) {
+				if (perception_graph.examine(y, z)) 
+					graph.at(x, y)[z] = randombool(false_negative_rate); 
+				else
+					graph.at(x, y)[z] = !randombool(false_positive_rate);
+			}
+		}
+	}
+
+	/*template<typename T, typename V>
+	void perception_generator(Graph<T>& graph, Graph<V>& perception_graph, const Graph<bool>& interaction_sphere,
+	float density, float variance, bool unit_normal, const Bounding_Box<3>& box) {
+		throw dynet::incompatible_data_type(dynet::get_type_name(typeid(T)), "perception generator", graph.name);
+	}*/
+
+	template<typename T, float>
+	void perception_generator(Graph<T>& graph, Graph<float>& perception_graph, const Graph<bool>& interaction_sphere,
+	float density, float variance, bool unit_normal, const Bounding_Box<3>& box) {
+		// The perception generator can only be used on a 3d graph
+		assert(graph.slice_nodeset);
+		// dimensions of the perception graph don't match the submitted graph
+		assert(perception_graph.source_nodeset == graph.target_nodeset && perception_graph.target_nodeset == graph.slice_nodeset);
+		// dimensions of the interaction sphere graph don't match the submitted graph
+		assert(interaction_sphere.source_nodeset == graph.source_nodeset && interaction_sphere.source_nodeset == graph.target_nodeset);
+		for (auto [x, y, z] : box) {
+			if (randombool(density) && interaction_sphere.examine(x, y)) {
+				float mean = perception_graph.at(y, z);
+				if (unit_normal) {
+					mean = std::log(mean / (1 + mean));
+					graph.at(x, y)[z] = 1.0 / (1.0 + std::exp(-1 * normal(mean, variance)));
+				}
+				else {
+					graph.at(x, y)[z] = normal(mean, variance);
+				}
+			}
+		}
+	}
+};
+
 
 #define dense true
 #define sparse false
@@ -3516,16 +3787,14 @@ namespace graph_names {
 	const std::string comm_access = "communication medium access network";              // "communication medium access network"
 	const std::string comm_pref = "communication medium preferences network";         // "communication medium preferences network"
 	const std::string fb_friend = "facebook friend network";                          // "facebook friend network"
-	const std::string emotion_att = "emotion attractors network";
+	const std::string emotion_att = "emotion attractors network";					// "emotion attractors network"
 	const std::string emotion_net = "emotion network";									 // "emotion network"
 	const std::string base_broad_prob = "emotion broadcast probability network";					 // "emotion broadcast probability network"
 	const std::string emot_broad_first = "emotion broadcast first order network";			 // "emotion broadcast first order network"
 	const std::string emot_broad_second = "emotion broadcast second order network";			 // "emotion broadcast second order network"
 	const std::string emot_read_first = "emotion reading first order network";				 // "emotion reading first order network"
 	const std::string emot_read_second = "emotion reading second order network";			 // "emotion reading second order network"
-	const std::string emot_reg_bias = "emotion regulation bias network";					 // "emotion regulation bias network"
-	const std::string emot_reg_first = "emotion regulation first order network";			 // "emotion regulation first order network"
-	const std::string emot_reg_second = "emotion regulation second order network";			 // "emotion regulation second order network"
+	const std::string emot_reg = "emotion regulation network";					 // "emotion regulation network"
 	const std::string interact_k_wgt = "interaction knowledge weight network";             // "interaction knowledge weight network"
 	const std::string interact = "interaction network";                              // "interaction network"
 	const std::string interact_prob = "interaction probability network";                  // "interaction probability network"
@@ -3598,6 +3867,9 @@ namespace generator_names {
 	const std::string noise = "noise implementation"; //"noise implementation"
 	const std::string unit_normal = "unit normal"; //"unit normal"
 	const std::string normal = "normal"; //"normal"
+	const std::string file = "file"; //"file"
+	const std::string dy_net_name = "network name"; //"network name"
+
 
 	//generator names
 
@@ -3652,6 +3924,14 @@ public:
 		return load_required(name, &src, &trg, &slc);
 	}
 
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg) const {
+		return load_required(name, &src, &trg);
+	}
+
+	Graph_Intermediary load_required(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) const {
+		return load_required(name, &src, &trg, &slc);
+	}
+
 	// gets a graph
 	// graph is required to already be loaded
 	Graph_Intermediary load_required(
@@ -3685,6 +3965,16 @@ public:
 		return load_optional(name, &src, &trg, &slc);
 	}
 
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg) const {
+		return load_optional(name, &src, &trg);
+	}
+
+	/*<summary> Similar to GraphManager::load_optional(const std::string&, const Nodeset*, const Nodeset*, const Nodeset*) </summary>*/
+	Graph_Intermediary load_optional(const std::string& name, const Nodeset& src, const Nodeset& trg, const Nodeset& slc) const {
+		return load_optional(name, &src, &trg, &slc);
+	}
+
 	// gets a graph
 	// returns a null pointer if the graph can't be found
 	Graph_Intermediary load_optional(
@@ -3715,10 +4005,22 @@ public:
 		return load_optional(name, vals, &src, row_dense, &trg, col_dense);
 	}
 
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense) const {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense);
+	}
+
 	/*<summary> Similar to GraphManager::load_optional(const std::string&, const T&, const Nodeset*, bool, const Nodeset*, bool, const Nodeset*) </summary>*/
 	template<typename T>
 	Graph_Intermediary load_optional(const std::string& name, const T& vals,
 		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense, const Nodeset& slc) {
+		return load_optional(name, vals, &src, row_dense, &trg, col_dense, &slc);
+	}
+
+	template<typename T>
+	Graph_Intermediary load_optional(const std::string& name, const T& vals,
+		const Nodeset& src, bool row_dense, const Nodeset& trg, bool col_dense, const Nodeset& slc) const {
 		return load_optional(name, vals, &src, row_dense, &trg, col_dense, &slc);
 	}
 
@@ -3740,36 +4042,47 @@ public:
 		set_of_generators(GraphManager* _graph_manager, Random* _random) : graph_manager(_graph_manager), random(_random) { ; }
 
 		template<typename T>
+		[[deprecated]]
 		void dynetml_generator(const dynet::ParameterMap& params, Graph<T>* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void binary_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void binary_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void uniform_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void uniform_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void uniform_generator_3d(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void csv_generator_2d(const dynet::ParameterMap& params, Graph<T>* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void csv_generator_3d(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void csv_generator_3d(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void perception_generator(const dynet::ParameterMap& params, Graph<std::vector<T> >* graph);
 
 		template<typename T>
+		[[deprecated]]
 		void perception_generator(const dynet::ParameterMap& params, Graph<std::map<unsigned int, T> >* graph);
 
 	};
@@ -4055,7 +4368,7 @@ struct Construct {
 
 	time_t simulation_end = 0;
 
-	static constexpr const char* version = "5.4.6";
+	static constexpr const char* version = "5.4.7";
 	~Construct() {}
 
 	Construct();
@@ -4119,6 +4432,9 @@ struct Construct {
 	//size of the time nodeset and total number of time periods
 	//current_time increases up to but not including this value.
 	unsigned int time_count = 1;
+
+	//the amount of time that passes between each time step.
+	float deltat = 1.0f;
 
 	// Set to true if a verbose initialization is requested.
 	bool verbose_initialization = false;
