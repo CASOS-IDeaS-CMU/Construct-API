@@ -1,4 +1,4 @@
-# The Construct API - version 5.4.6
+# The Construct API - version 5.4.7
 Useful Links:
 
 [CASOS Construct Webpage](https://www.cmu.edu/casos-center/research/tools/construct.html)
